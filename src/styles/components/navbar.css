@@ -94,9 +94,10 @@
 }
 
 /* Inactive links dim when there's an active one */
+/* 默认标准值 opacity: 0.45，当前调亮至 0.62；数值越大越亮，越小越灰 */
 .navbar__links:has(.navbar__link--active) .navbar__link:not(.navbar__link--active) {
   filter: blur(0.3px);
-  opacity: 0.45;
+  opacity: 0.62;
 }
 
 .navbar__link:hover {
@@ -105,15 +106,22 @@
   opacity: 1 !important;
 }
 
-/* Active link: white, semibold, no glow */
+/* Active link: white, bold, outer glow */
+/* 辉光参数说明（默认值见括号）：
+   第1层 text-shadow — 近焦核心光晕（半径6px，蓝白色 0.9透明度），核心亮度
+   第2层 text-shadow — 中层扩散（半径18px，冰蓝 0.55透明度），扩散范围
+   第3层 text-shadow — 远焦漫射（半径40px，天蓝 0.25透明度），朦胧外晕
+   第4层 text-shadow — 超宽漫射（半径70px，浅蓝 0.12透明度），气氛感 */
 .navbar__link--active {
   color: #ffffff;
-  font-weight: 600;
+  font-weight: 700;
   filter: blur(0px);
   opacity: 1;
   text-shadow:
-    0 0 10px rgba(186, 231, 255, 0.28),
-    0 0 22px rgba(79, 195, 247, 0.16);
+    0 0 6px  rgba(200, 235, 255, 0.90),
+    0 0 18px rgba(100, 200, 255, 0.55),
+    0 0 40px rgba(79,  195, 247, 0.25),
+    0 0 70px rgba(147, 217, 255, 0.12);
 }
 
 
