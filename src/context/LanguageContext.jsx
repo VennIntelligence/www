@@ -2,7 +2,7 @@ import { createContext, useEffect, useState } from 'react';
 
 export const LanguageContext = createContext(null);
 
-const LANGUAGE_STORAGE_KEY = 'veenai-lang';
+const LANGUAGE_STORAGE_KEY = 'vennai-lang';
 
 function getInitialLanguage() {
   if (typeof window === 'undefined') {

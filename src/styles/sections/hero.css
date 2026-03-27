@@ -50,15 +50,16 @@
   --hero-subtitle-text-glow-far: rgba(41, 93, 179, 0.04); /* 文字远距离发光；默认标准值：rgba(41, 93, 179, 0.04)。 */
 
   position: relative;
+  z-index: 1; /* 内容层高于 UnifiedStage(z-index:0) */
   width: 100%;
   height: 100vh;
   height: 100svh;
-  background:
-    radial-gradient(circle at 74% 34%, rgba(102, 173, 255, 0.18), transparent 26%),
-    radial-gradient(circle at 78% 58%, rgba(41, 105, 201, 0.14), transparent 32%),
-    linear-gradient(180deg, #040816 0%, #060c18 42%, #070911 100%);
+  /* 背景改为透明 — UnifiedStage 提供渲染内容 */
+  background: transparent;
   overflow: hidden;
   isolation: isolate;
+  /* 让点击穿透到 UnifiedStage，内容子元素单独开启 pointer-events */
+  pointer-events: none;
 }
 
 .hero__stage {
@@ -79,10 +80,8 @@
   position: absolute;
   inset: 0;
   z-index: 1;
-  background:
-    radial-gradient(circle at 82% 42%, rgba(164, 213, 255, 0.12), transparent 18%),
-    radial-gradient(circle at 65% 68%, rgba(73, 128, 214, 0.09), transparent 24%),
-    linear-gradient(90deg, rgba(3, 8, 20, 0.82) 0%, rgba(3, 8, 20, 0.38) 32%, rgba(3, 8, 20, 0.08) 56%, transparent 72%);
+  /* 移除渐变遮罩 — UnifiedStage 已负责背景渲染 */
+  background: transparent;
   pointer-events: none;
 }
 
@@ -91,9 +90,8 @@
   position: absolute;
   inset: 0;
   z-index: 2;
-  background:
-    linear-gradient(180deg, rgba(2, 6, 16, 0.30) 0%, transparent 24%, transparent 72%, rgba(2, 6, 16, 0.55) 100%),
-    radial-gradient(circle at 26% 54%, rgba(4, 10, 22, 0.54), transparent 34%);
+  /* 移除渐变遮罩 — UnifiedStage 已负责背景渲染 */
+  background: transparent;
   pointer-events: none;
 }
 
@@ -134,7 +132,7 @@
 }
 
 .hero__title-area {
-  max-width: min(40rem, 44vw);
+  max-width: min(64rem, 80vw); /* 标题区最大宽度；默认标准值：min(64rem, 80vw)。设得足够大，避免长单词（如 Intelligence）被切成两行。 */
   display: flex;
   align-items: flex-end;
   padding-left: var(--hero-content-pad-inline);
@@ -145,17 +143,6 @@
   position: relative;
   display: inline-block;
   padding: 22px 34px 24px 0;
-}
-
-.hero__title-backdrop::before {
-  content: '';
-  position: absolute;
-  inset: -40px -26px -34px -48px;
-  border-radius: 999px;
-  background:
-    radial-gradient(circle at 30% 48%, rgba(10, 18, 36, 0.82), rgba(10, 18, 36, 0.50) 42%, transparent 74%);
-  filter: blur(22px);
-  z-index: -1;
 }
 
 .hero__title {
@@ -184,10 +171,11 @@
 .hero__title-line {
   display: block;
   position: relative;
+  word-break: keep-all;     /* 只按空格换行，单词内部永不截断 */
+  overflow-wrap: normal;    /* 禁止强制在单词中间断行 */
   text-shadow:
-    0 18px 36px rgba(4, 9, 20, 0.82),
-    0 6px 20px rgba(21, 51, 96, 0.26),
-    0 0 22px rgba(121, 190, 255, 0.08);
+    0 10px 24px rgba(4, 9, 20, 0.42),
+    0 0 16px rgba(121, 190, 255, 0.08);
 }
 
 .hero__title-line--secondary {
@@ -346,31 +334,40 @@
   width: fit-content;
   will-change: transform, opacity;
   position: relative;
-  overflow: hidden;
+  /* 不裁剪 overflow，让发光自然溢出 */
 }
 
-/* 从左到右的朦胧扫光效果 — 用 filter:blur 实现柔和渐变 */
+/* 外发光扫光光标：柔和扩散球形光斑，无硬边 */
 .hero__subtitle-line::after {
   content: '';
   position: absolute;
-  top: -8px;
-  bottom: -8px;
-  width: 64px; /* 光斑宽度 */
+  top: 50%;
+  width: 120px;
+  height: 120px;
+  margin-top: -60px; /* 垂直居中 */
   border-radius: 50%;
-  background: rgba(160, 215, 255, 0.32);
-  filter: blur(18px); /* 大模糊 = 完全朦胧，无硬边 */
-  transform: translateX(-120%);
-  animation: hero-subtitle-sweep 10s ease-in-out infinite;
+  background:
+    radial-gradient(
+      circle,
+      rgba(180, 220, 255, 0.28) 0%,
+      rgba(140, 200, 255, 0.14) 30%,
+      rgba(100, 175, 255, 0.05) 55%,
+      transparent 75%
+    );
+  filter: blur(28px); /* 大模糊半径，确保完全朦胧 */
+  opacity: 0;
+  animation: hero-subtitle-glow-sweep 14s ease-in-out infinite;
   pointer-events: none;
+  z-index: -1;
 }
 
 /* 每行错开扫光时间，产生波浪序列感 */
 .hero__subtitle-line:nth-child(2)::after {
-  animation-delay: 0.5s;
+  animation-delay: 0.6s;
 }
 
 .hero__subtitle-line:nth-child(3)::after {
-  animation-delay: 1.0s;
+  animation-delay: 1.2s;
 }
 
 /* ---------- 社交链接条 ---------- */
@@ -391,7 +388,7 @@
   color: rgba(200, 220, 245, 0.5);
   text-decoration: none;
   font-family: 'Avenir Next', 'Helvetica Neue', sans-serif;
-  font-size: 12px;
+  font-size: clamp(0.72rem, 0.9vw, 0.82rem); /* 社交链接文字缩小一号；默认标准值：clamp(0.72rem, 0.9vw, 0.82rem)。 */
   font-weight: 500;
   letter-spacing: 0.04em;
   transition: color 0.45s ease, text-shadow 0.45s ease;
@@ -476,7 +473,7 @@
 
 @media (max-width: 980px) {
   .hero__title-area {
-    max-width: min(34rem, 60vw);
+    max-width: min(52rem, 80vw); /* 中等屏幕标题区最大宽度；默认标准值：min(52rem, 80vw)。 */
   }
 }
 
@@ -488,17 +485,6 @@
     --hero-subtitle-pad-top: 16px;
     --hero-subtitle-pad-inline: 24px;
     --hero-subtitle-pad-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-
-    background:
-      radial-gradient(circle at 72% 24%, rgba(102, 173, 255, 0.16), transparent 22%),
-      radial-gradient(circle at 82% 48%, rgba(41, 105, 201, 0.14), transparent 28%),
-      linear-gradient(180deg, #040816 0%, #060c18 48%, #070911 100%);
-  }
-
-  .hero-section::before {
-    background:
-      radial-gradient(circle at 82% 34%, rgba(164, 213, 255, 0.10), transparent 16%),
-      linear-gradient(180deg, rgba(3, 8, 20, 0.24) 0%, rgba(3, 8, 20, 0.10) 26%, rgba(3, 8, 20, 0.42) 100%);
   }
 
   .hero__title-area {
@@ -590,26 +576,39 @@
   }
 }
 
-/* 从左到右朦胧扫光动画 — 慢速柔和 */
-@keyframes hero-subtitle-sweep {
+/* 外发光扫光动画：柔和扩散光标从左到右缓慢移动，带呼吸脉冲 */
+@keyframes hero-subtitle-glow-sweep {
   0% {
-    left: -80px;
+    left: -10%;
     opacity: 0;
+    transform: scale(0.8);
   }
 
-  5% {
-    opacity: 1;
+  6% {
+    opacity: 0.5;
+    transform: scale(1.1);
   }
 
-  15% {
-    left: 110%;
+  14% {
+    opacity: 0.85;
+    transform: scale(1.25);
+  }
+
+  22% {
+    opacity: 0.4;
+    transform: scale(1.05);
+  }
+
+  30% {
+    left: 100%;
     opacity: 0;
+    transform: scale(0.8);
   }
 
-  /* 扫完后长时间停留再循环 */
   100% {
-    left: 110%;
+    left: 100%;
     opacity: 0;
+    transform: scale(0.8);
   }
 }
 

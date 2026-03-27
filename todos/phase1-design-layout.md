@@ -36,7 +36,7 @@
 ├─────────────────────────────────────────┤
 │  ③ 关于我们 (About / Mission)            │  ≈ 适应内容
 ├─────────────────────────────────────────┤
-│  ④ 产品展示 (Product — VeenTriggerTrade) │  ≈ 适应内容
+│  ④ 产品展示 (Product — VennTriggerTrade) │  ≈ 适应内容
 ├─────────────────────────────────────────┤
 │  ⑤ 服务板块 (Services)                   │  ≈ 适应内容
 ├─────────────────────────────────────────┤
@@ -73,15 +73,15 @@
   - 标签：编程大师 / 古法编程最后一人 / Agent 编程大师 / Prompt 调教大师
 - [ ] 公司注册信息（Wyoming LLC, 成立于 2026.2.25）
 
-### ④ 产品展示 (Product — VeenTriggerTrade)
-- [ ] 产品名称大标题："VeenTriggerTrade"
+### ④ 产品展示 (Product — VennTriggerTrade)
+- [ ] 产品名称大标题："VennTriggerTrade"
 - [ ] 一句话产品描述：大语言模型智能体驱动的量化交易基础设施
 - [ ] 3-4 个核心功能卡片：
   - 智能钩子（Smart Hook）调度系统
   - AI 智能体驱动的策略生成
   - 实时执行与风控
   - 回测与可视化分析
-- [ ] "查看详情" 按钮 → 跳转到独立产品详情页（`/product/veen-trigger-trade`）
+- [ ] "查看详情" 按钮 → 跳转到独立产品详情页（`/product/venn-trigger-trade`）
 - [ ] 产品详情页暂时放一个占位页面，后续填充
 
 ### ⑤ 服务板块 (Services)
@@ -114,7 +114,7 @@
 
 ## 🔧 技术相关（第一阶段）
 - [ ] Vite + React 项目已初始化 ✅
-- [ ] 搭建基础路由（首页 `/`、产品详情页 `/product/veen-trigger-trade`）
+- [ ] 搭建基础路由（首页 `/`、产品详情页 `/product/venn-trigger-trade`）
 - [ ] 实现中英双语切换机制（i18n 方案选型）
 - [ ] SEO meta 标签（title、description、og 标签）
 - [ ] 移动端响应式适配

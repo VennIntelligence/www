@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * audit.mjs — Veenai 静态代码审计工具
+ * audit.mjs — Vennai 静态代码审计工具
  *
  * 三大功能:
  *   1. 文件体量报告 (File Size Report)       → 按行数/字节数排序
@@ -403,7 +403,7 @@ function reportSummary(files) {
 
 async function main() {
   console.log(`${c.bold}${c.magenta}\n  ╔══════════════════════════════════════╗`);
-  console.log(`  ║   Veenai 代码审计工具 v1.0           ║`);
+  console.log(`  ║   Vennai 代码审计工具 v1.0           ║`);
   console.log(`  ╚══════════════════════════════════════╝${c.reset}\n`);
 
   const paths = await walk(SRC_DIR);

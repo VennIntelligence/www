@@ -6,7 +6,7 @@ import {
   useSpring,
   useTransform,
 } from 'framer-motion';
-import WaveCanvas from '../../components/WaveCanvas';
+
 import MagnetText from '../../components/MagnetText';
 import useCharMagnet from '../../hooks/useCharMagnet';
 import { IconX, IconGitHub, IconEmail } from '../../components/common/SocialIcons';
@@ -131,15 +131,14 @@ export default function HeroSection() {
       ref={sectionRef}
       id="hero"
       className="hero-section"
-      onPointerMove={handlePointerMove}
-      onPointerLeave={handlePointerLeave}
     >
-      <div className="hero__stage hero__stage--interactive" aria-hidden="true">
-        <WaveCanvas />
-      </div>
 
       {/* Content overlay — 从底部向上堆叠：标题 → 分隔线 → 玻璃面板 */}
-      <div className="hero__content">
+      <div
+        className="hero__content"
+        onPointerMove={handlePointerMove}
+        onPointerLeave={handlePointerLeave}
+      >
         {/* 标题区 */}
         <div className="hero__title-area" ref={titleAreaRef}>
           <div className="hero__title-backdrop">

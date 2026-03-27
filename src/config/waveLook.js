@@ -31,9 +31,11 @@ export const VIEW_SHIFT_Y = 0.02;
 // 三颗液滴的半径 [大, 中, 小]。默认 [0.85, 0.58, 0.2]。调大液滴更大，调小更小。
 export const DROP_RADII = [0.85, 0.58, 0.2];
 // 液滴被推离后弹回原位的弹簧刚度。默认 5.2。越大回弹越快越硬。
-export const DROP_RETURN_STIFFNESS = 0.2;
+// 调低至 0.8 以贴合用户“非常慢”的需求，产生一种漂浮感。
+export const DROP_RETURN_STIFFNESS = 0.8;
 // 液滴运动阻尼。默认 2.8。越大减速越快、运动越黏稠。
-export const DROP_DAMPING = 1.8;
+// 配合低刚度，调至 2.2 使其运动更轻盈一点。
+export const DROP_DAMPING = 2.2;
 // 鼠标/触摸捕获液滴的半径倍数。默认 2.2。实际捕获距离 = 该液滴半径 × 此倍数。
 // 大液滴自然更容易抓住，小液滴需要更精准。调大全部更容易抓；调小需要更靠近。
 export const DROP_DRAG_CATCH_MULT = 2.2;
@@ -49,6 +51,15 @@ export const DROP_SCROLL_GRAVITY = 6.0;
 export const DROP_CUBE_SWAT_GAIN = 5.8;
 // 液滴偏离轨道基准位的最大允许距离。默认 2.8。拖拽或被推离时不会超过此距离。
 export const DROP_MAX_OFFSET = 2.8;
+// 底部边界缓冲区宽度（世界坐标单位）。默认 0.5。
+// 从边界上方此距离开始减速。调大 → 更早开始减速更柔和；调小 → 更硬更突然。
+export const DROP_BOUNDARY_CUSHION = 0.5;
+// 缓冲区内最大弹簧推力刚度。默认 12.0（旧值 40.0 太硬导致乒乓弹跳）。
+// 调大 → 边界更硬弹跳更明显；调小 → 更柔软但可能穿越边界。
+export const DROP_BOUNDARY_STIFFNESS = 12.0;
+// 接近底部边界时对向下速度的额外阻尼。默认 8.0。
+// 只阻尼向下分量，不影响离开边界的速度。调大 → 沉降更快；调小 → 弹跳更明显。
+export const DROP_BOUNDARY_DAMPING = 8.0;
 
 // --- 立方体（spike）---
 // 立方体的半径大小。默认 0.3。调大立方体更大，调小更小。
@@ -59,18 +70,77 @@ export const SPIKE_HANDLE_SCALE = 3.4;
 export const SPIKE_HANDLE_MIN_SIZE = 132;
 // 桌面端容器级几何命中的额外像素补偿。用于兜底"点到了 cube 但没点中隐形层"。
 export const SPIKE_MOUSE_PICK_PADDING = 20;
-// 立方体飞行通道的基准中心 [x, y, z]。默认 (0.42, -0.02, 0.38)。
-export const SPIKE_IDLE_ANCHOR = new THREE.Vector3(0.42, -0.02, 0.38);
-// 立方体自动从左往右飞行的速度。默认 0.75。调大飞得更快，调小更慢。
-export const SPIKE_AUTO_SPEED_X = 0.75;
-// 立方体飞出右侧消失的 X 坐标。默认 3.7。调大飞得更远才消失。
-export const SPIKE_EXIT_X = 3.7;
-// 立方体从左侧重新出生的 X 坐标。默认 -3.15。调更小（更负）则更远处出现。
-export const SPIKE_SPAWN_X = -3.15;
-// 立方体被抛出后的运动阻尼。默认 2.6。越大减速越快、越黏；越小飞得越远。
-export const SPIKE_FREE_DAMPING = 2.6;
+// 弹球初始速度。默认 0.65。调大飞得更快，调小更慢。
+export const SPIKE_INIT_SPEED = 0.65;
+// 弹球反弹时速度保留比例。默认 0.92。1.0=完全弹性碰撞，<1.0=每次反弹减速。
+export const SPIKE_BOUNCE_RESTITUTION = 0.92;
+// 弹球反弹后的随机角度扰动（弧度）。默认 0.15。防止立方体进入死角反复弹同一条线。
+export const SPIKE_BOUNCE_JITTER = 0.15;
+// 弹球运动阻尼。默认 0.3。越大越快减速。此值较低保持长时间弹射。
+export const SPIKE_FREE_DAMPING = 0.3;
+// 弹球最低速度。当速度低于此值时重新加速到初始速度。默认 0.25。
+export const SPIKE_MIN_SPEED = 0.25;
+// 弹球边界（世界坐标）。立方体不能超出此范围。
+// [左, 右, 下, 上]。默认 [-2.6, 2.6, -1.45, 1.35]。
+export const SPIKE_BOUNDS = [-2.6, 2.6, -1.45, 1.35];
+// 弹球 Z 轴范围 [最小, 最大]。默认 [0.1, 0.8]。
+export const SPIKE_Z_RANGE = [0.1, 0.8];
 // 立方体被鼠标拖拽抛出时的速度增益。默认 0.22。越大抛出速度越快。
 export const SPIKE_THROW_GAIN = 0.22;
+// 松手后给予的最小速度。默认 0.5。确保松手后立方体至少以此速度飞出。
+export const SPIKE_RELEASE_MIN_SPEED = 0.5;
+
+// --- About 阶段立方体 ---
+// About 阶段立方体固定位置 (SDF 空间)。Desktop: 稍偏上居中。Mobile: 居上。
+export const ABOUT_CUBE_POS_DESKTOP = new THREE.Vector3(0, 0.35, 0);
+export const ABOUT_CUBE_POS_MOBILE = new THREE.Vector3(0, 0.55, 0);
+// About 阶段立方体缩放倍数（相对 Hero 阶段）。默认 1.83。让 About 的方块更大。
+export const ABOUT_CUBE_SCALE = 1.83;
+// 手动被冻结到 About 位置后整个方块变大时用的 GLSL 半边长。默认 0.55。
+export const ABOUT_CUBE_SIZE_GLSL = 0.55;
+// About 阶段空闲自转速度 [x, y, z] 弧度/秒。默认 [0.15, 0.25, 0.08]。
+export const ABOUT_IDLE_SPIN = [0.15, 0.25, 0.08];
+// About 阶段 Arcball 旋转 slerp 追随系数（越大越灵敏）。默认 0.28。
+export const ABOUT_DRAG_SLERP = 0.28;
+// About 阶段空闲自转 slerp 系数。默认 0.06。
+export const ABOUT_IDLE_SLERP = 0.06;
+
+// --- Hero→About 过渡 ---
+// 过渡开始的滚动进度。默认 0.15。当 scrollProgress 超过此值时开始过渡。
+// scrollProgress: 0 = Hero 完全可见, 1 = About 完全可见。
+// 调小 → 更早开始过渡；调大 → 滑更远才开始变化。
+export const TRANSITION_START = 0.15;
+// 过渡完成的滚动进度。默认 0.92。
+// 调小 → 过渡更快完成；调大 → 过渡拖得更长。
+export const TRANSITION_END = 0.92;
+// 过渡缓动曲线阻尼系数（Desktop）。默认 5.0。
+// 控制软弹跳的衰减速度：越大弹性越小越柔和，越小弹性越明显。
+// 3.0 = 轻微可见弹性，5.0 = 极柔软几乎无弹跳，8.0 = 纯缓动无弹性。
+export const TRANSITION_DAMPING_DESKTOP = 5.0;
+// 过渡缓动曲线阻尼系数（Mobile）。默认 6.0。移动端用稍高值减少弹性。
+export const TRANSITION_DAMPING_MOBILE = 6.0;
+// 立方体追随目标位置的速度。默认 3.5。
+// 越大追随越快（立方体更快到位），越小惯性感越强（立方体缓慢飘过去）。
+// 1.5 = 很慢很懒散，3.5 = 自然柔和，8.0 = 几乎即时跟随。
+export const TRANSITION_FOLLOW_SPEED = 3.5;
+// 视频渐显开始的滚动进度。默认 0.5。在方块到达目标位置后才开始显示视频。
+// 调小 → 视频更早出现；调大 → 视频更晚出现。
+export const VIDEO_FADE_START = 0.5;
+// 视频渐显结束的滚动进度。默认 0.95。
+// 调小 → 视频更早完全显示；调大 → 渐显持续更久。
+export const VIDEO_FADE_END = 0.95;
+
+// --- 立方体消失 ---
+// 立方体开始淡出的滚动进度（相对于 About section 底部离开视口的进度）。默认 0.6。
+// 当 aboutBottomProgress 超过此值时，立方体开始淡出。
+// 调小 → 更早开始消失；调大 → 更晚才开始消失。
+export const CUBE_FADEOUT_START = 0.6;
+// 立方体完全消失的滚动进度。默认 0.95。
+// 调小 → 消失更快；调大 → 消失更慢。
+export const CUBE_FADEOUT_END = 0.95;
+
+// --- 视频纹理路径 ---
+export const DEMO_VIDEO_PATH = '/video/demo-fallback.mp4';
 
 // ══════════════════════════════════════════════════════════════
 // 视觉外观配置（shader 注入参数）
@@ -89,7 +159,7 @@ export const WAVE_LOOK = {
     envBaseMix: 0.05,
     // 远焦主光的移动速度。越大移动越明显。
     // 参考: 0.02 ~ 0.07
-    focusSpeed: 0.038,
+    focusSpeed: 0.028,
     // 远焦主光的起始相位。一般只在想换节奏时改。
     // 参考: 0.0 ~ 1.0
     focusPhaseOffset: 0.0,
@@ -110,7 +180,7 @@ export const WAVE_LOOK = {
     focusScale: [3.2, 2.9],
     // 远焦主光颜色。当前是克制冷蓝。
     // 每项通常保持在 0.08 ~ 0.5
-    focusColor: [0.2, 0.29, 0.44],
+    focusColor: [0.2, 0.29, 0.34],
     // 第二束背景扫光速度。
     // 参考: 0.015 ~ 0.05
     sweepSpeed: 0.1,

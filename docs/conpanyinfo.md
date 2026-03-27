@@ -1,7 +1,7 @@
-twiiter: https://x.com/veen_foundation
+twiiter: https://x.com/venn_foundation
 
 ```
-veenai.org
+vennai.org
 人类还没有为集体智慧建过一层像样的基础设施，我们在资助第一批尝试者。
 Humanity never built proper infrastructure for collective intelligence. We're funding the first attempts.
 ```
@@ -12,20 +12,20 @@ Humanity never built proper infrastructure for collective intelligence. We're fu
 PhD of money · Life hacker · Unix old soul
 Retired at 28, Now back to fix the internet.
 Co-founder of
-@veen_foundation
+@venn_foundation
 
-Leader of Project Σ http://veenai.org
+Leader of Project Σ http://vennai.org
 ```
 
-github: https://github.com/VeenIntelligence/
+github: https://github.com/VennIntelligence/
 
 ```
-VeenAI
-VeenIntelligence
+VennAI
+VennIntelligence
 Building privacy-preserving, bot-resistant infrastructure for verified human collective intelligence.
 ```
 
-Email: contact@veenai.org
+Email: contact@vennai.org
 
 ```
 # Project Σ: 打造下一代人类智慧传播的基础设施协议

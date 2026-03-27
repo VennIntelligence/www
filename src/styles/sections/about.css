@@ -10,20 +10,20 @@
   --about-fg: 0 0% 100%;
 
   position: relative;
-  z-index: 0;
+  z-index: 1; /* 内容层高于 UnifiedStage(z-index:0) */
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background:
-    radial-gradient(circle at 78% 22%, rgba(55, 118, 255, 0.22), transparent 24%),
-    radial-gradient(circle at 22% 78%, rgba(14, 71, 174, 0.18), transparent 30%),
-    linear-gradient(180deg, #03060d 0%, #050b18 48%, #02050c 100%);
+  /* 背景改为透明 — UnifiedStage 提供渲染内容 */
+  background: transparent;
   color: hsl(var(--about-fg));
   overflow: hidden;
   isolation: isolate;
   contain: layout paint;
   font-family: var(--font-sans);
-  cursor: grab;
+  /* 让点击穿透到 UnifiedStage，内容子元素单独开启 pointer-events */
+  pointer-events: none;
+  cursor: default;
 }
 
 .about-section.is-rotating {
@@ -37,9 +37,8 @@
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  background:
-    radial-gradient(circle at 70% 34%, rgba(139, 214, 255, 0.08), transparent 22%),
-    radial-gradient(circle at 50% 50%, rgba(5, 11, 28, 0), rgba(3, 5, 10, 0.5) 78%);
+  /* 移除渐变遮罩 — UnifiedStage 已负责背景渲染 */
+  background: transparent;
 }
 
 /* ---------- Three.js 玻璃方块背景 ---------- */
@@ -81,6 +80,7 @@
   flex-direction: column;
   justify-content: flex-end;
   padding: 0 40px 60px;
+  pointer-events: auto;
 }
 
 @media (max-width: 767px) {
@@ -138,10 +138,38 @@
   color: hsl(var(--about-fg));
 }
 
-/* 箭头图标也跟着放大 */
-.about-subheading__icon {
-  width: 1.2em;
-  height: 1.2em;
+/* 发光呼吸竖线 */
+.about-subheading__line {
+  width: 5px;
+  height: 1.1em;
+  background: linear-gradient(180deg, rgba(160, 220, 255, 1) 0%, rgba(80, 160, 255, 0.9) 100%);
+  border-radius: 4px;
+  flex-shrink: 0;
+  box-shadow: 
+    0 0 12px rgba(100, 180, 255, 0.8),
+    0 0 24px rgba(60, 140, 255, 0.6),
+    inset 0 0 4px rgba(255, 255, 255, 0.8);
+  animation: sigma-line-breathe 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes sigma-line-breathe {
+  0% {
+    opacity: 0.6;
+    box-shadow: 
+      0 0 8px rgba(100, 180, 255, 0.4),
+      0 0 16px rgba(60, 140, 255, 0.2),
+      inset 0 0 2px rgba(255, 255, 255, 0.5);
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 1;
+    box-shadow: 
+      0 0 16px rgba(120, 200, 255, 0.9),
+      0 0 32px rgba(80, 160, 255, 0.7),
+      0 0 48px rgba(50, 130, 240, 0.5),
+      inset 0 0 6px rgba(255, 255, 255, 0.9);
+    filter: blur(0.5px);
+  }
 }
 
 /* Σ 标志白框容器 */
@@ -272,49 +300,66 @@
   background-clip: text;
 }
 
-/* ---------- CTA 按钮（标题下方）— 蓝色高对比 ---------- */
+/* ---------- CTA 按钮（标题下方）— 精致透明玻璃感 ---------- */
 .about-cta-inline {
-  margin-top: 28px;
+  margin-top: 32px;
 }
 
 .about-cta-inline__btn {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 13px 30px;
-  border-radius: 8px;
-  /* 蓝色实底按钮，与深色背景形成对比 */
-  background: linear-gradient(135deg, rgba(50, 120, 220, 0.65), rgba(30, 90, 180, 0.55));
-  border: 1px solid rgba(100, 170, 255, 0.35);
-  color: rgba(220, 240, 255, 0.95);
-  /* CTA 按钮字号；默认标准值：clamp(0.85rem, 1.1vw, 1rem)。与 hero slogan 保持一致。 */
-  font-size: clamp(0.85rem, 1.1vw, 1rem);
+  gap: 12px;
+  padding: 14px 32px;
+  border-radius: 100px;
+  
+  /* 非常淡的冷色底，呈现毛玻璃特有的清透感 */
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+  
+  /* 双层边框伪装，实现边缘提亮，消除廉价感 */
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-top-color: rgba(255, 255, 255, 0.35);
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+
+  color: rgba(255, 255, 255, 0.9);
+  /* CTA 按钮字号；默认标准值：clamp(0.85rem, 1.1vw, 1rem)。整体微调字号更精致 */
+  font-size: clamp(0.8rem, 1vw, 0.95rem);
   font-weight: 500;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
   text-decoration: none;
   text-transform: uppercase;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  
   box-shadow:
-    0 0 16px rgba(60, 140, 255, 0.12),
-    0 2px 8px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s ease;
+    0 12px 32px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15); /* 内高光增强折射感 */
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .about-cta-inline__btn:hover {
-  background: linear-gradient(135deg, rgba(60, 140, 240, 0.8), rgba(40, 100, 200, 0.7));
-  border-color: rgba(120, 190, 255, 0.5);
-  color: rgba(240, 248, 255, 1);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05));
+  border-color: rgba(255, 255, 255, 0.25);
+  border-top-color: rgba(255, 255, 255, 0.5);
+  color: #fff;
   box-shadow:
-    0 0 24px rgba(60, 150, 255, 0.25),
-    0 0 48px rgba(50, 130, 240, 0.1),
-    0 4px 12px rgba(0, 0, 0, 0.2);
-  text-shadow: 0 0 10px rgba(140, 200, 255, 0.3);
+    0 16px 40px rgba(0, 0, 0, 0.3),
+    0 0 24px rgba(180, 220, 255, 0.15), /* 淡淡蓝白外发光 */
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
 }
 
 .about-cta-inline__arrow {
-  width: 16px;
-  height: 16px;
+  width: 14px; /* 从16px略微缩小，配合实心三角形 */
+  height: 14px;
+  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.3));
+}
+
+.about-cta-inline__btn:hover .about-cta-inline__arrow {
+  transform: translateX(4px);
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.7));
 }
 
 /* ---------- 宣言摘要 ---------- */

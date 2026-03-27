@@ -27,8 +27,8 @@ function App() {
           <Route path="/blog/:slug" element={<BlogArticlePage />} />
 
           {/* Product 子路由 — 后续添加 */}
-          {/* <Route path="/product/veen-trigger-trade" element={<ProductPage />} /> */}
-          {/* <Route path="/product/veen-trigger-trade/dashboard" element={<TriggerDashboard />} /> */}
+          {/* <Route path="/product/venn-trigger-trade" element={<ProductPage />} /> */}
+          {/* <Route path="/product/venn-trigger-trade/dashboard" element={<TriggerDashboard />} /> */}
 
           {/* 404 */}
           <Route path="*" element={<NotFound />} />

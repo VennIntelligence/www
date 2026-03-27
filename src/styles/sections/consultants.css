@@ -1,25 +1,122 @@
 /* ============================================================
-   Consultants Section — Coming Soon placeholder
+   Consultants Section Styles — 居中布局 + 光晕动效
    ============================================================ */
 
 .consultants-section {
   min-height: 100vh;
-  background: #0a0a0f;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-top: 1px solid rgba(79, 195, 247, 0.1);
+  /* 深色底，球体光晕会映衬在上面 */
+  background: #060608;
+  /* 居中对齐（由 Tailwind flex items-center justify-center 控制） */
 }
 
-.consultants__inner {
-  max-width: 1200px;
+/* ---- 背景光晕缓动 ---- */
+/* 两个伪元素模拟呼吸式光晕漂浮 */
+.consultants-section::before,
+.consultants-section::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(120px);
+  opacity: 0.25;
+  z-index: 0;
+}
+
+/* 主光晕 — 偏绿，缓慢漂浮 */
+.consultants-section::before {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(0, 255, 170, 0.35) 0%, transparent 70%);
+  bottom: -200px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: consultants-glow-drift 12s ease-in-out infinite alternate;
+}
+
+/* 副光晕 — 偏青，反向漂浮 */
+.consultants-section::after {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(17, 255, 204, 0.2) 0%, transparent 70%);
+  bottom: -100px;
+  left: 50%;
+  transform: translateX(-30%);
+  animation: consultants-glow-drift-alt 10s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes consultants-glow-drift {
+  0%   { transform: translateX(-50%) translateY(0) scale(1); opacity: 0.2; }
+  50%  { transform: translateX(-45%) translateY(-40px) scale(1.15); opacity: 0.35; }
+  100% { transform: translateX(-55%) translateY(20px) scale(0.95); opacity: 0.25; }
+}
+
+@keyframes consultants-glow-drift-alt {
+  0%   { transform: translateX(-30%) translateY(0) scale(1); opacity: 0.15; }
+  50%  { transform: translateX(-35%) translateY(30px) scale(1.1); opacity: 0.25; }
+  100% { transform: translateX(-25%) translateY(-20px) scale(0.9); opacity: 0.18; }
+}
+
+/* ---- 亮色玻璃面板 (桌面端 LiquidGlass & 移动端 Fallback) ---- */
+.consultants-white-glass {
+  position: relative;
   width: 100%;
-  padding: 80px 48px;
+  border-radius: 8px; /* 默认 8px 紧凑圆角 */
+  
+  /* 核心提亮：添加一个偏白的底色 */
+  background: rgba(255, 255, 255, 0.04) !important;
+  
+  /* 细微的顶部高光 */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  
+  overflow: hidden;
+  transition: all 0.4s ease;
 }
 
-.consultants__placeholder {
-  color: rgba(224, 224, 224, 0.3);
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  text-align: center;
+/* 移动端特定的 Fallback 逻辑 */
+@media (max-width: 768px) {
+  .consultants-white-glass {
+    backdrop-filter: blur(4px) saturate(1.1) brightness(1.2);
+    -webkit-backdrop-filter: blur(4px) saturate(1.1) brightness(1.2);
+  }
+}
+
+/* 高级卡强化 */
+.consultants-white-glass--premium {
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.09) !important; /* 明显更亮 */
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.2),
+    0 0 20px rgba(255, 255, 255, 0.03);
+}
+
+.consultants-white-glass:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* ---- 价格卡高度 ---- */
+.consultants-card--premium,
+.consultants-card--standard {
+  min-height: 320px;
+}
+
+@media (max-width: 768px) {
+  .consultants-card--premium,
+  .consultants-card--standard {
+    min-height: auto; /* 移动端随内容撑开 */
+  }
+}
+
+/* ---- Shimmer 动画 ---- */
+@keyframes shimmer {
+  0% { transform: translateX(-100%) skewX(-15deg); }
+  50%, 100% { transform: translateX(200%) skewX(-15deg); }
+}
+
+.animate-shimmer {
+  animation: shimmer 2.5s infinite;
 }

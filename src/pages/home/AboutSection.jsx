@@ -1,7 +1,7 @@
 import { useCallback, useRef } from 'react';
 import { motion as Motion, useScroll, useTransform, useInView } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import GlassCubeScene from '../../components/GlassCubeScene';
+
 import MagnetText from '../../components/MagnetText';
 import useCharMagnet from '../../hooks/useCharMagnet';
 import { COPY } from '../../config/i18n';
@@ -16,15 +16,14 @@ function ArrowRight({ className = '' }) {
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"
-      fill="none"
+      fill="currentColor"
       stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
     >
-      <line x1="5" y1="12" x2="19" y2="12" />
-      <polyline points="12 5 19 12 12 19" />
+      <polygon points="8,5 19,12 8,19" />
     </svg>
   );
 }
@@ -113,21 +112,21 @@ export default function AboutSection() {
       id="about"
       className="about-section"
       style={{ position: 'relative' }}
-      onPointerMove={handlePointerMove}
-      onPointerLeave={handlePointerLeave}
     >
-      {/* Three.js 玻璃方块背景 */}
-      <GlassCubeScene />
 
       {/* 主内容 */}
-      <div className="about-content">
+      <div
+        className="about-content"
+        onPointerMove={handlePointerMove}
+        onPointerLeave={handlePointerLeave}
+      >
         {/* ═══ 第一屏（移动端）：标签 + 标题 + CTA + manifesto ═══ */}
         <div className="about-screen-1" ref={headingRevealRef}>
-          {/* Project [Σ] 大标签 — 箭头 + 文字 + 白框Σ徽章 */}
+          {/* Project [Σ] 大标签 — 发光竖线 + 文字 + 白框Σ徽章 */}
           <div
             className={`about-subheading about-blur-reveal ${headingInView ? 'is-revealed' : ''}`}
           >
-            <ArrowRight className="about-subheading__icon" />
+            <div className="about-subheading__line" />
             <span>{copy.subheading}</span>
             <span className="about-sigma-badge">Σ</span>
           </div>
@@ -155,7 +154,7 @@ export default function AboutSection() {
 
               {/* CTA 按钮紧跟标题下方 */}
               <div className="about-cta-inline">
-                <Link to="/blog" className="about-cta-inline__btn">
+                <Link to="/blog/project-sigma-manifesto" className="about-cta-inline__btn">
                   {copy.ctaReadMore}
                   <ArrowRight className="about-cta-inline__arrow" />
                 </Link>

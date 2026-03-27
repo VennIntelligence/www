@@ -17,26 +17,25 @@ export const COPY = {
   },
   hero: {
     en: {
-      titleLines: ['Veen Intelligence', 'Foundation'],
+      titleLines: ['Venn', 'Intelligence', 'Foundation'],
       subtitleLines: [
         'Humanity never built proper infrastructure',
         'for collective intelligence.',
         'We\'re funding the first attempts.',
       ],
-      socialTwitter: '@veen_foundation',
-      socialGithub: 'VeenIntelligence',
-      socialEmail: 'contact@veenai.org',
+      socialTwitter: '@venn_foundation',
+      socialGithub: 'VennIntelligence',
+      socialEmail: 'contact@vennai.org',
     },
     zh: {
       titleLines: ['文氏智能基金会'],
       subtitleLines: [
-        '人类还没有为集体智慧建过一层',
-        '像样的基础设施，',
+        '人类还没有为集体智慧建过一层像样的基础设施，',
         '我们在资助第一批尝试者。',
       ],
-      socialTwitter: '@veen_foundation',
-      socialGithub: 'VeenIntelligence',
-      socialEmail: 'contact@veenai.org',
+      socialTwitter: '@venn_foundation',
+      socialGithub: 'VennIntelligence',
+      socialEmail: 'contact@vennai.org',
     },
   },
   about: {
@@ -72,7 +71,7 @@ export const COPY = {
           desc: 'Fork your own tribe, issue your own token. Wisdom has a price — and the free market discovers it in real time.',
         },
       ],
-      ctaReadMore: 'Read Our Manifesto',
+      ctaReadMore: 'Read More',
     },
     zh: {
       subheading: 'Project',
@@ -106,7 +105,7 @@ export const COPY = {
           desc: 'Fork 你自己的部落，发行你自己的代币。智慧有价，自由市场实时发现。',
         },
       ],
-      ctaReadMore: '阅读完整宣言',
+      ctaReadMore: '查看详情',
     },
   },
   product: {
@@ -118,8 +117,8 @@ export const COPY = {
       subtitleLineTwoSuffix: '',
       primaryCta: 'Try it now',
       secondaryCta: 'Get Full Access',
-      episodesAlt: 'Veen Trigger Trade Episodes',
-      dashboardAlt: 'Veen Trigger Trade Dashboard',
+      episodesAlt: 'Venn Trigger Trade Episodes',
+      dashboardAlt: 'Venn Trigger Trade Dashboard',
     },
     zh: {
       titleName: 'Trigger Trade',
@@ -129,16 +128,56 @@ export const COPY = {
       subtitleLineTwoSuffix: '的基础设施',
       primaryCta: '立即体验',
       secondaryCta: '获取完整权限',
-      episodesAlt: 'Veen Trigger Trade Episodes 页面',
-      dashboardAlt: 'Veen Trigger Trade Dashboard 页面',
+      episodesAlt: 'Venn Trigger Trade Episodes 页面',
+      dashboardAlt: 'Venn Trigger Trade Dashboard 页面',
     },
   },
   consultants: {
     en: {
-      placeholder: '§ Consultants — Coming Soon',
+      sectionTitle: 'Consulting',
+      name: 'Chengzhi Gao',
+      tags: ['PhD of money', 'Life hacker', 'Unix old soul'],
+      bio1: 'Retired at 28, Now back to fix the internet.',
+      bio2: 'Co-founder of Venn Intelligence.',
+      tiers: [
+        {
+          name: 'Acquaintances Chat',
+          price: '$100',
+          duration: '/ 30 min',
+          features: ['Simple casual chat', 'Half hour'],
+          button: 'Book Now',
+        },
+        {
+          name: 'Formal Consulting',
+          price: '$1000',
+          duration: '/ hour',
+          features: ['Strangers / Formal', 'Full Google Meeting replay', 'Legal document signing'],
+          button: 'Book Now',
+        }
+      ]
     },
     zh: {
-      placeholder: '§ 咨询板块 — 即将上线',
+      sectionTitle: '咨询服务',
+      name: 'Chengzhi Gao',
+      tags: ['PhD of money', 'Life hacker', 'Unix old soul'],
+      bio1: '28岁退休，现在回来修复互联网。',
+      bio2: 'Venn Intelligence 联合创始人。',
+      tiers: [
+        {
+          name: '熟人简单聊',
+          price: '$100',
+          duration: '/ 半小时',
+          features: ['适合认识的朋友', '轻松交流不录像', '半小时解决核心困惑'],
+          button: '立即预约',
+        },
+        {
+          name: '正规咨询',
+          price: '$1000',
+          duration: '/ 小时',
+          features: ['完整的 Google Meeting 回放', '要求签署相关法律文件', '正式且全方位的深度探讨'],
+          button: '立即预约',
+        }
+      ]
     },
   },
   blog: {
@@ -158,21 +197,21 @@ export const COPY = {
   footer: {
     en: {
       description: 'Humanity never built proper infrastructure for collective intelligence. We\'re funding the first attempts.',
-      email: 'contact@veenai.org',
+      email: 'contact@vennai.org',
       product: 'Product',
       blog: 'Blog',
-      twitter: '@veen_foundation',
-      github: 'VeenIntelligence',
-      copyright: '© 2026 Veen Intelligence Foundation LLC',
+      twitter: '@venn_foundation',
+      github: 'VennIntelligence',
+      copyright: '© 2026 Venn Intelligence Foundation LLC',
     },
     zh: {
       description: '人类还没有为集体智慧建过一层像样的基础设施，我们在资助第一批尝试者。',
-      email: 'contact@veenai.org',
+      email: 'contact@vennai.org',
       product: '产品',
       blog: '博客',
-      twitter: '@veen_foundation',
-      github: 'VeenIntelligence',
-      copyright: '© 2026 Veen Intelligence Foundation LLC',
+      twitter: '@venn_foundation',
+      github: 'VennIntelligence',
+      copyright: '© 2026 Venn Intelligence Foundation LLC',
     },
   },
 };

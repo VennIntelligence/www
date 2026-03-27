@@ -5,7 +5,7 @@
         <rect fill="#FFFFFF" x="0" y="0" width="1024" height="1024"></rect>
         <g id="Group">
             <rect id="Rectangle" stroke="#282828" fill="#000000" x="0.5" y="0.5" width="1023" height="1023"></rect>
-            <text id="Veen-AI" font-family="Helvetica-Bold, Helvetica" font-size="360" font-weight="bold" letter-spacing="-29.1" fill="#FFFFFF">
+            <text id="Venn-AI" font-family="Helvetica-Bold, Helvetica" font-size="360" font-weight="bold" letter-spacing="-29.1" fill="#FFFFFF">
                 <tspan x="57" y="596">V</tspan>
                 <tspan x="268.017187" y="596" font-family="Helvetica" font-size="232" font-weight="normal" letter-spacing="1">een</tspan>
                 <tspan x="658.099219" y="596" font-family="Helvetica" font-size="232" font-weight="normal" letter-spacing="-9.2"> </tspan>

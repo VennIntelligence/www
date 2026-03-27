@@ -31,10 +31,10 @@ Official landing page for Venn Intelligence Foundation, a Wyoming-based LLC spec
 - **LLM-Era Infrastructure** — Tools and platforms for the age of large language models
 - **Intelligent Trading Systems** — AI-agent-driven quantitative trading infrastructure
 
-### Our Product — VeenTriggerTrade
+### Our Product — VennTriggerTrade
 A comprehensive intelligent scheduling infrastructure for strategy generation and execution, powered by large language model agents and featuring a smart hook-based architecture.
 
-→ [Product Details →](/product/veen-trigger-trade)
+→ [Product Details →](/product/venn-trigger-trade)
 
 ### Services
 - **Academic Donation Program** — Supporting research and education
@@ -66,7 +66,7 @@ Language:
 ## 📁 Project Structure
 
 ```
-Veenai/
+Vennai/
 ├── public/
 │   ├── favicon.ico
 │   └── assets/                # Static images, icons
@@ -80,7 +80,7 @@ Veenai/
 │   │   └── Footer.jsx
 │   ├── pages/                 # Page-level components
 │   │   ├── Home.jsx           # Main landing page
-│   │   ├── ProductDetail.jsx  # VeenTriggerTrade detail page
+│   │   ├── ProductDetail.jsx  # VennTriggerTrade detail page
 │   │   └── NotFound.jsx       # 404
 │   ├── i18n/                  # Internationalization
 │   │   ├── en.json            # English strings

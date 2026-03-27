@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import UnifiedStage from '../components/UnifiedStage';
 import HeroSection from './home/HeroSection';
 import AboutSection from './home/AboutSection';
 import ProductSection from './home/ProductSection';
@@ -8,6 +9,7 @@ import Footer from '../components/Footer';
 /**
  * HomePage — Landing Page 组装器
  * 将所有 Section 组合为一个单页滚动体验
+ * UnifiedStage 作为全屏固定渲染层（液滴 + 玻璃立方体）
  */
 export default function HomePage() {
   useEffect(() => {
@@ -22,6 +24,7 @@ export default function HomePage() {
 
   return (
     <main className="home-page">
+      <UnifiedStage />
       <HeroSection />
       <AboutSection />
       <ProductSection />

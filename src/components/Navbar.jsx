@@ -21,9 +21,12 @@ const NAVBAR_SCROLL_THRESHOLD = 30;
 
 // 用于监听当前访问的页面区块，从而高亮对应导航菜单项
 const NAVBAR_SECTION_OBSERVER = {
-  threshold: 0.3, // 区块在屏幕出现30%时即视作当前区块并触发高亮
+  threshold: [0, 0.2, 0.5, 0.8], // 多阈值检测，更精细地判断哪个区块最「前景」
   rootMargin: '-60px 0px 0px 0px', // 顶部偏移量，用于平衡导航的高度带来的遮挡偏差
 };
+
+// 用于从多个同时可见的区块中选出当前「主角」——取 DOM 顺序最靠后且交叉比 ≥ 20% 的区块
+const SECTION_ORDER = NAV_LINKS.map(l => l.id);
 
 // 导航栏液态毛玻璃组件的基础物理渲染常量
 const NAVBAR_GLASS_BASE = {
@@ -51,10 +54,14 @@ const NAVBAR_GLASS_SCROLLED = {
   displacementScale: 1.3, // 使表面发生更剧烈的扭曲，增加液体流动或厚玻璃折射的质感
 };
 
+// 移动端断点宽度（与 CSS @media 断点一致）
+const MOBILE_BREAKPOINT = 768;
+
 export default function Navbar() {
   const [activeSection, setActiveSection] = useState('hero');
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= MOBILE_BREAKPOINT);
   const { lang, setLang } = useLanguage();
   const location = useLocation();
   const isHome = location.pathname === '/';
@@ -64,18 +71,36 @@ export default function Navbar() {
   };
 
   useEffect(() => {
+    // 记录每个 section 的实时交叉比例
+    const ratioMap = new Map();
+
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id);
+          ratioMap.set(entry.target.id, entry.intersectionRatio);
+        }
+        // 从 DOM 顺序最后（最靠近屏幕底部）的可见 section 中，选交叉比最大的
+        let bestId = null;
+        let bestScore = -1;
+        for (const id of SECTION_ORDER) {
+          const ratio = ratioMap.get(id) || 0;
+          if (ratio >= 0.15) {
+            // 靠后的 section 给予 bonus，优先级更高
+            const orderBonus = SECTION_ORDER.indexOf(id) * 0.01;
+            const score = ratio + orderBonus;
+            if (score > bestScore) {
+              bestScore = score;
+              bestId = id;
+            }
           }
         }
+        if (bestId) setActiveSection(bestId);
       },
       NAVBAR_SECTION_OBSERVER
     );
 
     NAV_LINKS.forEach(link => {
+      if (link.route) return; // blog 等外部路由不参与 IO 检测
       const el = document.getElementById(link.id);
       if (el) observer.observe(el);
     });
@@ -90,7 +115,11 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    const onResize = () => { if (window.innerWidth > 768) setMenuOpen(false); };
+    const onResize = () => {
+      const mobile = window.innerWidth <= MOBILE_BREAKPOINT;
+      setIsMobile(mobile);
+      if (!mobile) setMenuOpen(false);
+    };
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
@@ -121,61 +150,78 @@ export default function Navbar() {
 
   return (
     <nav className={`navbar ${scrolled ? 'navbar--scrolled' : ''}`} id="main-nav">
-      <LiquidGlass {...glassProps}>
-        <div className="navbar__inner">
-          {/* Logo */}
-          <a href="#hero" className="navbar__logo" onClick={() => setMenuOpen(false)}>
-            <BrandWordmark variant="full" size={19} />
-          </a>
+      {/* 导航栏内容：桌面端用 LiquidGlass 液态玻璃，移动端降级为 CSS 磨砂玻璃 */}
+      {isMobile ? (
+        <div className={`navbar__glass-fallback ${scrolled ? 'navbar__glass-fallback--scrolled' : ''}`}>
+          <div className="navbar__inner">
+            {/* Logo */}
+            <a href={isHome ? '#hero' : '/'} className="navbar__logo" onClick={() => setMenuOpen(false)}>
+              <BrandWordmark variant="full" size={19} />
+            </a>
 
-          {/* Desktop Nav links */}
-          <div className="navbar__links desktop-links">
-            {NAV_LINKS.map(link => {
-              // Blog 使用路由链接
-              if (link.route) {
+            {/* Right side */}
+            <div className="navbar__right">
+              <LanguageToggle lang={lang} onChange={setLang} />
+
+              <button
+                type="button"
+                className={`navbar__hamburger ${menuOpen ? 'navbar__hamburger--open' : ''}`}
+                onClick={() => setMenuOpen(v => !v)}
+                aria-label="Toggle menu"
+                aria-expanded={menuOpen}
+                aria-controls="mobile-nav-menu"
+              >
+                <span /><span /><span />
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <LiquidGlass {...glassProps}>
+          <div className="navbar__inner">
+            {/* Logo */}
+            <a href={isHome ? '#hero' : '/'} className="navbar__logo" onClick={() => setMenuOpen(false)}>
+              <BrandWordmark variant="full" size={19} />
+            </a>
+
+            {/* Desktop Nav links */}
+            <div className="navbar__links desktop-links">
+              {NAV_LINKS.map(link => {
+                // Blog 使用路由链接
+                if (link.route) {
+                  return (
+                    <Link
+                      key={link.id}
+                      to={link.route}
+                      className={`navbar__link ${!isHome && location.pathname === link.route ? 'navbar__link--active' : ''}`}
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      {COPY.nav[lang][link.id]}
+                    </Link>
+                  );
+                }
+                // 首页锚点链接
+                const href = isHome ? `#${link.id}` : `/#${link.id}`;
                 return (
-                  <Link
+                  <a
                     key={link.id}
-                    to={link.route}
-                    className={`navbar__link ${!isHome && location.pathname === link.route ? 'navbar__link--active' : ''}`}
+                    href={href}
+                    className={`navbar__link ${isHome && activeSection === link.id ? 'navbar__link--active' : ''}`}
                     onClick={() => setMenuOpen(false)}
                   >
                     {COPY.nav[lang][link.id]}
-                  </Link>
+                  </a>
                 );
-              }
-              // 首页锚点链接
-              const href = isHome ? `#${link.id}` : `/#${link.id}`;
-              return (
-                <a
-                  key={link.id}
-                  href={href}
-                  className={`navbar__link ${isHome && activeSection === link.id ? 'navbar__link--active' : ''}`}
-                  onClick={() => setMenuOpen(false)}
-                >
-                  {COPY.nav[lang][link.id]}
-                </a>
-              );
-            })}
-          </div>
+              })}
+            </div>
 
-          {/* Right side */}
-          <div className="navbar__right">
-            <LanguageToggle lang={lang} onChange={setLang} />
-
-            <button
-              type="button"
-              className={`navbar__hamburger ${menuOpen ? 'navbar__hamburger--open' : ''}`}
-              onClick={() => setMenuOpen(v => !v)}
-              aria-label="Toggle menu"
-              aria-expanded={menuOpen}
-              aria-controls="mobile-nav-menu"
-            >
-              <span /><span /><span />
-            </button>
+            {/* Right side */}
+            <div className="navbar__right">
+              <LanguageToggle lang={lang} onChange={setLang} />
+            </div>
           </div>
-        </div>
-      </LiquidGlass>
+        </LiquidGlass>
+      )}
 
       {/* Mobile Nav links: top dropdown panel with click-away close area */}
       <div

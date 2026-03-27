@@ -1,8 +1,8 @@
 import '../../styles/components/brand-wordmark.css';
 
 const BRAND_LABELS = {
-  full: 'Veen AI',
-  short: 'Veen',
+  full: 'Venn AI',
+  short: 'Venn',
 };
 
 const BRAND_TAILS = {
