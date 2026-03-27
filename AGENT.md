@@ -1,4 +1,4 @@
-# Veenai Project — Gemini Instructions
+# Vennai Project — Agent Instructions
 
 请使用英文做内部思考，任何做输出的地方都使用中文。
 
