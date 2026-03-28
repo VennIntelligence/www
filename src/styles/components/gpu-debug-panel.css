@@ -1,0 +1,270 @@
+/* ══════════════════════════════════════════════════════════════
+   GPU Debug Panel — 浮动调参面板样式
+   仅在 dev:gpu 模式下加载，不影响生产构建。
+   ══════════════════════════════════════════════════════════════ */
+
+.gpu-debug-panel {
+  position: fixed;
+  z-index: 99999;
+  width: 340px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: rgba(12, 12, 28, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  font-family: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace;
+  font-size: 12px;
+  color: #c8ccd4;
+  user-select: none;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+
+.gpu-debug-panel::-webkit-scrollbar { width: 4px; }
+.gpu-debug-panel::-webkit-scrollbar-track { background: transparent; }
+.gpu-debug-panel::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+  border-radius: 4px;
+}
+
+/* ── 标题栏（可拖拽） ── */
+.gpu-debug-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  cursor: grab;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(0, 200, 255, 0.04);
+}
+.gpu-debug-title:active { cursor: grabbing; }
+
+.gpu-debug-title-text {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #00d4ff;
+}
+
+.gpu-debug-title-btns {
+  display: flex;
+  gap: 6px;
+}
+
+.gpu-debug-title-btn {
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #888;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.gpu-debug-title-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ccc;
+}
+
+/* ── 内容区 ── */
+.gpu-debug-body { padding: 12px 14px; }
+
+/* ── GPU 信息 ── */
+.gpu-debug-gpu-info {
+  padding: 8px 10px;
+  margin-bottom: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+  font-size: 10px;
+  color: #787e88;
+  word-break: break-all;
+  line-height: 1.5;
+}
+.gpu-debug-gpu-label {
+  color: #00d4ff;
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+/* ── 分组 ── */
+.gpu-debug-group {
+  margin-bottom: 14px;
+}
+.gpu-debug-group-title {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: #555e6a;
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* ── 画质切换 Segmented Control ── */
+.gpu-debug-tiers {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+}
+.gpu-debug-tier-btn {
+  flex: 1;
+  padding: 6px 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #777;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.gpu-debug-tier-btn:hover { color: #aaa; }
+.gpu-debug-tier-btn[data-active='true'] {
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+.gpu-debug-tier-btn[data-tier='low'][data-active='true'] {
+  background: linear-gradient(135deg, #1a4a2e, #0d3320);
+}
+.gpu-debug-tier-btn[data-tier='medium'][data-active='true'] {
+  background: linear-gradient(135deg, #4a3a1a, #332a0d);
+}
+.gpu-debug-tier-btn[data-tier='high'][data-active='true'] {
+  background: linear-gradient(135deg, #4a1a2e, #330d20);
+}
+
+/* ── 滑块行 ── */
+.gpu-debug-slider-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+  gap: 8px;
+}
+.gpu-debug-slider-label {
+  width: 72px;
+  flex-shrink: 0;
+  font-size: 10px;
+  color: #888;
+}
+.gpu-debug-slider {
+  flex: 1;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  outline: none;
+}
+.gpu-debug-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #00d4ff;
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(0, 212, 255, 0.4);
+}
+.gpu-debug-slider-value {
+  width: 46px;
+  flex-shrink: 0;
+  text-align: right;
+  font-size: 11px;
+  color: #aab;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── 性能监控 ── */
+.gpu-debug-perf-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.gpu-debug-perf-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.gpu-debug-perf-value {
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.gpu-debug-perf-value[data-good='true'] { color: #4ecdc4; }
+.gpu-debug-perf-value[data-warn='true'] { color: #ffd166; }
+.gpu-debug-perf-value[data-bad='true']  { color: #ff6b6b; }
+.gpu-debug-perf-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #556;
+  margin-top: 2px;
+}
+
+.gpu-debug-perf-canvas {
+  width: 100%;
+  height: 48px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.3);
+  margin-bottom: 8px;
+}
+
+.gpu-debug-perf-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: #556;
+}
+.gpu-debug-perf-meta span { font-variant-numeric: tabular-nums; }
+
+/* ── 按钮区 ── */
+.gpu-debug-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+.gpu-debug-btn {
+  flex: 1;
+  padding: 8px 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #aab;
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.gpu-debug-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #dde;
+}
+.gpu-debug-btn-copy {
+  background: rgba(0, 212, 255, 0.08);
+  border-color: rgba(0, 212, 255, 0.2);
+  color: #00d4ff;
+}
+.gpu-debug-btn-copy:hover {
+  background: rgba(0, 212, 255, 0.16);
+}
+.gpu-debug-btn-copied {
+  background: rgba(78, 205, 196, 0.15) !important;
+  border-color: rgba(78, 205, 196, 0.3) !important;
+  color: #4ecdc4 !important;
+}

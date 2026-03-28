@@ -1,122 +1,485 @@
 /* ============================================================
-   Consultants Section Styles — 居中布局 + 光晕动效
+   Consultants Section — Three.js 绿光地球 + 高阶玻璃面板
+   说明：不使用 CSS 模糊打光层，避免遮住球体；发光交给 Three.js 灯光系统。
    ============================================================ */
 
 .consultants-section {
+  --consultants-fg: rgba(239, 247, 255, 0.96);
+  --consultants-muted: rgba(214, 230, 247, 0.62);
+  --consultants-border: rgba(166, 202, 246, 0.2);
+  --consultants-accent: rgba(132, 194, 255, 0.66);
+
+  position: relative;
   min-height: 100vh;
-  /* 深色底，球体光晕会映衬在上面 */
-  background: #060608;
-  /* 居中对齐（由 Tailwind flex items-center justify-center 控制） */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(84px, 10vh, 124px) clamp(18px, 4vw, 64px);
+  overflow: hidden;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  background:
+    radial-gradient(120% 90% at 78% -12%, rgba(12, 29, 44, 0.35) 0%, rgba(3, 8, 16, 0) 62%),
+    linear-gradient(180deg, #010308 0%, #020610 56%, #010206 100%);
+  isolation: isolate;
 }
 
-/* ---- 背景光晕缓动 ---- */
-/* 两个伪元素模拟呼吸式光晕漂浮 */
-.consultants-section::before,
-.consultants-section::after {
+.consultants-content {
+  position: relative;
+  z-index: 10;
+  width: min(1220px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.consultants-heading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.consultants-heading__label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(171, 208, 250, 0.34);
+  background: rgba(18, 27, 41, 0.42);
+  color: rgba(232, 243, 255, 0.9);
+  font-size: clamp(0.7rem, 0.95vw, 0.78rem);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.consultants-heading__line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(168, 208, 255, 0.45), rgba(168, 208, 255, 0.02));
+}
+
+.consultants-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) repeat(2, minmax(0, 1fr));
+  gap: clamp(16px, 2vw, 24px);
+  align-items: stretch;
+}
+
+.consultants-panel {
+  position: relative;
+  min-height: 420px;
+  width: 100%;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid var(--consultants-border);
+  background: linear-gradient(
+    155deg,
+    rgba(14, 22, 39, 0.8) 0%,
+    rgba(7, 14, 26, 0.73) 56%,
+    rgba(4, 9, 18, 0.78) 100%
+  );
+  backdrop-filter: blur(14px) saturate(1.25);
+  -webkit-backdrop-filter: blur(14px) saturate(1.25);
+  box-shadow:
+    0 30px 76px rgba(0, 0, 0, 0.56),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -1px 0 rgba(120, 170, 240, 0.15);
+  transition:
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.35s ease,
+    box-shadow 0.35s ease,
+    background 0.35s ease;
+}
+
+.consultants-panel::before {
   content: '';
   position: absolute;
-  border-radius: 50%;
+  inset: 0;
   pointer-events: none;
-  filter: blur(120px);
-  opacity: 0.25;
-  z-index: 0;
+  background: radial-gradient(120% 84% at 0% 0%, rgba(255, 255, 255, 0.2) 0%, transparent 60%);
+  opacity: 0.32;
 }
 
-/* 主光晕 — 偏绿，缓慢漂浮 */
-.consultants-section::before {
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(0, 255, 170, 0.35) 0%, transparent 70%);
-  bottom: -200px;
-  left: 50%;
-  transform: translateX(-50%);
-  animation: consultants-glow-drift 12s ease-in-out infinite alternate;
+.consultants-panel::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  right: 1px;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0));
 }
 
-/* 副光晕 — 偏青，反向漂浮 */
-.consultants-section::after {
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, rgba(17, 255, 204, 0.2) 0%, transparent 70%);
-  bottom: -100px;
-  left: 50%;
-  transform: translateX(-30%);
-  animation: consultants-glow-drift-alt 10s ease-in-out infinite alternate-reverse;
+.consultants-panel:hover {
+  transform: translateY(-4px);
+  border-color: rgba(187, 220, 255, 0.36);
+  box-shadow:
+    0 40px 86px rgba(0, 0, 0, 0.62),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(150, 200, 255, 0.2);
 }
 
-@keyframes consultants-glow-drift {
-  0%   { transform: translateX(-50%) translateY(0) scale(1); opacity: 0.2; }
-  50%  { transform: translateX(-45%) translateY(-40px) scale(1.15); opacity: 0.35; }
-  100% { transform: translateX(-55%) translateY(20px) scale(0.95); opacity: 0.25; }
+.consultants-panel--profile {
+  background: linear-gradient(
+    152deg,
+    rgba(12, 20, 35, 0.84) 0%,
+    rgba(6, 12, 24, 0.74) 54%,
+    rgba(5, 10, 19, 0.82) 100%
+  );
 }
 
-@keyframes consultants-glow-drift-alt {
-  0%   { transform: translateX(-30%) translateY(0) scale(1); opacity: 0.15; }
-  50%  { transform: translateX(-35%) translateY(30px) scale(1.1); opacity: 0.25; }
-  100% { transform: translateX(-25%) translateY(-20px) scale(0.9); opacity: 0.18; }
+.consultants-panel--premium {
+  border-color: rgba(135, 194, 255, 0.36);
+  background: linear-gradient(
+    152deg,
+    rgba(18, 29, 49, 0.84) 0%,
+    rgba(9, 18, 34, 0.77) 58%,
+    rgba(5, 12, 25, 0.84) 100%
+  );
+  box-shadow:
+    0 34px 80px rgba(0, 0, 0, 0.62),
+    0 0 56px rgba(92, 171, 255, 0.14),
+    inset 0 1px 0 rgba(220, 238, 255, 0.22),
+    inset 0 -1px 0 rgba(140, 190, 255, 0.24);
 }
 
-/* ---- 亮色玻璃面板 (桌面端 LiquidGlass & 移动端 Fallback) ---- */
-.consultants-white-glass {
+.consultants-panel--premium:hover {
+  border-color: rgba(181, 223, 255, 0.56);
+  box-shadow:
+    0 42px 92px rgba(0, 0, 0, 0.68),
+    0 0 64px rgba(106, 186, 255, 0.24),
+    inset 0 1px 0 rgba(230, 245, 255, 0.3),
+    inset 0 -1px 0 rgba(158, 207, 255, 0.31);
+}
+
+.consultants-panel__inner {
   position: relative;
-  width: 100%;
-  border-radius: 8px; /* 默认 8px 紧凑圆角 */
-  
-  /* 核心提亮：添加一个偏白的底色 */
-  background: rgba(255, 255, 255, 0.04) !important;
-  
-  /* 细微的顶部高光 */
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 
-    0 4px 16px rgba(0, 0, 0, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 28px;
+}
+
+.consultants-panel__inner--profile {
+  gap: 16px;
+}
+
+.consultants-avatar {
+  position: relative;
+  width: clamp(128px, 13vw, 164px);
+  aspect-ratio: 4 / 5;
+  border-radius: 14px;
+  border: 1px solid rgba(176, 214, 250, 0.34);
+  background:
+    radial-gradient(120% 86% at 0% 0%, rgba(169, 208, 255, 0.18) 0%, transparent 64%),
+    linear-gradient(160deg, rgba(13, 27, 43, 0.86) 0%, rgba(9, 18, 33, 0.84) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -1px 0 rgba(122, 170, 238, 0.22),
+    0 16px 32px rgba(0, 0, 0, 0.35);
   overflow: hidden;
-  transition: all 0.4s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* 移动端特定的 Fallback 逻辑 */
-@media (max-width: 768px) {
-  .consultants-white-glass {
-    backdrop-filter: blur(4px) saturate(1.1) brightness(1.2);
-    -webkit-backdrop-filter: blur(4px) saturate(1.1) brightness(1.2);
+.consultants-avatar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(180, 220, 255, 0.12) 0px,
+    rgba(180, 220, 255, 0.12) 1px,
+    transparent 1px,
+    transparent 10px
+  );
+  opacity: 0.36;
+  mix-blend-mode: screen;
+}
+
+.consultants-avatar::after {
+  content: '';
+  position: absolute;
+  top: -38%;
+  bottom: -38%;
+  width: 48%;
+  left: -52%;
+  background: linear-gradient(90deg, transparent, rgba(180, 225, 255, 0.42), transparent);
+  transform: rotate(22deg);
+  animation: consultants-scan 6s linear infinite;
+}
+
+.consultants-avatar__mark {
+  position: relative;
+  z-index: 2;
+  font-size: clamp(1.8rem, 3vw, 2.7rem);
+  font-weight: 600;
+  line-height: 1;
+  color: rgba(217, 241, 255, 0.92);
+  text-shadow:
+    0 0 18px rgba(130, 201, 255, 0.45),
+    0 0 32px rgba(86, 170, 255, 0.26);
+}
+
+.consultants-profile__name {
+  margin: 2px 0 0;
+  font-size: clamp(1.6rem, 2.2vw, 2.2rem);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--consultants-fg);
+}
+
+.consultants-profile__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.consultants-profile__tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(161, 197, 240, 0.28);
+  background: rgba(125, 170, 218, 0.08);
+  color: rgba(212, 228, 246, 0.76);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.07em;
+}
+
+.consultants-profile__bio {
+  margin: 0;
+  font-size: clamp(0.9rem, 1.2vw, 1rem);
+  line-height: 1.68;
+  color: var(--consultants-muted);
+}
+
+.consultants-profile__bio--emphasis {
+  color: rgba(234, 245, 255, 0.88);
+  font-weight: 500;
+}
+
+.consultants-tier {
+  gap: 18px;
+}
+
+.consultants-tier__head {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.consultants-tier__index {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 68px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(162, 199, 246, 0.22);
+  color: rgba(194, 220, 248, 0.66);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.consultants-tier__name {
+  margin: 0;
+  font-size: clamp(1.1rem, 1.55vw, 1.38rem);
+  font-weight: 520;
+  line-height: 1.35;
+  color: rgba(236, 245, 255, 0.93);
+}
+
+.consultants-tier__price-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.consultants-tier__price {
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: rgba(250, 253, 255, 0.98);
+}
+
+.consultants-tier__duration {
+  font-size: 0.76rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: rgba(197, 214, 236, 0.64);
+}
+
+.consultants-tier__features {
+  margin: 0;
+  padding: 2px 0 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.consultants-tier__features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--consultants-muted);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.consultants-tier__dot {
+  margin-top: 0.46em;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(138, 190, 255, 0.48);
+  box-shadow: 0 0 12px rgba(121, 191, 255, 0.34);
+  flex-shrink: 0;
+}
+
+.consultants-tier--premium .consultants-tier__dot {
+  background: rgba(171, 229, 255, 0.84);
+  box-shadow: 0 0 18px rgba(132, 208, 255, 0.56);
+}
+
+.consultants-cta {
+  margin-top: auto;
+  width: 100%;
+  min-height: 49px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-top-color: rgba(255, 255, 255, 0.4);
+  border-bottom-color: rgba(255, 255, 255, 0.09);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03));
+  backdrop-filter: blur(12px) saturate(1.18);
+  -webkit-backdrop-filter: blur(12px) saturate(1.18);
+  color: rgba(244, 250, 255, 0.93);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  box-shadow:
+    0 10px 28px rgba(0, 0, 0, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transition:
+    transform 0.3s ease,
+    background 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.consultants-cta:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.28);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.06));
+  box-shadow:
+    0 16px 32px rgba(0, 0, 0, 0.34),
+    0 0 18px rgba(176, 217, 255, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.26);
+}
+
+.consultants-cta--premium {
+  border-color: rgba(173, 225, 255, 0.36);
+  border-top-color: rgba(216, 241, 255, 0.52);
+  background: linear-gradient(135deg, rgba(165, 221, 255, 0.2), rgba(126, 187, 255, 0.09));
+  box-shadow:
+    0 12px 34px rgba(43, 93, 146, 0.4),
+    inset 0 1px 0 rgba(225, 243, 255, 0.24);
+}
+
+.consultants-cta--premium:hover {
+  border-color: rgba(198, 236, 255, 0.58);
+  background: linear-gradient(135deg, rgba(187, 232, 255, 0.26), rgba(138, 198, 255, 0.12));
+  box-shadow:
+    0 18px 40px rgba(50, 107, 164, 0.46),
+    0 0 24px rgba(132, 202, 255, 0.3),
+    inset 0 1px 0 rgba(238, 249, 255, 0.36);
+}
+
+.consultants-cta__arrow {
+  width: 13px;
+  height: 13px;
+  transition: transform 0.3s ease;
+}
+
+.consultants-cta:hover .consultants-cta__arrow {
+  transform: translateX(3px);
+}
+
+@keyframes consultants-scan {
+  from {
+    left: -52%;
+  }
+  to {
+    left: 108%;
   }
 }
 
-/* 高级卡强化 */
-.consultants-white-glass--premium {
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.09) !important; /* 明显更亮 */
-  border-color: rgba(255, 255, 255, 0.2);
-  box-shadow: 
-    0 8px 24px rgba(0, 0, 0, 0.2),
-    0 0 20px rgba(255, 255, 255, 0.03);
-}
+@media (max-width: 1100px) {
+  .consultants-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 
-.consultants-white-glass:hover {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-color: rgba(255, 255, 255, 0.25);
-}
+  .consultants-panel--profile {
+    min-height: auto;
+    grid-column: 1 / -1;
+  }
 
-/* ---- 价格卡高度 ---- */
-.consultants-card--premium,
-.consultants-card--standard {
-  min-height: 320px;
-}
-
-@media (max-width: 768px) {
-  .consultants-card--premium,
-  .consultants-card--standard {
-    min-height: auto; /* 移动端随内容撑开 */
+  .consultants-panel {
+    min-height: 390px;
   }
 }
 
-/* ---- Shimmer 动画 ---- */
-@keyframes shimmer {
-  0% { transform: translateX(-100%) skewX(-15deg); }
-  50%, 100% { transform: translateX(200%) skewX(-15deg); }
+@media (max-width: 767px) {
+  .consultants-section {
+    padding: 74px 16px;
+  }
+
+  .consultants-content {
+    gap: 16px;
+  }
+
+  .consultants-heading__line {
+    display: none;
+  }
+
+  .consultants-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .consultants-panel {
+    min-height: auto;
+  }
+
+  .consultants-panel__inner {
+    padding: 22px;
+  }
+
+  .consultants-profile__tag {
+    font-size: 0.64rem;
+  }
 }
 
-.animate-shimmer {
-  animation: shimmer 2.5s infinite;
+@media (prefers-reduced-motion: reduce) {
+  .consultants-panel,
+  .consultants-cta,
+  .consultants-cta__arrow,
+  .consultants-avatar::after {
+    transition-duration: 0ms !important;
+    animation-duration: 0ms !important;
+  }
 }

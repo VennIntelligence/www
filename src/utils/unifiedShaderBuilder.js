@@ -170,12 +170,32 @@ const TIER_DEFINES = {
 };
 
 /**
+ * 从 debug 面板覆盖参数构建 tier defines
+ * @param {'high'|'medium'|'low'} tier
+ * @param {Object} overrides - { maxSteps, surfDist, normalEps, glassInteriorSteps }
+ */
+function buildTierDefinesFromOverrides(tier, overrides) {
+  const qualityDefine = { high: 'QUALITY_HIGH', medium: 'QUALITY_MEDIUM', low: 'QUALITY_LOW' }[tier] || 'QUALITY_MEDIUM';
+  return [
+    `#define MAX_STEPS ${overrides.maxSteps}`,
+    `#define SURF_DIST ${glslFloat(overrides.surfDist)}`,
+    `#define NORMAL_EPS ${glslFloat(overrides.normalEps)}`,
+    `#define GLASS_INTERIOR_STEPS ${overrides.glassInteriorSteps}`,
+    `#define ${qualityDefine}`,
+    '#define SPIKE_ENABLED',
+  ];
+}
+
+/**
  * 构建完整的统一 fragment shader。
  * @param {'high'|'medium'|'low'} tier - GPU 性能档位
+ * @param {Object} [tierOverrides=null] - 可选的参数覆盖（来自 GPU 调参面板）
  * @returns {string} 完整的 GLSL fragment shader
  */
-export function buildUnifiedShader(tier) {
-  const tierDefines = TIER_DEFINES[tier] || TIER_DEFINES.medium;
+export function buildUnifiedShader(tier, tierOverrides = null) {
+  const tierDefines = tierOverrides
+    ? buildTierDefinesFromOverrides(tier, tierOverrides)
+    : (TIER_DEFINES[tier] || TIER_DEFINES.medium);
   const materialDefine = getSpikeMaterialDefine();
   const lookDefines = buildLookDefines();
   return [...tierDefines, materialDefine, ...lookDefines].join('\n') + '\n' + fragmentShaderBody;

@@ -155,6 +155,40 @@ useEffect(() => {
 - 非首屏视频必须延迟到首次可见时才设置 `src` 并调用 `load()`。
 - 冻结 ≠ 卸载：**禁止**在离开视口时 `dispose()` 或 React unmount 重型组件。
 
+#### 4.5 GPU Debug Panel（GPU 调参面板）
+
+位置：`src/components/GPUDebugPanel.jsx` + `src/utils/gpuDebugBus.js`
+
+用途：开发模式浮动面板，实时调节渲染画质参数并监控性能。通过 `npm run dev:gpu` 启动。
+
+**所有包含 WebGL / Three.js / 自定义 shader 的重型组件，必须将画质相关参数注册到 GPU Debug Panel 系统中。** 具体要求：
+
+1. **参数注册**：组件的核心画质参数（光线行进步数、渲染分辨率缩放、采样精度等）必须在 `gpuDebugBus.js` 的 `DEFAULT_TIER_PARAMS` 中声明，并提供中文注释（含默认值、范围、调大调小效果）。
+2. **重建监听**：组件必须监听 `window` 上的 `gpu-debug-rebuild` 自定义事件，收到后用 `event.detail.params` 重建 shader 或更新渲染参数。
+3. **指标上报**：组件的 RAF 循环尾部必须检查 `window.__GPU_DEBUG__`，若存在则调用 `reportFrame()` 和 `reportMetrics(tier, scale)` 上报性能数据。
+4. **自适应跳过**：当 `window.__GPU_DEBUG__?.forcedTier` 不为 null 时，跳过自动画质调节（`adaptQuality`），由面板完全控制。
+5. **Shader builder 签名**：shader 构建函数必须接受可选的 `tierOverrides` 参数（如 `buildUnifiedShader(tier, tierOverrides = null)`），以支持面板实时覆盖编译参数。
+
+```js
+// 渲染器集成示例（在 tick() 尾部）：
+const debugBus = window.__GPU_DEBUG__;
+if (debugBus) {
+  debugBus.reportFrame();
+  debugBus.reportMetrics(activeTier, scale);
+}
+
+// 监听 shader 重建（在 useEffect 内）：
+const onDebugRebuild = (e) => {
+  const { tier, params } = e.detail;
+  material.fragmentShader = buildShader(tier, params);
+  material.needsUpdate = true;
+};
+window.addEventListener('gpu-debug-rebuild', onDebugRebuild);
+// cleanup: window.removeEventListener(...)
+```
+
+**面板本身是纯开发工具**，通过 `import.meta.env.VITE_GPU_DEBUG` + `lazy()` 动态加载，生产构建中完全被 tree-shaking 排除，零运行时开销。
+
 ---
 
 ## 5. Architecture & File Organization
@@ -231,4 +265,5 @@ src/
 - [ ] Heavy components use `useSectionFreeze` + `useAdaptiveQuality` hooks
 - [ ] Non-first-screen images use `loading="lazy"`, no `fetchPriority="high"`
 - [ ] Non-first-screen videos defer loading until first visible
+- [ ] New heavy components register quality params in `gpuDebugBus.js` and listen for `gpu-debug-rebuild`
 - [ ] Build passes: `npx vite build`

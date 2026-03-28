@@ -282,7 +282,7 @@
 }
 
 .about-heading__h2 {
-  font-size: clamp(1.8rem, 4.5vw, 3.8rem);
+  font-size: clamp(1.8rem, 4.5vw, 3.5rem);
   line-height: 1.0;
   letter-spacing: -0.02em;
   color: hsl(var(--about-fg));
@@ -290,14 +290,22 @@
 
 .about-heading__light {
   font-weight: 300;
+  /* key 变更重挂载时触发此动画；默认标准值：320ms。 */
+  animation: about-title-reveal 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* 每行错开 50ms，形成依次入场感 */
+.about-heading__light + br + .about-heading__light {
+  animation-delay: 50ms;
+}
+.about-heading__light + br + .about-heading__light + br + .about-heading__display,
 .about-heading__display {
   font-weight: 600;
   background: linear-gradient(135deg, rgba(200, 230, 255, 1), rgba(120, 180, 255, 0.8));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  animation: about-title-reveal 320ms cubic-bezier(0.22, 1, 0.36, 1) 100ms both;
 }
 
 /* ---------- CTA 按钮（标题下方）— 精致透明玻璃感 ---------- */
@@ -494,4 +502,22 @@
 .about-blur-reveal.is-revealed {
   filter: blur(0px);
   opacity: 1;
+}
+
+/*
+ * 语言切换标题行入场动画
+ * 模糊+向上位移→清晰，与 about-blur-reveal scroll触发独立。
+ * 初始标准值：blur 8px，translateY 0.3em，持续 320ms。
+ */
+@keyframes about-title-reveal {
+  from {
+    opacity: 0;
+    filter: blur(8px);
+    transform: translateY(0.3em);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
 }

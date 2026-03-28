@@ -176,7 +176,15 @@
   text-shadow:
     0 10px 24px rgba(4, 9, 20, 0.42),
     0 0 16px rgba(121, 190, 255, 0.08);
+  /* 语言切换时 key 变化引发重挂载，触发此入场动画；
+     默认标准值：340ms。调大更柔和，调小更利落。 */
+  animation: hero-title-reveal 340ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+
+/* 每行错开 60ms，形成瀑布式依次入场感 */
+.hero__title-line:nth-child(2) { animation-delay: 60ms; }
+.hero__title-line:nth-child(3) { animation-delay: 120ms; }
+.hero__title-line:nth-child(4) { animation-delay: 180ms; }
 
 .hero__title-line--secondary {
   margin-top: -0.12em;
@@ -625,5 +633,23 @@
   100% {
     filter: blur(0px);
     opacity: 1;
+  }
+}
+
+/*
+ * 语言切换标题行入场动画
+ * 模糊+向上位移→清晰，与 hero-blur-reveal 区分开，仅作用于单行文字。
+ * 初始标准值：blur 10px，translateY 0.4em，持续 340ms。
+ */
+@keyframes hero-title-reveal {
+  from {
+    opacity: 0;
+    filter: blur(10px);
+    transform: translateY(0.4em);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
   }
 }

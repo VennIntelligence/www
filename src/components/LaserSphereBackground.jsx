@@ -3,97 +3,47 @@ import * as THREE from 'three';
 import useSectionFreeze from '../hooks/useSectionFreeze';
 
 /* ================================================================
-   LaserSphereBackground — 进化版：沉重、巨型、随机网格星球
-   - Desktop: 更大的球体 + 更亮的发光
-   - Mobile: 球体固定在页面中下部，不跟随面板滚动（差动效果）
+   LaserSphereBackground — Three.js 原生光照版绿光地球
+   - 不使用 CSS 打光蒙层，球体发光来自原生灯光 + 受光材质
+   - Desktop: 更大体量；Mobile: 适配中下部差动
    ================================================================ */
 
 const CONFIG = {
-  // 尺寸：桌面端更大，移动端保持小巧
-  desktopRadius: 16,        // 桌面端放大（之前 12，现 16）
-  mobileRadius: 3,          // 移动端保持不变
-  detail: 8,               // 减小细分数，让边更长、网格更粗
+  // 尺寸：相对旧版本放大
+  desktopRadius: 30,
+  mobileRadius: 8,
+  detail: 5,
 
-  // 相机距离：桌面端拉远以容纳更大球体
-  desktopCameraZ: 30,       // 桌面端相机 Z（之前 24）
-  mobileCameraZ: 14,        // 移动端相机 Z
+  // 相机距离
+  desktopCameraZ: 48,
+  mobileCameraZ: 20,
 
   // 物理交互
-  baseRotationSpeed: 0.0008, // 极其缓慢的基础旋转
-  sensitivity: 0.0005,       // 大幅降低灵敏度，模拟沉重感
-  friction: 0.98,            // 极大的惯性，转动后会滑行很久
+  baseRotationSpeed: 0.00065,
+  sensitivity: 0.00045,
+  friction: 0.977,
 
-  // 颜色 — 提亮
-  meshColor: '#22ffbb',      // 更亮的绿色（之前 #00ffaa）
-  glowColor: '#44ffdd',      // 更亮的辉光色
+  // 颜色
+  meshColor: '#38ffba',
+  coreColor: '#0a2b1a',
+  glowColor: '#98ffe9',
+  keyLightIntensity: 2.6,
 
-  // 移动端差动系数 — 球体滚动速度为面板的 N 倍（< 1 表示更慢）
-  mobileParallaxFactor: 0.35,
+  // 移动端差动系数（<1 表示慢于滚动）
+  mobileParallaxFactor: 0.28,
 };
-
-/* ---- 顶点着色器 ---- */
-const vertexShader = `
-  varying vec3 vPosition;
-  varying float vNoise;
-  varying vec3 vNormal;
-  uniform float uTime;
-
-  float snoise(vec3 v) {
-    return sin(v.x * 0.3 + uTime * 0.1) * cos(v.y * 0.4 - uTime * 0.15) * 0.5;
-  }
-
-  void main() {
-    vPosition = position;
-    vNormal = normalize(normalMatrix * normal);
-    float noise = snoise(position);
-    vNoise = noise;
-    vec3 newPosition = position + normal * noise * 1.5;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
-  }
-`;
-
-/* ---- 片段着色器 — 更亮的发光 + 边缘辉光 ---- */
-const fragmentShader = `
-  varying vec3 vPosition;
-  varying float vNoise;
-  varying vec3 vNormal;
-  uniform float uTime;
-  uniform vec3 uColor;
-  uniform vec3 uGlowColor;
-
-  float random(vec2 st) {
-    return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
-  }
-
-  void main() {
-    float seed = floor(vPosition.x * 2.5 + vPosition.y * 2.5);
-    float randVal = random(vec2(seed, 1.0));
-
-    // 随机剔除部分线条，形成不规则图样
-    if (randVal < 0.3) discard;
-
-    float pulse = sin(uTime * (1.2 + randVal * 2.0) + seed * 5.0) * 0.5 + 0.5;
-    float intensity = mix(0.25, 1.4, vNoise * 0.5 + 0.5) * (pulse * 0.6 + 0.4);
-
-    // Fresnel 边缘辉光：视线越平行于表面越亮
-    float fresnel = pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 2.5);
-    vec3 baseColor = mix(uColor, uGlowColor, fresnel * 0.6);
-
-    // 整体亮度提升
-    float finalAlpha = clamp(intensity * 0.7 + fresnel * 0.35, 0.0, 1.0);
-
-    gl_FragColor = vec4(baseColor * (1.0 + fresnel * 0.5), finalAlpha);
-  }
-`;
 
 export default function LaserSphereBackground({ sectionRef, isMobileProp }) {
   const containerRef = useRef(null);
   const rendererRef = useRef(null);
   const sceneRef = useRef(null);
   const cameraRef = useRef(null);
-  const meshRef = useRef(null);
+  const globeGroupRef = useRef(null);
+  const coreMeshRef = useRef(null);
+  const auraMeshRef = useRef(null);
+  const keyLightRef = useRef(null);
   const animIdRef = useRef(null);
-  const startTimeRef = useRef(performance.now());
+  const startTimeRef = useRef(0);
 
   const [isMobile, setIsMobile] = useState(() =>
     isMobileProp ?? (typeof window !== 'undefined' && window.innerWidth <= 768)
@@ -113,10 +63,13 @@ export default function LaserSphereBackground({ sectionRef, isMobileProp }) {
     const container = containerRef.current;
     if (!container || !rendererRef.current || !cameraRef.current) return;
     const rect = container.getBoundingClientRect();
-    const mobile = rect.width <= 768;
+    const width = rect.width || window.innerWidth;
+    const height = rect.height || window.innerHeight;
+    const mobile = width <= 768;
     setIsMobile(mobile);
-    rendererRef.current.setSize(rect.width, rect.height);
-    cameraRef.current.aspect = rect.width / rect.height;
+    rendererRef.current.setSize(width, height);
+    cameraRef.current.aspect = width / height;
+    cameraRef.current.position.z = mobile ? CONFIG.mobileCameraZ : CONFIG.desktopCameraZ;
     cameraRef.current.updateProjectionMatrix();
   }, []);
 
@@ -124,45 +77,93 @@ export default function LaserSphereBackground({ sectionRef, isMobileProp }) {
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
+    startTimeRef.current = performance.now();
 
     const rect = container.getBoundingClientRect();
-    const mobile = isMobileProp ?? rect.width <= 768;
+    // 防止容器尚未布局时尺寸为 0 —— 用 window 尺寸兜底
+    const w = rect.width || window.innerWidth;
+    const h = rect.height || window.innerHeight;
+    const mobile = isMobileProp ?? isMobile;
     const scene = new THREE.Scene();
     sceneRef.current = scene;
 
     const cameraZ = mobile ? CONFIG.mobileCameraZ : CONFIG.desktopCameraZ;
-    const camera = new THREE.PerspectiveCamera(55, rect.width / rect.height, 0.1, 2000);
+    const camera = new THREE.PerspectiveCamera(55, w / h, 0.1, 2000);
     camera.position.z = cameraZ;
     cameraRef.current = camera;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(rect.width, rect.height);
+    renderer.setSize(w, h);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(0x000000, 0);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.08;
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
     const radius = mobile ? CONFIG.mobileRadius : CONFIG.desktopRadius;
-    const geometry = new THREE.IcosahedronGeometry(radius, CONFIG.detail);
-    const edges = new THREE.EdgesGeometry(geometry, 2);
+    const globeGroup = new THREE.Group();
+    globeGroup.position.set(mobile ? 0 : -radius * 0.2, -radius * 0.24, 0);
+    scene.add(globeGroup);
+    globeGroupRef.current = globeGroup;
 
-    const material = new THREE.ShaderMaterial({
-      uniforms: {
-        uTime: { value: 0 },
-        uColor: { value: new THREE.Color(CONFIG.meshColor) },
-        uGlowColor: { value: new THREE.Color(CONFIG.glowColor) },
-      },
-      vertexShader,
-      fragmentShader,
+    const coreGeometry = new THREE.IcosahedronGeometry(radius * 0.86, 5);
+    const coreMaterial = new THREE.MeshPhysicalMaterial({
+      color: new THREE.Color(CONFIG.coreColor),
+      roughness: 0.3,
+      metalness: 0.06,
+      clearcoat: 0.42,
+      clearcoatRoughness: 0.34,
+      transmission: 0.08,
+      thickness: radius * 0.2,
       transparent: true,
+      opacity: 0.55,
+      emissive: new THREE.Color(CONFIG.meshColor),
+      emissiveIntensity: 0.08,
+    });
+    const coreMesh = new THREE.Mesh(coreGeometry, coreMaterial);
+    globeGroup.add(coreMesh);
+    coreMeshRef.current = coreMesh;
+
+    const wireGeometry = new THREE.IcosahedronGeometry(radius, CONFIG.detail);
+    const wireMaterial = new THREE.MeshStandardMaterial({
+      color: new THREE.Color(CONFIG.meshColor),
+      emissive: new THREE.Color(CONFIG.glowColor),
+      emissiveIntensity: 0.58,
+      roughness: 0.38,
+      metalness: 0.21,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.82,
+    });
+    const wireMesh = new THREE.Mesh(wireGeometry, wireMaterial);
+    globeGroup.add(wireMesh);
+
+    const auraGeometry = new THREE.IcosahedronGeometry(radius * 1.08, 3);
+    const auraMaterial = new THREE.MeshBasicMaterial({
+      color: new THREE.Color(CONFIG.glowColor),
+      transparent: true,
+      opacity: 0.13,
+      side: THREE.BackSide,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
+    const auraMesh = new THREE.Mesh(auraGeometry, auraMaterial);
+    globeGroup.add(auraMesh);
+    auraMeshRef.current = auraMesh;
 
-    const mesh = new THREE.LineSegments(edges, material);
-    // 球体偏下，只露出上半球
-    mesh.position.y = -radius * 0.7;
-    scene.add(mesh);
-    meshRef.current = mesh;
+    // ---- Three.js 原生灯光 ----
+    const ambientLight = new THREE.AmbientLight(0x8fffe7, 0.28);
+    const hemisphereLight = new THREE.HemisphereLight(0x7effe3, 0x04130d, 0.62);
+    const keyLight = new THREE.PointLight(0x4fffd2, CONFIG.keyLightIntensity, radius * 14);
+    keyLight.position.set(radius * 1.3, radius * 0.55, radius * 1.35);
+    const fillLight = new THREE.PointLight(0x10ff96, 1.5, radius * 14);
+    fillLight.position.set(-radius * 1.8, -radius * 0.65, radius * 0.45);
+    const rimLight = new THREE.PointLight(0xb6fff2, 1.2, radius * 14);
+    rimLight.position.set(0, radius * 0.3, -radius * 2.0);
+    scene.add(ambientLight, hemisphereLight, keyLight, fillLight, rimLight);
+    keyLightRef.current = keyLight;
 
     // ---- 指针交互 ----
     const onDown = (e) => {
@@ -201,12 +202,16 @@ export default function LaserSphereBackground({ sectionRef, isMobileProp }) {
       window.removeEventListener('touchend', onUp);
       window.removeEventListener('resize', handleResize);
       cancelAnimationFrame(animIdRef.current);
-      geometry.dispose();
-      material.dispose();
+      scene.remove(ambientLight, hemisphereLight, keyLight, fillLight, rimLight);
+      scene.remove(globeGroup);
+      [coreMesh, wireMesh, auraMesh].forEach((mesh) => {
+        mesh.geometry.dispose();
+        mesh.material.dispose();
+      });
       renderer.dispose();
       if (container.contains(renderer.domElement)) container.removeChild(renderer.domElement);
     };
-  }, [handleResize, isMobileProp]);
+  }, [handleResize, isMobile, isMobileProp]);
 
   // 移动端差动滚动效果
   useEffect(() => {
@@ -231,22 +236,46 @@ export default function LaserSphereBackground({ sectionRef, isMobileProp }) {
   // 渲染循环
   useEffect(() => {
     if (!shouldAnimate) return;
+
     const animate = () => {
       animIdRef.current = requestAnimationFrame(animate);
       const time = (performance.now() - startTimeRef.current) / 1000;
-      if (meshRef.current) {
-        meshRef.current.material.uniforms.uTime.value = time;
-        meshRef.current.rotation.y += rotationVel.current.y + CONFIG.baseRotationSpeed;
-        meshRef.current.rotation.x += rotationVel.current.x;
+
+      if (globeGroupRef.current) {
+        globeGroupRef.current.rotation.y += rotationVel.current.y + CONFIG.baseRotationSpeed;
+        globeGroupRef.current.rotation.x += rotationVel.current.x * 0.8;
+        globeGroupRef.current.rotation.z += CONFIG.baseRotationSpeed * 0.35;
+
+        if (coreMeshRef.current) {
+          const breathe = 1 + Math.sin(time * 0.95) * 0.015;
+          coreMeshRef.current.scale.setScalar(breathe);
+        }
+
+        if (auraMeshRef.current) {
+          const auraPulse = 1 + Math.sin(time * 1.2) * 0.025;
+          auraMeshRef.current.scale.setScalar(auraPulse);
+        }
+
+        if (keyLightRef.current) {
+          keyLightRef.current.intensity = CONFIG.keyLightIntensity + Math.sin(time * 1.4) * 0.35;
+        }
+
         rotationVel.current.x *= CONFIG.friction;
         rotationVel.current.y *= CONFIG.friction;
       }
-      // 移动端：用CSS transform做差动，不改mesh position（避免重建矩阵）
+
+      // 移动端：用容器 transform 做差动，不改球体矩阵
       if (isMobile && containerRef.current) {
         containerRef.current.style.transform = `translateY(${scrollOffsetRef.current}px)`;
+      } else if (containerRef.current) {
+        containerRef.current.style.transform = 'translateY(0px)';
       }
-      rendererRef.current.render(sceneRef.current, cameraRef.current);
+
+      if (rendererRef.current && sceneRef.current && cameraRef.current) {
+        rendererRef.current.render(sceneRef.current, cameraRef.current);
+      }
     };
+
     animate();
     return () => cancelAnimationFrame(animIdRef.current);
   }, [shouldAnimate, isMobile]);
@@ -255,7 +284,7 @@ export default function LaserSphereBackground({ sectionRef, isMobileProp }) {
      - Desktop: absolute 定位覆盖整个 section
      - Mobile: fixed-like 行为通过 sticky 实现，停留在 section 中下部 */
   const containerClass = isMobile
-    ? 'absolute inset-x-0 bottom-0 h-[60vh] z-0 pointer-events-none overflow-hidden will-change-transform'
+    ? 'absolute inset-x-0 bottom-[-8vh] h-[74vh] z-0 pointer-events-none overflow-hidden will-change-transform'
     : 'absolute inset-0 w-full h-full z-0 pointer-events-none overflow-hidden';
 
   return <div ref={containerRef} className={containerClass} />;

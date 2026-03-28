@@ -6,9 +6,9 @@
 
 @layer base {
   :root {
-    --color-bg: #0a0a0f;
+    --color-bg: #000000;
     --color-text: #e0e0e0;
-    --color-text-dim: rgba(224, 224, 224, 0.5);
+    --color-text-dim: rgba(224, 224, 224, 0.45);
     --color-accent: #4fc3f7;
     --color-accent-dim: rgba(79, 195, 247, 0.3);
 

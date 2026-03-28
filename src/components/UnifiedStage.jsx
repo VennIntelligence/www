@@ -545,6 +545,8 @@ export default function UnifiedStage() {
     }
 
     function adaptQuality() {
+      // GPU 调参面板激活时，由面板控制画质，跳过自动调节
+      if (window.__GPU_DEBUG__?.enabled && window.__GPU_DEBUG__?.forcedTier) return;
       if (!upgraded) return;
       const now = performance.now();
       frameTimes[fIdx] = now - lastT;
@@ -785,6 +787,13 @@ export default function UnifiedStage() {
 
       renderer.render(scene, camera);
       adaptQuality();
+
+      // ── GPU 调参面板集成：上报帧时间和状态 ──
+      const debugBus = window.__GPU_DEBUG__;
+      if (debugBus) {
+        debugBus.reportFrame();
+        debugBus.reportMetrics(activeTier, scale);
+      }
     }
     tick();
 
@@ -794,8 +803,22 @@ export default function UnifiedStage() {
     const onResize = () => applyScale();
     window.addEventListener('resize', onResize);
 
+    // ── GPU 调参面板：监听 shader 重建事件 ──
+    const onDebugRebuild = (event) => {
+      const { tier, params } = event.detail || {};
+      if (!tier || !params) return;
+      material.fragmentShader = buildUnifiedShader(tier, params);
+      material.needsUpdate = true;
+      activeTier = tier;
+      scale = params.renderScale || scale;
+      upgraded = true;
+      applyScale();
+    };
+    window.addEventListener('gpu-debug-rebuild', onDebugRebuild);
+
     // ── 清理 ──
     return () => {
+      window.removeEventListener('gpu-debug-rebuild', onDebugRebuild);
       cancelAnimationFrame(animId);
       cancelUpgrade();
       releaseDrag();

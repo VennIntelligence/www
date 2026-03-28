@@ -139,15 +139,15 @@ export default function AboutSection() {
               style={{ y: yHeading, transitionDelay: '0.15s' }}
             >
               <h2 className="about-heading__h2" ref={headingH2Ref}>
-                <MagnetText tag="span" className="about-heading__light">
+                <MagnetText key={`${lang}-0`} tag="span" className="about-heading__light">
                   {copy.headingLines[0]}
                 </MagnetText>
                 <br />
-                <MagnetText tag="span" className="about-heading__light">
+                <MagnetText key={`${lang}-1`} tag="span" className="about-heading__light">
                   {copy.headingLines[1]}
                 </MagnetText>
                 <br />
-                <MagnetText tag="span" className="about-heading__display">
+                <MagnetText key={`${lang}-2`} tag="span" className="about-heading__display">
                   {copy.headingLines[2]}
                 </MagnetText>
               </h2>

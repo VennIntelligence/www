@@ -5,10 +5,10 @@
 /* ---------- 页面容器 ---------- */
 .blog-page {
   min-height: 100vh;
-  background:
-    radial-gradient(circle at 20% 20%, rgba(30, 60, 120, 0.12), transparent 40%),
-    linear-gradient(180deg, #040816 0%, #060c18 48%, #0a0a0f 100%);
-  color: rgba(230, 240, 255, 0.88);
+  /* 纯黑背景 + 顶部极淡的蓝色光晕（Halo）*/
+  background-color: #000000;
+  background-image: radial-gradient(circle at 50% -10%, rgba(48, 120, 255, 0.08) 0%, transparent 60%);
+  color: rgba(255, 255, 255, 0.9);
   font-family: var(--font-sans);
 }
 
@@ -33,13 +33,13 @@
   font-size: clamp(2rem, 5vw, 3.2rem);
   font-weight: 700;
   letter-spacing: -0.03em;
-  color: rgba(240, 248, 255, 0.95);
+  color: #ffffff;
   margin: 0 0 8px;
 }
 
 .blog-page__subtitle {
   font-size: 14px;
-  color: rgba(200, 220, 245, 0.45);
+  color: rgba(255, 255, 255, 0.4);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   margin: 0;
@@ -79,10 +79,10 @@
 .blog-card__hero {
   position: relative;
   padding: 60px 32px 48px;
-  background:
-    radial-gradient(circle at 70% 30%, rgba(60, 120, 220, 0.18), transparent 50%),
-    radial-gradient(circle at 30% 80%, rgba(30, 80, 180, 0.12), transparent 40%),
-    linear-gradient(135deg, rgba(10, 20, 50, 0.9), rgba(8, 16, 40, 0.95));
+  background-color: #000;
+  background-image: 
+    radial-gradient(circle at 70% 30%, rgba(60, 120, 220, 0.1), transparent 50%),
+    radial-gradient(circle at 30% 80%, rgba(30, 80, 180, 0.08), transparent 40%);
   overflow: hidden;
 }
 
@@ -90,8 +90,8 @@
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 80% 20%, rgba(100, 170, 255, 0.15), transparent 40%),
-    linear-gradient(180deg, transparent 60%, rgba(4, 8, 22, 0.8) 100%);
+    radial-gradient(circle at 80% 20%, rgba(100, 170, 255, 0.1), transparent 40%),
+    linear-gradient(180deg, transparent 60%, rgba(0, 0, 0, 0.95) 100%);
   pointer-events: none;
 }
 
@@ -118,14 +118,14 @@
   font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(200, 220, 245, 0.35);
+  color: rgba(180, 180, 180, 0.45);
   margin-bottom: 10px;
 }
 
 .blog-card__title {
   font-size: clamp(1.1rem, 2.2vw, 1.4rem);
   font-weight: 600;
-  color: rgba(240, 248, 255, 0.92);
+  color: #ffffff;
   margin: 0 0 10px;
   line-height: 1.3;
 }
@@ -133,7 +133,7 @@
 .blog-card__excerpt {
   font-size: 13.5px;
   line-height: 1.7;
-  color: rgba(200, 220, 245, 0.5);
+  color: rgba(255, 255, 255, 0.55);
   margin: 0 0 14px;
 }
 
@@ -141,13 +141,13 @@
   font-size: 12.5px;
   font-weight: 600;
   letter-spacing: 0.06em;
-  color: rgba(130, 190, 255, 0.7);
+  color: rgba(255, 255, 255, 0.5);
   text-transform: uppercase;
   transition: color 0.3s ease;
 }
 
 .blog-card:hover .blog-card__cta {
-  color: rgba(150, 210, 255, 0.95);
+  color: rgba(255, 255, 255, 0.95);
 }
 
 /* ============================================================
@@ -181,7 +181,7 @@
   font-size: 13px;
   font-weight: 500;
   letter-spacing: 0.04em;
-  color: rgba(130, 190, 255, 0.6);
+  color: rgba(255, 255, 255, 0.4);
   transition: color 0.3s ease;
 }
 
@@ -202,7 +202,7 @@
   font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(200, 220, 245, 0.35);
+  color: rgba(180, 180, 180, 0.45);
   margin-bottom: 16px;
 }
 
@@ -211,7 +211,7 @@
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.2;
-  color: rgba(240, 248, 255, 0.95);
+  color: #ffffff;
   margin: 0 0 20px;
 }
 
@@ -220,10 +220,10 @@
   font-weight: 300;
   font-style: italic;
   line-height: 1.6;
-  color: rgba(170, 200, 240, 0.6);
+  color: rgba(255, 255, 255, 0.5);
   margin: 0;
   padding-left: 16px;
-  border-left: 2px solid rgba(120, 180, 255, 0.3);
+  border-left: 2px solid rgba(255, 255, 255, 0.15);
 }
 
 /* ---------- 文章正文 ---------- */
@@ -235,7 +235,7 @@
   font-size: clamp(1.3rem, 3vw, 1.7rem);
   font-weight: 700;
   letter-spacing: -0.01em;
-  color: rgba(240, 248, 255, 0.92);
+  color: #ffffff;
   margin: 48px 0 16px;
 }
 
@@ -246,14 +246,14 @@
 .blog-h3 {
   font-size: clamp(1.05rem, 2vw, 1.25rem);
   font-weight: 600;
-  color: rgba(220, 235, 255, 0.88);
+  color: rgba(255, 255, 255, 0.95);
   margin: 36px 0 12px;
 }
 
 .blog-p {
   font-size: 15px;
   line-height: 1.85;
-  color: rgba(200, 220, 245, 0.62);
+  color: rgba(255, 255, 255, 0.7);
   margin: 0 0 16px;
 }
 

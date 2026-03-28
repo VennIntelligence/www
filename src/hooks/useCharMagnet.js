@@ -26,6 +26,8 @@ import { useEffect, useRef } from 'react';
  * 性能说明：
  *   使用单个 RAF 循环 + 直接 DOM 操作，不触发 React 渲染。
  *   弹簧插值 + 死区优化，空闲时跳过 DOM 写入。
+ *   MutationObserver 监听容器子节点变化：语言切换后 DOM 重建时
+ *   自动重新扫描 .magnet-char 并重启循环，磁吸效果不会丢失。
  * ─────────────────────────────────────────── */
 
 const DEFAULT_OPTIONS = {
@@ -54,17 +56,28 @@ export default function useCharMagnet(containerRef, options = {}) {
     const container = containerRef.current;
     if (!container) return;
 
-    const charEls = container.querySelectorAll(optsRef.current.selector);
-    if (!charEls.length) return;
-
-    /* 每个字符的弹簧状态 */
-    const springs = Array.from({ length: charEls.length }, () => ({
-      y: 0, scale: 0, rotate: 0,
-      targetY: 0, targetScale: 0, targetRotate: 0,
-    }));
-
     let animId = 0;
+    let charEls = [];
+    let springs = [];
 
+    /* ── 初始化/重新初始化字符集 ── */
+    const init = () => {
+      /* 先停掉旧循环，重置旧元素 transform */
+      cancelAnimationFrame(animId);
+      charEls.forEach((el) => { el.style.transform = ''; });
+
+      charEls = Array.from(container.querySelectorAll(optsRef.current.selector));
+      if (!charEls.length) return;
+
+      springs = Array.from({ length: charEls.length }, () => ({
+        y: 0, scale: 0, rotate: 0,
+        targetY: 0, targetScale: 0, targetRotate: 0,
+      }));
+
+      animId = requestAnimationFrame(tick);
+    };
+
+    /* ── 动画主循环 ── */
     const tick = () => {
       const o = optsRef.current;
       const mouse = mouseRef.current;
@@ -125,13 +138,26 @@ export default function useCharMagnet(containerRef, options = {}) {
       animId = requestAnimationFrame(tick);
     };
 
-    animId = requestAnimationFrame(tick);
+    /* ── MutationObserver：子树变化时重新初始化 ──
+     * 语言切换会导致 MagnetText 的 key 变化，React 会重新挂载，
+     * 原有的 .magnet-char 被替换为新节点。Observer 捕获到后重新 init()。
+     * subtree: true 捕获所有后代节点的增删。
+     */
+    const mo = new MutationObserver(() => {
+      init();
+    });
+
+    mo.observe(container, { childList: true, subtree: true });
+
+    /* 首次初始化 */
+    init();
 
     return () => {
+      mo.disconnect();
       cancelAnimationFrame(animId);
       charEls.forEach((el) => { el.style.transform = ''; });
     };
-  /* containerRef.current 变化时（如语言切换导致重新渲染）需要重新初始化 */
+  /* containerRef 挂载后不会变，effect 只需运行一次 */
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [containerRef]);
 
