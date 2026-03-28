@@ -52,7 +52,7 @@ Frontend:
   └── React Router (client-side routing)
 
 Hosting:
-  ├── Cloudflare Pages (static hosting, free tier)
+  ├── Cloudflare Workers (GitHub auto deploy)
   └── Custom domain (vennai.org)
 
 Language:
@@ -120,7 +120,7 @@ npm run preview
 
 ## 🌐 Deployment
 
-### Cloudflare Pages (Production)
+### Cloudflare Workers (Production)
 
 Repository:
 - Git provider: GitHub
@@ -129,37 +129,54 @@ Repository:
 - Monorepo: yes (current frontend project root is `/`)
 
 Build config:
-- Framework preset: `Vite`
 - Build command: `npm run build`
 - Build output directory: `dist`
 - Root directory: `/`
 - Node.js version: `20.19.0+` (Vite 8 requires `^20.19.0 || >=22.12.0`)
-- Install command: `npm install` (or `npm ci` if lockfile-only CI install is preferred)
+- Install command: `npm install` (or `npm ci`)
+- Config file: `wrangler.toml`
+- Worker entrypoint: `worker.js`
+
+Wrangler config:
+- `name = "www"`
+- `main = "worker.js"`
+- `assets.directory = "./dist"`
+- `assets.binding = "ASSETS"`
+- `assets.not_found_handling = "single-page-application"`
+
+Cloudflare dashboard checks:
+- Service name should be `www`
+- Git repo should be `VeenIntelligence/www`
+- Automatic deployments should be enabled
+- Latest deployment logs should show your repo build output (not default template)
+
+If you still see `Hello World`, open `Workers & Pages -> www -> Deployments` and check logs for missing `wrangler.toml`, wrong root directory, or failed build.
 
 Environment variables:
 - Production: none
 
 Routing:
-- SPA fallback: enabled via `public/_redirects` with `/* /index.html 200`
+- SPA fallback: enabled at Worker assets level via `not_found_handling = "single-page-application"`
+- `public/_redirects` remains compatible for static hosting fallback
 
 #### Setup Steps
-1. In Cloudflare dashboard, go to `Workers & Pages` -> `Create` -> `Pages` -> `Connect to Git`.
-2. Connect GitHub and select repo `VeenIntelligence/www`.
-3. Set production branch to `main`.
-4. Fill build settings with the values above and deploy.
-5. Add custom domain `vennai.org` in Pages project -> `Custom domains`.
-6. Add `www.vennai.org` as well, then configure a redirect rule from `www` to apex domain (`vennai.org`).
+1. In Cloudflare dashboard, go to `Workers & Pages` -> `www` -> `Settings` -> `Builds & deployments`.
+2. Connect GitHub repo `VeenIntelligence/www` and set production branch to `main`.
+3. Set root directory to `/`, build command to `npm run build`, output directory to `dist`.
+4. Keep `wrangler.toml` at repo root so Cloudflare can resolve `worker.js` and static asset binding.
+5. Redeploy from `Deployments` after saving settings.
+6. Bind custom domain `vennai.org` (and optional `www.vennai.org`) to Worker `www`.
 
 #### Domain Status Note
 You said the domain is purchased but not bound to any server yet. That is fine.
-You only need DNS pointing to Cloudflare (or nameservers switched to Cloudflare) before/while binding `vennai.org` in Pages.
+You only need DNS pointing to Cloudflare (or nameservers switched to Cloudflare) before/while binding `vennai.org` to this Worker service.
 
 #### Manual Trigger Command
-Default behavior is auto deploy on push to `main`.  
+Default behavior is auto deploy on push to `main`.
 If you want to force a deploy without code changes, run:
 
 ```bash
-git commit --allow-empty -m "chore: trigger cloudflare pages deploy" && git push origin main
+git commit --allow-empty -m "chore: trigger cloudflare workers deploy" && git push origin main
 ```
 
 ---
