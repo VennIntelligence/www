@@ -3,10 +3,40 @@ import '../styles/components/fluid-amber-bg.css';
 import useSectionFreeze from '../hooks/useSectionFreeze';
 
 /* ================================================================
-   FluidAmberBackground — Domain-warped simplex noise · WebGL
-   来源：Fluid Amber (09) · 液态金属琥珀感 shader 背景
-   接入：useSectionFreeze（离屏冻结 RAF）
+   FluidAmberBackground — 可调参数总控台
+   ──────────────────────────────────────────────────────────────
+   修改这里的值即可实时改变动画行为，无需动 shader 代码。
    ================================================================ */
+const CFG = {
+  /* ── 整体流速 ──────────────────────────────────────────────── */
+  // 时间缩放。默认 0.15。调大 → 流动变快；调小 → 流动变慢/近乎静止
+  timeScale: 0.08,
+
+  /* ── fbm（分形布朗运动）质感 ────────────────────────────────── */
+  // 每一层 octave 的振幅衰减系数。默认 0.48。
+  // 调大(→0.6)：细节更丰富、更"毛糙"；调小(→0.3)：更平滑、大块状
+  ampDecay: 0.6,
+
+  /* ── 二阶 domain warp 强度 ──────────────────────────────────── */
+  // 第一层 warp 系数（乘以 q）。默认 4.0。越大扭曲越剧烈
+  warpQ: 4.0,
+  // 第二层 warp 系数（乘以 r）。默认 3.5。越大最终形变越大
+  warpR: 3.5,
+
+  /* ── 鼠标漩涡扰动 ───────────────────────────────────────────── */
+  // 漩涡影响范围（高斯衰减 e^(-dist² * falloff)）。默认 8.0。
+  // 调大 → 漩涡更集中/半径更小；调小(→3) → 影响范围更大更扩散
+  swirlFalloff: 8.0,
+  // 漩涡最大旋转角度（弧度）。默认 0.28（约 16°，非常轻微）。
+  // 原始值 2.4（约 137°），太强。建议范围 0.1 ～ 0.6
+  swirlAngle: 0.28,
+
+  /* ── FBM 内部时间变速 ────────────────────────────────────────── */
+  // r 层（第二 warp）的时间系数。默认 1.2。越大 r 层流动比 q 层快
+  rTimeScale: 1.2,
+  // f 层（最终采样）的时间系数。默认 0.8。越小最终纹理流动越慢
+  fTimeScale: 0.8,
+};
 
 /* ── Shader 源码 ── */
 const VERT_SRC = `
@@ -18,8 +48,14 @@ const FRAG_SRC = `
 precision mediump float;
 uniform float u_time;
 uniform vec2  u_res;
-uniform float u_timeScale;   /* 时间缩放（默认 0.15，越大流动越快） */
-uniform float u_ampDecay;    /* fbm 幅度衰减（默认 0.48，越小越平滑） */
+uniform float u_timeScale;    /* CFG.timeScale  — 整体流速 */
+uniform float u_ampDecay;     /* CFG.ampDecay   — fbm 振幅衰减 */
+uniform float u_swirlFalloff; /* CFG.swirlFalloff — 漩涡高斯半径 */
+uniform float u_swirlAngle;   /* CFG.swirlAngle   — 漩涡最大旋转角（弧度）*/
+uniform float u_warpQ;        /* CFG.warpQ  — 第一层 warp 系数 */
+uniform float u_warpR;        /* CFG.warpR  — 第二层 warp 系数 */
+uniform float u_rTimeScale;   /* CFG.rTimeScale — r 层时间系数 */
+uniform float u_fTimeScale;   /* CFG.fTimeScale — f 层时间系数 */
 uniform vec2  u_mouse;
 
 vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
@@ -71,7 +107,7 @@ void main() {
     vec2 mNorm = (u_mouse - u_res * 0.5) / min(u_res.x, u_res.y);
     vec2 diff  = p - mNorm;
     float dist = length(diff);
-    float angle = exp(-dist * dist * 8.0) * 0.4 * 6.0;
+    float angle = exp(-dist * dist * u_swirlFalloff) * u_swirlAngle;
     float ca = cos(angle), sa = sin(angle);
     p = mNorm + mat2(ca, -sa, sa, ca) * diff;
   }
@@ -79,9 +115,9 @@ void main() {
   /* 二阶 domain warp */
   vec2 q = vec2(fbm(p + vec2(0.0, 0.0), t),
                 fbm(p + vec2(5.2, 1.3), t));
-  vec2 r = vec2(fbm(p + 4.0*q + vec2(1.7, 9.2), t * 1.2),
-                fbm(p + 4.0*q + vec2(8.3, 2.8), t * 1.2));
-  float f = fbm(p + 3.5*r, t * 0.8);
+  vec2 r = vec2(fbm(p + u_warpQ*q + vec2(1.7, 9.2), t * u_rTimeScale),
+                fbm(p + u_warpQ*q + vec2(8.3, 2.8), t * u_rTimeScale));
+  float f = fbm(p + u_warpR*r, t * u_fTimeScale);
 
   /* 琥珀暖金调色 */
   vec3 col = mix(vec3(0.075, 0.065, 0.055), vec3(0.20, 0.14, 0.07),
@@ -151,19 +187,30 @@ export default function FluidAmberBackground() {
     gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
 
     uniformsRef.current = {
-      uTime:      gl.getUniformLocation(prog, 'u_time'),
-      uRes:       gl.getUniformLocation(prog, 'u_res'),
-      uTimeScale: gl.getUniformLocation(prog, 'u_timeScale'),
-      uAmpDecay:  gl.getUniformLocation(prog, 'u_ampDecay'),
-      uMouse:     gl.getUniformLocation(prog, 'u_mouse'),
+      uTime:         gl.getUniformLocation(prog, 'u_time'),
+      uRes:          gl.getUniformLocation(prog, 'u_res'),
+      uTimeScale:    gl.getUniformLocation(prog, 'u_timeScale'),
+      uAmpDecay:     gl.getUniformLocation(prog, 'u_ampDecay'),
+      uSwirlFalloff: gl.getUniformLocation(prog, 'u_swirlFalloff'),
+      uSwirlAngle:   gl.getUniformLocation(prog, 'u_swirlAngle'),
+      uWarpQ:        gl.getUniformLocation(prog, 'u_warpQ'),
+      uWarpR:        gl.getUniformLocation(prog, 'u_warpR'),
+      uRTimeScale:   gl.getUniformLocation(prog, 'u_rTimeScale'),
+      uFTimeScale:   gl.getUniformLocation(prog, 'u_fTimeScale'),
+      uMouse:        gl.getUniformLocation(prog, 'u_mouse'),
       prefersReduced,
     };
 
-    /* 初始 uniform 默认值
-     * u_timeScale: 0.15（默认标准值），越大流动越快
-     * u_ampDecay:  0.48（默认标准值），越小 fbm 越平滑 */
-    gl.uniform1f(uniformsRef.current.uTimeScale, 0.15);
-    gl.uniform1f(uniformsRef.current.uAmpDecay,  0.48);
+    /* 从 CFG 写入所有静态 uniform */
+    const u = uniformsRef.current;
+    gl.uniform1f(u.uTimeScale,    CFG.timeScale);
+    gl.uniform1f(u.uAmpDecay,     CFG.ampDecay);
+    gl.uniform1f(u.uSwirlFalloff, CFG.swirlFalloff);
+    gl.uniform1f(u.uSwirlAngle,   CFG.swirlAngle);
+    gl.uniform1f(u.uWarpQ,        CFG.warpQ);
+    gl.uniform1f(u.uWarpR,        CFG.warpR);
+    gl.uniform1f(u.uRTimeScale,   CFG.rTimeScale);
+    gl.uniform1f(u.uFTimeScale,   CFG.fTimeScale);
 
     /* 初始 resize */
     handleResize(canvas, gl, uniformsRef.current.uRes);
@@ -176,56 +223,68 @@ export default function FluidAmberBackground() {
     };
   }, []);
 
-  /* ── resize 处理 ── */
+  /* ── resize 处理（ResizeObserver 确保首次布局就拿到正确尺寸）── */
   useEffect(() => {
+    const container = containerRef.current;
     const canvas = canvasRef.current;
     const gl = glRef.current;
-    if (!canvas || !gl) return;
+    if (!container || !canvas || !gl) return;
 
-    const onResize = () => handleResize(canvas, gl, uniformsRef.current?.uRes);
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
+    const doResize = () => handleResize(canvas, gl, uniformsRef.current?.uRes);
+
+    /* ResizeObserver 在首次 observe 时就会触发一次回调，
+     * 完美解决 useEffect 时布局还没完成导致 clientWidth=0 的竞态 */
+    const ro = new ResizeObserver(doResize);
+    ro.observe(container);
+
+    return () => ro.disconnect();
   }, []);
 
-  /* ── 鼠标/触控 ── */
+  /* ── 鼠标/触控（监听 window，canvas pointer-events: none 不拦截内容层）── */
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-    const onMove = (e) => {
-      mouseRef.current = {
-        x: e.clientX * dpr,
-        y: (canvas.clientHeight - e.clientY) * dpr,
-      };
+    const getRelY = (clientY) => {
+      const rect = canvas.getBoundingClientRect();
+      return (rect.height - (clientY - rect.top)) * dpr;
     };
-    const onLeave = () => { mouseRef.current = { x: -1, y: -1 }; };
+    const getRelX = (clientX) => clientX * dpr;
 
-    const onTouchStart = (e) => {
-      e.preventDefault();
-      const t = e.touches[0];
-      mouseRef.current = { x: t.clientX * dpr, y: (canvas.clientHeight - t.clientY) * dpr };
+    const isOver = (clientX, clientY) => {
+      const rect = canvas.getBoundingClientRect();
+      return (
+        clientX >= rect.left && clientX <= rect.right &&
+        clientY >= rect.top  && clientY <= rect.bottom
+      );
     };
+
+    const onMove = (e) => {
+      if (isOver(e.clientX, e.clientY)) {
+        mouseRef.current = { x: getRelX(e.clientX), y: getRelY(e.clientY) };
+      } else {
+        mouseRef.current = { x: -1, y: -1 };
+      }
+    };
+
     const onTouchMove = (e) => {
-      e.preventDefault();
       const t = e.touches[0];
-      mouseRef.current = { x: t.clientX * dpr, y: (canvas.clientHeight - t.clientY) * dpr };
+      if (isOver(t.clientX, t.clientY)) {
+        mouseRef.current = { x: getRelX(t.clientX), y: getRelY(t.clientY) };
+      }
     };
     const onTouchEnd = () => { mouseRef.current = { x: -1, y: -1 }; };
 
-    canvas.addEventListener('mousemove', onMove);
-    canvas.addEventListener('mouseleave', onLeave);
-    canvas.addEventListener('touchstart', onTouchStart, { passive: false });
-    canvas.addEventListener('touchmove', onTouchMove, { passive: false });
-    canvas.addEventListener('touchend', onTouchEnd);
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('touchmove', onTouchMove, { passive: true });
+    window.addEventListener('touchend', onTouchEnd);
 
     return () => {
-      canvas.removeEventListener('mousemove', onMove);
-      canvas.removeEventListener('mouseleave', onLeave);
-      canvas.removeEventListener('touchstart', onTouchStart);
-      canvas.removeEventListener('touchmove', onTouchMove);
-      canvas.removeEventListener('touchend', onTouchEnd);
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('touchend', onTouchEnd);
     };
   }, []);
 
@@ -247,8 +306,13 @@ export default function FluidAmberBackground() {
       freezeStart.current = 0;
     }
 
+    const canvas = canvasRef.current;
+
     const tick = () => {
       animIdRef.current = requestAnimationFrame(tick);
+
+      /* 每帧检查尺寸——兜底首屏竞态和动态布局变化（开销极低） */
+      handleResize(canvas, gl, u.uRes);
 
       const now = u.prefersReduced ? 0 : (performance.now() - startTime.current) * 0.001;
       gl.uniform1f(u.uTime, now);
