@@ -73,7 +73,7 @@ export default function Navbar() {
     'navbar__glass-fallback',
     scrolled ? 'navbar__glass-fallback--scrolled' : '',
     isMobile ? 'navbar__glass-fallback--mobile' : 'navbar__glass-fallback--desktop',
-    glassCompatibility.backdropSupported ? '' : 'navbar__glass-fallback--solid',
+    glassCompatibility.backdropReliable ? '' : 'navbar__glass-fallback--solid',
   ]
     .filter(Boolean)
     .join(' ');

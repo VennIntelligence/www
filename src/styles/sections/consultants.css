@@ -1,5 +1,6 @@
 /* ============================================================
    Consultants Section — 液态琥珀 WebGL shader 背景 + 高阶玻璃面板
+   三级兼容：liquid → frost → solid
    ============================================================ */
 
 .consultants-section {
@@ -74,6 +75,7 @@
   align-items: stretch;
 }
 
+/* ── 面板基础样式 ── */
 .consultants-panel {
   position: relative;
   min-height: 420px;
@@ -81,7 +83,10 @@
   border-radius: 18px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.05);
-  background: rgba(255, 255, 255, 0.03);
+  /* 基础背景：较高不透明度纯色，保证即使 backdrop-filter 完全失效
+   * 也有可读的深色底。在 frost 层会叠加 backdrop-filter 增强磨砂感。
+   * 默认标准值：rgba(18,13,8,0.78) */
+  background: rgba(18, 13, 8, 0.78);
   backdrop-filter: blur(12px) saturate(1.1);
   -webkit-backdrop-filter: blur(12px) saturate(1.1);
   box-shadow:
@@ -118,7 +123,7 @@
 .consultants-panel:hover {
   transform: translateY(-4px);
   border-color: rgba(200, 149, 60, 0.3);
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(22, 16, 10, 0.82);
   box-shadow:
     0 32px 76px rgba(0, 0, 0, 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.15),
@@ -126,12 +131,12 @@
 }
 
 .consultants-panel--profile {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(18, 13, 8, 0.78);
 }
 
 .consultants-panel--premium {
   border-color: rgba(200, 149, 60, 0.35);
-  background: rgba(200, 140, 40, 0.06);
+  background: rgba(48, 34, 16, 0.8);
   box-shadow:
     0 28px 72px rgba(0, 0, 0, 0.5),
     0 0 46px rgba(200, 140, 40, 0.1),
@@ -141,7 +146,7 @@
 
 .consultants-panel--premium:hover {
   border-color: rgba(220, 170, 80, 0.55);
-  background: rgba(200, 140, 40, 0.1);
+  background: rgba(58, 42, 18, 0.85);
   box-shadow:
     0 36px 86px rgba(0, 0, 0, 0.55),
     0 0 54px rgba(200, 140, 40, 0.18),
@@ -162,6 +167,7 @@
   gap: 16px;
 }
 
+/* ── 头像区域 ── */
 .consultants-avatar {
   position: relative;
   width: 100%;
@@ -169,10 +175,9 @@
   border-radius: 14px;
   border: 1px solid rgba(200, 149, 60, 0.22);
   /* 磨砂半透明暗色背景 — 取代原来的全黑 #0e0b08
-   * 默认标准值：rgba(12,8,4,0.55) + blur(18px)
-   * 调大 alpha → 更遮更暗；调小 alpha → 让琥珀背景更透出来
-   * 调大 blur → 更磨砂；调小 blur → 更通透 */
-  background: rgba(12, 8, 4, 0.55);
+   * 默认标准值：rgba(14,10,6,0.72) + blur(18px)
+   * 高不透明度保证安卓等不支持 blur 的平台也有深色底 */
+  background: rgba(14, 10, 6, 0.72);
   backdrop-filter: blur(18px) saturate(1.15);
   -webkit-backdrop-filter: blur(18px) saturate(1.15);
   box-shadow:
@@ -371,6 +376,7 @@
   box-shadow: 0 0 18px rgba(220, 170, 80, 0.65);
 }
 
+/* ── CTA 按钮 ── */
 .consultants-cta {
   margin-top: auto;
   width: 100%;
@@ -383,7 +389,9 @@
   align-items: center;
   justify-content: center;
   gap: 11px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03));
+  /* 基底透明度足够，即使 backdrop-filter 失效也能看到按钮
+   * 默认标准值：rgba(32,24,14,0.65) */
+  background: linear-gradient(135deg, rgba(32, 24, 14, 0.65), rgba(24, 18, 10, 0.55));
   backdrop-filter: blur(12px) saturate(1.18);
   -webkit-backdrop-filter: blur(12px) saturate(1.18);
   color: rgba(244, 250, 255, 0.93);
@@ -404,7 +412,7 @@
 .consultants-cta:hover {
   transform: translateY(-1px);
   border-color: rgba(255, 255, 255, 0.28);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.06));
+  background: linear-gradient(135deg, rgba(40, 30, 18, 0.72), rgba(30, 22, 14, 0.6));
   box-shadow:
     0 16px 32px rgba(0, 0, 0, 0.34),
     0 0 18px rgba(200, 149, 60, 0.18),
@@ -493,77 +501,95 @@
   }
 }
 
-/* ---------- Compatibility tiers ---------- */
-html[data-glass-platform="android"] .consultants-panel {
-  backdrop-filter: blur(8px) saturate(1.04);
-  -webkit-backdrop-filter: blur(8px) saturate(1.04);
-  box-shadow:
-    0 18px 42px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.09),
-    inset 0 -1px 0 rgba(200, 140, 40, 0.08);
-}
-
-html[data-glass-platform="android"] .consultants-avatar {
-  backdrop-filter: blur(10px) saturate(1.05);
-  -webkit-backdrop-filter: blur(10px) saturate(1.05);
-}
-
-html[data-glass-platform="android"] .consultants-cta {
-  backdrop-filter: blur(8px) saturate(1.08);
-  -webkit-backdrop-filter: blur(8px) saturate(1.08);
-}
-
-html[data-glass-platform="android"] .consultants-panel:hover {
-  transform: translateY(-2px);
-}
+/* ============================================================
+   Compatibility tiers —— Solid 降级（安卓 / 不支持 backdrop）
+   ============================================================
+   data-glass-backdrop="0" 由 glassCompatibility.js 设置，
+   表示 backdrop-filter 不可靠（安卓）或浏览器不支持。
+   策略：用高不透明度纯色底 + 微妙渐变 + box-shadow 模拟玻璃深度，
+   完全不依赖 backdrop-filter。
+   ============================================================ */
 
 html[data-glass-backdrop="0"] .consultants-panel {
-  background: rgba(20, 14, 8, 0.84);
-  border-color: rgba(255, 255, 255, 0.1);
+  /* 深琥珀底色，alpha 非常高以保证可读性
+   * 默认标准值：rgba(20,14,8,0.92) */
+  background: rgba(20, 14, 8, 0.92);
+  border-color: rgba(200, 149, 60, 0.15);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
+  box-shadow:
+    0 18px 48px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -1px 0 rgba(200, 140, 40, 0.06);
+}
+
+html[data-glass-backdrop="0"] .consultants-panel:hover {
+  transform: translateY(-2px);
+  background: rgba(24, 18, 10, 0.94);
 }
 
 html[data-glass-backdrop="0"] .consultants-panel--profile {
-  background: rgba(20, 14, 8, 0.84);
+  background: rgba(20, 14, 8, 0.92);
 }
 
 html[data-glass-backdrop="0"] .consultants-panel--premium {
-  background: rgba(88, 58, 20, 0.5);
+  background: rgba(56, 38, 16, 0.92);
+  border-color: rgba(200, 149, 60, 0.28);
+}
+
+html[data-glass-backdrop="0"] .consultants-panel--premium:hover {
+  background: rgba(64, 44, 20, 0.94);
 }
 
 html[data-glass-backdrop="0"] .consultants-avatar {
-  background: rgba(16, 11, 7, 0.9);
+  /* 完全不透明深色底，保证安卓上照片有清晰深色衬底
+   * 默认标准值：rgba(10,7,4,0.95) */
+  background: rgba(10, 7, 4, 0.95);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 }
 
 html[data-glass-backdrop="0"] .consultants-cta {
-  background: rgba(28, 20, 12, 0.88);
+  /* 实底按钮，不依赖 blur
+   * 默认标准值：rgba(32,24,14,0.88) */
+  background: rgba(32, 24, 14, 0.88);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 }
 
+html[data-glass-backdrop="0"] .consultants-cta:hover {
+  background: rgba(40, 30, 18, 0.92);
+}
+
+html[data-glass-backdrop="0"] .consultants-cta--premium {
+  background: rgba(60, 42, 16, 0.88);
+}
+
+html[data-glass-backdrop="0"] .consultants-cta--premium:hover {
+  background: rgba(72, 50, 20, 0.92);
+}
+
+/* ── @supports 最终兜底：真正不支持 backdrop-filter 的浏览器 ── */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .consultants-panel {
-    background: rgba(20, 14, 8, 0.84);
-    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(20, 14, 8, 0.92);
+    border-color: rgba(200, 149, 60, 0.15);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }
 
   .consultants-panel--premium {
-    background: rgba(88, 58, 20, 0.5);
+    background: rgba(56, 38, 16, 0.92);
   }
 
   .consultants-avatar {
-    background: rgba(16, 11, 7, 0.9);
+    background: rgba(10, 7, 4, 0.95);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }
 
   .consultants-cta {
-    background: rgba(28, 20, 12, 0.88);
+    background: rgba(32, 24, 14, 0.88);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }

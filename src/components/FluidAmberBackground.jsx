@@ -44,8 +44,15 @@ attribute vec2 a_pos;
 void main() { gl_Position = vec4(a_pos, 0.0, 1.0); }
 `;
 
+/* 安卓很多 GPU 的 mediump 只有 10-bit 精度（FP16 半精度），
+ * 导致色阶断层产生大块像素感。优先使用 highp，不支持时回退 mediump。
+ * 此写法兼容所有 GLSL ES 1.0 实现。 */
 const FRAG_SRC = `
-precision mediump float;
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+  precision highp float;
+#else
+  precision mediump float;
+#endif
 uniform float u_time;
 uniform vec2  u_res;
 uniform float u_timeScale;    /* CFG.timeScale  — 整体流速 */
@@ -131,11 +138,20 @@ void main() {
 }
 `;
 
+/* ── 安卓/低端设备检测 ── */
+const IS_ANDROID = /Android/i.test(navigator.userAgent);
+/* 安卓渲染分辨率缩放系数 — 降低 GPU 负载，减少帧间闪烁
+ * 默认标准值：安卓 0.6，其他 1.0。调小 → 更流畅但更模糊；调大 → 更清晰但更耗 GPU */
+const ANDROID_RENDER_SCALE = 0.6;
+
 /* ── WebGL 工具 ── */
 function compileShader(gl, type, src) {
   const s = gl.createShader(type);
   gl.shaderSource(s, src);
   gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+    console.warn('Shader compile error:', gl.getShaderInfoLog(s));
+  }
   return s;
 }
 
@@ -144,6 +160,9 @@ function buildProgram(gl) {
   gl.attachShader(prog, compileShader(gl, gl.VERTEX_SHADER, VERT_SRC));
   gl.attachShader(prog, compileShader(gl, gl.FRAGMENT_SHADER, FRAG_SRC));
   gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+    console.warn('Program link error:', gl.getProgramInfoLog(prog));
+  }
   return prog;
 }
 
@@ -245,7 +264,8 @@ export default function FluidAmberBackground() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const baseDpr = Math.min(window.devicePixelRatio || 1, 2);
+    const dpr = IS_ANDROID ? baseDpr * ANDROID_RENDER_SCALE : baseDpr;
 
     const getRelY = (clientY) => {
       const rect = canvas.getBoundingClientRect();
@@ -330,6 +350,8 @@ export default function FluidAmberBackground() {
 
   return (
     <div ref={containerRef} className="fluid-amber-bg">
+      {/* CSS 渐变兜底：WebGL 初始化失败时依然有琥珀色底 */}
+      <div className="fluid-amber-bg__fallback" />
       <canvas ref={canvasRef} className="fluid-amber-bg__canvas" />
     </div>
   );
@@ -337,7 +359,9 @@ export default function FluidAmberBackground() {
 
 /* ── resize 工具函数 ── */
 function handleResize(canvas, gl, uRes) {
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const baseDpr = Math.min(window.devicePixelRatio || 1, 2);
+  /* 安卓额外降低渲染分辨率，减少 GPU 负载 + 缓解 mediump 精度不足的色阶问题 */
+  const dpr = IS_ANDROID ? baseDpr * ANDROID_RENDER_SCALE : baseDpr;
   const w   = Math.round(canvas.clientWidth  * dpr);
   const h   = Math.round(canvas.clientHeight * dpr);
   if (canvas.width !== w || canvas.height !== h) {

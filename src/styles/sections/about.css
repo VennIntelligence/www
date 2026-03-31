@@ -452,7 +452,9 @@
 .about-pillar {
   padding: 20px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.03);
+  /* 基底不透明度足够，即使 backdrop-filter 失效也能看到卡片
+   * 默认标准值：rgba(14,16,22,0.55) */
+  background: rgba(14, 16, 22, 0.55);
   border: 1px solid rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
@@ -531,5 +533,44 @@
     opacity: 1;
     filter: blur(0);
     transform: translateY(0);
+  }
+}
+
+/* ============================================================
+   About Section — Solid 降级（安卓 / 不支持 backdrop-filter）
+   ============================================================ */
+
+html[data-glass-backdrop="0"] .about-pillar {
+  /* 安卓纯色底卡片 — 默认标准值：rgba(14,16,22,0.78) */
+  background: rgba(14, 16, 22, 0.78);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+html[data-glass-backdrop="0"] .about-pillar:hover {
+  background: rgba(20, 24, 34, 0.82);
+}
+
+html[data-glass-backdrop="0"] .about-cta-inline__btn {
+  background: linear-gradient(135deg, rgba(20, 24, 36, 0.72), rgba(14, 18, 28, 0.6));
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+html[data-glass-backdrop="0"] .about-cta-inline__btn:hover {
+  background: linear-gradient(135deg, rgba(26, 30, 44, 0.78), rgba(18, 22, 34, 0.66));
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .about-pillar {
+    background: rgba(14, 16, 22, 0.78);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .about-cta-inline__btn {
+    background: linear-gradient(135deg, rgba(20, 24, 36, 0.72), rgba(14, 18, 28, 0.6));
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 }
