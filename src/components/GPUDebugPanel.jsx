@@ -90,7 +90,6 @@ export default function GPUDebugPanel() {
 
     const draw = () => {
       perfAnimRef.current = requestAnimationFrame(draw);
-      bus.reportFrame();
 
       ctx.clearRect(0, 0, w, h);
       const samples = bus.frameTimes;

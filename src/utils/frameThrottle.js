@@ -5,33 +5,40 @@
  *       避免高刷显示器（120/144/240Hz）上不必要的 GPU/CPU 消耗。
  *
  * 用法：
- *   import { createFrameThrottle } from '../utils/frameThrottle';
+ *   import { createFrameThrottle, MAX_FPS } from '../utils/frameThrottle';
  *
- *   const throttle = createFrameThrottle();   // 默认 60fps
+ *   const throttle = createFrameThrottle();   // 使用下方 MAX_FPS
  *
  *   function tick() {
  *     animId = requestAnimationFrame(tick);
- *     if (throttle.skip()) return;   // 距上次渲染不够 16.67ms，跳过
+ *     if (throttle.skip()) return;   // 距上次渲染不够间隔，跳过
  *     // ... 执行实际渲染工作 ...
  *   }
  *
- * 设计决策：
- *   - 不修改 RAF 注册方式，仅在回调内跳过 — 最小侵入性
- *   - 各管线各自创建实例（独立时间戳） — 互不干扰
- *   - 如果客户端本身只有 60Hz，skip() 永远返回 false — 零额外开销
- *   - 使用 performance.now() 高精度时钟
+ * 调参：
+ *   直接修改下方 MAX_FPS 即可全局生效。
+ *   0 = 不限制（跟随显示器原生刷新率）
  */
 
-// 全局默认最大帧率。60fps = 16.667ms 间隔。
-const DEFAULT_MAX_FPS = 60;
+/* ════════════════════════════════════════════════════════════════
+ *  ★ 全局最大帧率 — 改这里即可全站生效
+ *
+ *  推荐值：60 （匹配主流 60Hz 显示器，节省 ~57% 计算量）
+ *  其他选项：0 = 不限制 | 30 = 省电模式 | 120 = 高刷屏
+ * ════════════════════════════════════════════════════════════════ */
+export const MAX_FPS = 20;
 
 /**
  * 创建一个帧率限流实例。
  *
- * @param {number} [maxFps=60] — 最大帧率上限
+ * @param {number} [maxFps=MAX_FPS] — 最大帧率上限，0 = 不限制
  * @returns {{ skip: () => boolean, reset: () => void }}
  */
-export function createFrameThrottle(maxFps = DEFAULT_MAX_FPS) {
+export function createFrameThrottle(maxFps = MAX_FPS) {
+  if (maxFps <= 0) {
+    // 不限制模式：skip() 永远返回 false
+    return { skip: () => false, reset: () => {} };
+  }
   const minInterval = 1000 / maxFps;
   let lastRenderTime = 0;
 
