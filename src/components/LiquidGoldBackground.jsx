@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import '../styles/components/liquid-gold-bg.css';
 import useSectionFreeze from '../hooks/useSectionFreeze';
 import useAdaptiveQuality from '../hooks/useAdaptiveQuality';
+import { createFrameThrottle } from '../utils/frameThrottle';
 
 /* ================================================================
    ★ 可调参数 — 直接在这里改，无需动 shader 代码
@@ -28,10 +29,6 @@ const CFG = {
   /* 高光强度 — 默认 1.2
    * 调大(→3.0)：高光更刺眼；调小(→0)：消除高光 */
   specPower: 1.2,
-
-  /* 液滴大小 — 默认 0.25
-   * 调大(→0.6)：metaball 液滴更大；调小(→0.05)：液滴更小 */
-  metaRadius: 0.25,
 };
 
 /* ================================================================
@@ -63,7 +60,6 @@ uniform float u_viscosity;
 uniform float u_uvScale;
 uniform float u_rippleScale;
 uniform float u_specPower;
-uniform float u_metaRadius;
 
 // Noise / FBM
 float hash(vec2 p) {
@@ -96,20 +92,6 @@ float warpedField(vec2 p, float t, float visc) {
   return f + length(q)*0.4 + length(r)*0.3;
 }
 
-float metaballs(vec2 p, float t, float radius) {
-  float val=0.;
-  for (int i=0; i<5; i++) {
-    float fi = float(i);
-    vec2 center = vec2(
-      sin(t*.3+fi*2.1)*.6 + cos(t*.2+fi*1.3)*.3,
-      cos(t*.25+fi*1.7)*.6 + sin(t*.15+fi*2.5)*.3
-    );
-    float r = radius + 0.12*sin(t*.4+fi*3.);
-    val += r / (length(p-center)+0.05);
-  }
-  return val;
-}
-
 vec3 getNormal(vec2 p, float t, float visc, float wC) {
   float eps=0.005;
   float hC = wC;
@@ -127,7 +109,6 @@ void main() {
   float sc   = u_uvScale;
 
   float field = warpedField(uv*sc, t, visc);
-  float meta  = metaballs(uv, t, u_metaRadius);
 
   vec3 normal = getNormal(uv*sc, t, visc, field);
 
@@ -181,10 +162,6 @@ void main() {
 
   vec3 col = diffuse*.4 + specular*fres + env*fres*.5;
   col += base * 0.12;
-
-  // Metaballs 辉光
-  float metaGrad   = abs(meta - 3.5);
-  col += goldBright * smoothstep(.5,.0,metaGrad) * 0.3;
 
   // 细纹细部
   float ripple = noise(uv*u_rippleScale + t*2.);
@@ -302,7 +279,6 @@ export default function LiquidGoldBackground() {
       gl.uniform1f(uniforms.uUvScale,     p?.goldUvScale     ?? CFG.uvScale);
       gl.uniform1f(uniforms.uRippleScale, p?.goldRippleScale ?? CFG.rippleScale);
       gl.uniform1f(uniforms.uSpecPower,   p?.goldSpecPower   ?? CFG.specPower);
-      gl.uniform1f(uniforms.uMetaRadius,  p?.goldMetaRadius  ?? CFG.metaRadius);
 
       gl.drawArrays(gl.TRIANGLES, 0, 3);
 
@@ -322,7 +298,7 @@ export default function LiquidGoldBackground() {
         antialias: false,
         preserveDrawingBuffer: true,
       });
-      if (!gl) return false;
+      if (!gl) { console.warn('[LiquidGold] WebGL context creation failed'); return false; }
 
       function compile(type, src) {
         const s = gl.createShader(type);
@@ -362,7 +338,6 @@ export default function LiquidGoldBackground() {
         uUvScale:     gl.getUniformLocation(prog, 'u_uvScale'),
         uRippleScale: gl.getUniformLocation(prog, 'u_rippleScale'),
         uSpecPower:   gl.getUniformLocation(prog, 'u_specPower'),
-        uMetaRadius:  gl.getUniformLocation(prog, 'u_metaRadius'),
         prog,
         buf,
       };
@@ -370,6 +345,7 @@ export default function LiquidGoldBackground() {
       // 画质变更回调 — 升级后 canvas 尺寸会变，buffer 被清空，需要重画
       qualityRef.current.onQualityChange = ({ scale }) => {
         if (gl && !disposed) {
+          console.log('[LiquidGold] quality change → scale:', scale);
           applySize(scale);
           drawFrame((performance.now() - startTime) * 0.001);
         }
@@ -407,11 +383,13 @@ export default function LiquidGoldBackground() {
     }
 
     function startAnimLoop() {
+      const frameThrottle = createFrameThrottle();
+
       function tick() {
         if (disposed) return;
         animId = requestAnimationFrame(tick);
 
-        // ── 冻结 ↔ 解冻 ──
+        // ── 冻结 ↔ 解冻（必须在限流之前，确保冻结状态始终被正确标记）──
         const animate = shouldAnimateRef.current;
         if (!animate) {
           if (!wasFrozen) {
@@ -426,7 +404,11 @@ export default function LiquidGoldBackground() {
             freezeStart = 0;
           }
           wasFrozen = false;
+          frameThrottle.reset(); // 解冻后重置限流器，避免突发连续渲染
         }
+
+        // 帧率限流
+        if (frameThrottle.skip()) return;
 
         // ── 每帧脏检查尺寸 ──
         const cw = canvas.clientWidth;

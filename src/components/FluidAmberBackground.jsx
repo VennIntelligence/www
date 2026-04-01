@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import '../styles/components/fluid-amber-bg.css';
 import useSectionFreeze from '../hooks/useSectionFreeze';
+import { createFrameThrottle } from '../utils/frameThrottle';
 
 /* ================================================================
    FluidAmberBackground — 可调参数总控台
@@ -327,9 +328,11 @@ export default function FluidAmberBackground() {
     }
 
     const canvas = canvasRef.current;
+    const frameThrottle = createFrameThrottle();
 
     const tick = () => {
       animIdRef.current = requestAnimationFrame(tick);
+      if (frameThrottle.skip()) return;
 
       /* 每帧检查尺寸——兜底首屏竞态和动态布局变化（开销极低） */
       handleResize(canvas, gl, u.uRes);

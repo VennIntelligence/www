@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { vertexShader } from '../shaders/waveVertex';
-import { buildUnifiedShader, detectGPUTier, getTierScale } from '../utils/unifiedShaderBuilder';
+import { buildUnifiedShader, getRenderScale } from '../utils/unifiedShaderBuilder';
+import { createFrameThrottle } from '../utils/frameThrottle';
 import {
   clamp,
   smoothstep,
@@ -24,9 +25,7 @@ import {
   onAboutArcballUp,
 } from '../utils/unifiedPhysics';
 import {
-  BOOT_TIER,
-  BOOT_SCALE,
-  BOOT_MIN_MS,
+  RENDER_SCALE,
   DROP_RETURN_STIFFNESS,
   DROP_DAMPING,
   DROP_DRAG_CATCH_MULT,
@@ -45,6 +44,11 @@ import {
   SPIKE_BOUNDS,
   DEMO_VIDEO_PATH,
   ABOUT_CUBE_SIZE_GLSL,
+  LIQUID_BG_FLOW_SPEED,
+  LIQUID_BG_VISCOSITY,
+  LIQUID_BG_UV_SCALE,
+  LIQUID_BG_RIPPLE_SCALE,
+  LIQUID_BG_SPEC_POWER,
 } from '../config/waveLook';
 
 /**
@@ -72,14 +76,9 @@ export default function UnifiedStage() {
     const w = () => container.clientWidth;
     const h = () => container.clientHeight;
 
-    // ── 自适应画质 ──
-    const tier = detectGPUTier();
+    // ── 渲染画质 ──
     const baseDPR = window.devicePixelRatio || 1;
-    const targetTier = tier;
-    const targetScale = getTierScale(targetTier);
-    let activeTier = BOOT_TIER;
-    let scale = Math.min(BOOT_SCALE, targetScale);
-    let upgraded = targetTier === BOOT_TIER && scale === targetScale;
+    let scale = RENDER_SCALE;
 
     // ── Three.js 初始化 ──
     const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true });
@@ -119,11 +118,17 @@ export default function UnifiedStage() {
       uCameraTex: { value: placeholderTex },
       uCameraActive: { value: 0.0 },
       uCameraAspect: { value: 1.0 },
+      // ── 液态背景参数（About 阶段原生渲染）──
+      uGoldFlowSpeed:   { value: LIQUID_BG_FLOW_SPEED },
+      uGoldViscosity:   { value: LIQUID_BG_VISCOSITY },
+      uGoldUvScale:     { value: LIQUID_BG_UV_SCALE },
+      uGoldRippleScale: { value: LIQUID_BG_RIPPLE_SCALE },
+      uGoldSpecPower:   { value: LIQUID_BG_SPEC_POWER },
     };
 
     const material = new THREE.ShaderMaterial({
       vertexShader,
-      fragmentShader: buildUnifiedShader(activeTier),
+      fragmentShader: buildUnifiedShader(),
       uniforms,
       depthTest: false,
       depthWrite: false,
@@ -514,7 +519,7 @@ export default function UnifiedStage() {
     dragHandle.addEventListener('lostpointercapture', onPointerUp);
     dragHandle.addEventListener('touchstart', onTouchStart, { passive: false });
 
-    // ── 自适应画质 ──
+    // ── 自适应分辨率 ──
     const frameTimes = new Float32Array(30);
     let fIdx = 0, lastT = performance.now();
 
@@ -524,30 +529,9 @@ export default function UnifiedStage() {
       uniforms.uResolution.value.set(w() * baseDPR * scale, h() * baseDPR * scale);
     }
 
-    function setQuality(nextTier, nextScale) {
-      const needsShader = nextTier !== activeTier;
-      const needsScale = Math.abs(nextScale - scale) > 0.001;
-      activeTier = nextTier;
-      scale = nextScale;
-      if (needsShader) {
-        material.fragmentShader = buildUnifiedShader(activeTier);
-        material.needsUpdate = true;
-      }
-      if (needsScale) applyScale();
-    }
-
-    function upgradeQuality() {
-      if (upgraded) return;
-      upgraded = true;
-      setQuality(targetTier, targetScale);
-      lastT = performance.now();
-      fIdx = 0;
-    }
-
     function adaptQuality() {
       // GPU 调参面板激活时，由面板控制画质，跳过自动调节
       if (window.__GPU_DEBUG__?.enabled && window.__GPU_DEBUG__?.forcedTier) return;
-      if (!upgraded) return;
       const now = performance.now();
       frameTimes[fIdx] = now - lastT;
       lastT = now;
@@ -557,28 +541,21 @@ export default function UnifiedStage() {
       for (let i = 0; i < 30; i++) sum += frameTimes[i];
       const avg = sum / 30;
       if (avg > 40 && scale > 0.3) { scale = Math.max(scale - 0.05, 0.3); applyScale(); }
-      else if (avg < 20 && scale < targetScale) { scale = Math.min(scale + 0.02, targetScale); applyScale(); }
+      else if (avg < 20 && scale < RENDER_SCALE) { scale = Math.min(scale + 0.02, RENDER_SCALE); applyScale(); }
     }
-
-    const scheduleUpgrade = () => {
-      if (upgraded) return () => {};
-      if ('requestIdleCallback' in window) {
-        const id = window.requestIdleCallback(upgradeQuality, { timeout: BOOT_MIN_MS });
-        return () => window.cancelIdleCallback(id);
-      }
-      const id = window.setTimeout(upgradeQuality, BOOT_MIN_MS);
-      return () => window.clearTimeout(id);
-    };
-
-    const cancelUpgrade = scheduleUpgrade();
 
     // ── 渲染循环 ──
     const startTime = performance.now();
     let lastFrameAt = startTime;
     let animId;
+    // 缓存容器尺寸，仅在 resize 时更新（避免每帧 getBoundingClientRect 引发 layout thrashing）
+    let cachedRect = container.getBoundingClientRect();
+
+    const frameThrottle = createFrameThrottle();
 
     function tick() {
       animId = requestAnimationFrame(tick);
+      if (frameThrottle.skip()) return;
       const now = performance.now();
       const time = (now - startTime) * 0.001;
       const dt = clamp((now - lastFrameAt) * 0.001, 1 / 240, 1 / 24);
@@ -600,6 +577,7 @@ export default function UnifiedStage() {
       if (transition.phase !== 'hero' && transition.phase !== 'hidden' && !videoLoaded) {
         loadDemoVideo();
       }
+
 
       // 应用过渡（计算目标位置）
       applySpikeTransition(spike, transition);
@@ -667,11 +645,10 @@ export default function UnifiedStage() {
       // 液滴被 Hero section 的底部边界线向上推挤（而不是缩小或消失）。
       if (spike.phase === 'hero' || spike.phase === 'transition') {
         // 计算 Hero 底部对应的世界坐标 Y 值（用于推挤液滴）
-        const containerRect = container.getBoundingClientRect();
         const heroBottomY = interaction.heroBottomY;
         // 将 Hero 底部屏幕 Y → 世界 Y
-        const minDim = Math.min(containerRect.width, containerRect.height);
-        const worldHeroBottomY = (containerRect.height * 0.5 - heroBottomY) / minDim;
+        const minDim = Math.min(cachedRect.width, cachedRect.height);
+        const worldHeroBottomY = (cachedRect.height * 0.5 - heroBottomY) / minDim;
         // 给液滴一个安全边距（液滴半径 + 额外余量），确保液滴不会穿过边界
         const boundaryPushMargin = 0.15;
 
@@ -748,9 +725,6 @@ export default function UnifiedStage() {
         applyPairRepulsion(drops[0].position, drops[1].position, drops[0].radius, drops[1].radius, repulsionScratch);
         applyPairRepulsion(drops[0].position, drops[2].position, drops[0].radius, drops[2].radius, repulsionScratch);
         applyPairRepulsion(drops[1].position, drops[2].position, drops[1].radius, drops[2].radius, repulsionScratch);
-        applyPairRepulsion(drops[0].position, drops[1].position, drops[0].radius, drops[1].radius, repulsionScratch);
-        applyPairRepulsion(drops[0].position, drops[2].position, drops[0].radius, drops[2].radius, repulsionScratch);
-        applyPairRepulsion(drops[1].position, drops[2].position, drops[1].radius, drops[2].radius, repulsionScratch);
 
         // 渲染速度
         for (const drop of drops) {
@@ -769,9 +743,8 @@ export default function UnifiedStage() {
 
       // 更新拖拽手柄位置
       if (spike.phase === 'hero' || spike.phase === 'about') {
-        const rect = container.getBoundingClientRect();
-        worldToLocalScreen(spike.position, rect, handleScreen);
-        const handleSize = getSpikeHandleSize(rect, spike.position.z);
+        worldToLocalScreen(spike.position, cachedRect, handleScreen);
+        const handleSize = getSpikeHandleSize(cachedRect, spike.position.z);
         dragHandle.style.left = `${handleScreen.x}px`;
         dragHandle.style.top = `${handleScreen.y}px`;
         dragHandle.style.width = `${handleSize}px`;
@@ -792,7 +765,7 @@ export default function UnifiedStage() {
       const debugBus = window.__GPU_DEBUG__;
       if (debugBus) {
         debugBus.reportFrame();
-        debugBus.reportMetrics(activeTier, scale);
+        debugBus.reportMetrics('high', scale);
       }
     }
     tick();
@@ -800,7 +773,10 @@ export default function UnifiedStage() {
     // 初始滚动进度
     updateScrollProgress();
 
-    const onResize = () => applyScale();
+    const onResize = () => {
+      cachedRect = container.getBoundingClientRect();
+      applyScale();
+    };
     window.addEventListener('resize', onResize);
 
     // ── GPU 调参面板：监听 shader 重建事件 ──
@@ -809,9 +785,7 @@ export default function UnifiedStage() {
       if (!tier || !params) return;
       material.fragmentShader = buildUnifiedShader(tier, params);
       material.needsUpdate = true;
-      activeTier = tier;
       scale = params.renderScale || scale;
-      upgraded = true;
       applyScale();
     };
     window.addEventListener('gpu-debug-rebuild', onDebugRebuild);
@@ -820,7 +794,6 @@ export default function UnifiedStage() {
     return () => {
       window.removeEventListener('gpu-debug-rebuild', onDebugRebuild);
       cancelAnimationFrame(animId);
-      cancelUpgrade();
       releaseDrag();
       container.style.cursor = '';
 
