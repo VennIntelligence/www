@@ -151,11 +151,12 @@ export default function UnifiedStage() {
     video.muted = true;
     video.loop = true;
     video.crossOrigin = 'anonymous';
+    // 隐藏在页面外——仅用于解码，不展示 DOM 元素
     video.style.cssText = 'position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;';
     document.body.appendChild(video);
 
     let videoTex = null;
-    let videoLoaded = false;
+    let videoPlaying = false; // 是否已调用 play() 并上屏纹理
 
     function applyVideoTexture() {
       const aspect = video.videoWidth / Math.max(video.videoHeight, 1);
@@ -170,14 +171,24 @@ export default function UnifiedStage() {
       uniforms.uCameraAspect.value = aspect;
     }
 
-    function loadDemoVideo() {
-      if (videoLoaded) return;
-      videoLoaded = true;
-      video.src = DEMO_VIDEO_PATH;
-      video.addEventListener('canplay', () => {
+    // 页面一打开立刻开始后台下载（prefetch）——不 play()，只 load()
+    // 这样用户滑到 About 时视频已缓冲完毕，无需等待。
+    video.src = DEMO_VIDEO_PATH;
+    video.load();
+
+    // 仅在用户滑到 About/Omega 阶段时调用，负责启动播放 + 上屏纹理
+    function playDemoVideo() {
+      if (videoPlaying) return;
+      videoPlaying = true;
+      if (video.readyState >= 3 /* HAVE_FUTURE_DATA */) {
+        // 已缓冲足够数据，直接播放
         video.play().then(applyVideoTexture).catch(() => {});
-      }, { once: true });
-      video.load();
+      } else {
+        // 尚未缓冲完，等 canplay 事件
+        video.addEventListener('canplay', () => {
+          video.play().then(applyVideoTexture).catch(() => {});
+        }, { once: true });
+      }
     }
 
     // ── 交互状态 ──
@@ -627,9 +638,9 @@ export default function UnifiedStage() {
       uniforms.uMorphFactor.value = transition.morphFactor;
       uniforms.uBgAlpha.value = transition.bgAlpha;
 
-      // 过渡/About 阶段加载视频
-      if (transition.phase !== 'hero' && transition.phase !== 'hidden' && !videoLoaded) {
-        loadDemoVideo();
+      // 过渡/About 阶段开始播放视频（文件已在页面打开时开始下载）
+      if (transition.phase !== 'hero' && transition.phase !== 'hidden') {
+        playDemoVideo();
       }
 
 
