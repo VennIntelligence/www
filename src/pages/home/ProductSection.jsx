@@ -2,7 +2,6 @@ import { useCallback, useRef } from 'react';
 import { motion as Motion, useScroll, useTransform, useInView } from 'framer-motion';
 import MagnetText from '../../components/MagnetText';
 import useCharMagnet from '../../hooks/useCharMagnet';
-import PendulumBackground from './PendulumBackground';
 import { COPY } from '../../config/i18n';
 import { useLanguage } from '../../context/useLanguage';
 import '../../styles/sections/product-preview.css';
@@ -86,7 +85,6 @@ export default function ProductSection() {
       className="product-section relative min-h-screen overflow-hidden border-t border-white/10"
       style={{ position: 'relative' }}
     >
-      <PendulumBackground containerRef={sectionRef} />
       <div className="product-vignette absolute inset-0 z-1 pointer-events-none" />
 
       <div

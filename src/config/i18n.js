@@ -2,15 +2,15 @@ export const COPY = {
   nav: {
     en: {
       hero: 'Home',
-      about: 'About',
-      product: 'Product',
+      about: 'Σ',
+      product: 'Ω',
       consultants: 'Consultants',
       blog: 'Blog',
     },
     zh: {
       hero: '首页',
-      about: '关于',
-      product: '产品',
+      about: 'Σ',
+      product: 'Ω',
       consultants: '咨询',
       blog: '博客',
     },

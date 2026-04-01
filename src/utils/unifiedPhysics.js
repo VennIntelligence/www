@@ -32,6 +32,15 @@ import {
   VIDEO_FADE_END,
   CUBE_FADEOUT_START,
   CUBE_FADEOUT_END,
+  OMEGA_CUBE_POS_DESKTOP,
+  OMEGA_CUBE_POS_MOBILE,
+  OMEGA_CUBE_SCALE,
+  OMEGA_MORPH_START,
+  OMEGA_MORPH_END,
+  OMEGA_BG_FADE_START,
+  OMEGA_BG_FADE_END,
+  OMEGA_FADEOUT_START,
+  OMEGA_FADEOUT_END,
 } from '../config/waveLook';
 
 // ══════════════════════════════════════════════════════════════
@@ -351,61 +360,106 @@ function easeSoftBounce(t, damping) {
  * @param {number} scrollProgress 0=Hero完全可见, 1=About完全可见
  * @param {boolean} isMobile
  * @param {number} aboutExitProgress 0=About底部还在视口内, 1=About底部完全离开视口
- * @returns {{ phase: string, t: number, cubeScale: number, videoMix: number, aboutPos: THREE.Vector3, cubeFade: number }}
+ * @param {number} productScrollProgress 0=product section不可见, 1=product section完全可见
+ * @param {number} productExitProgress 0=product section底部在视口内, 1=product section完全离开
+ * @returns {{ phase, t, cubeScale, videoMix, aboutPos, omegaPos, cubeFade, morphFactor, bgAlpha }}
  */
-export function computeTransition(scrollProgress, isMobile, aboutExitProgress = 0) {
+export function computeTransition(
+  scrollProgress,
+  isMobile,
+  aboutExitProgress = 0,
+  productScrollProgress = 0,
+  productExitProgress = 0,
+) {
   const aboutPos = isMobile ? ABOUT_CUBE_POS_MOBILE : ABOUT_CUBE_POS_DESKTOP;
+  const omegaPos = isMobile ? OMEGA_CUBE_POS_MOBILE : OMEGA_CUBE_POS_DESKTOP;
   const damping = isMobile ? TRANSITION_DAMPING_MOBILE : TRANSITION_DAMPING_DESKTOP;
 
-  // 立方体淡出（About section 底部离开视口后）
+  // ── Omega 变形进度（基于 aboutExitProgress）──
+  const morphFactor = clamp(
+    (aboutExitProgress - OMEGA_MORPH_START) / (OMEGA_MORPH_END - OMEGA_MORPH_START),
+    0, 1,
+  );
+
+  // ── 液态金背景淡出进度 ──
+  const bgAlpha = 1 - clamp(
+    (aboutExitProgress - OMEGA_BG_FADE_START) / (OMEGA_BG_FADE_END - OMEGA_BG_FADE_START),
+    0, 1,
+  );
+
+  // ── Hero 阶段 ──
+  if (scrollProgress < TRANSITION_START) {
+    return {
+      phase: 'hero', t: 0, cubeScale: 1.0, videoMix: 0,
+      aboutPos, omegaPos, cubeFade: 1, morphFactor: 0, bgAlpha: 0,
+    };
+  }
+
+  // ── Omega 阶段（变形完成，四面体 arcball）──
+  if (morphFactor >= 1.0) {
+    const omegaFade = 1 - clamp(
+      (productExitProgress - OMEGA_FADEOUT_START) / (OMEGA_FADEOUT_END - OMEGA_FADEOUT_START),
+      0, 1,
+    );
+    if (omegaFade <= 0) {
+      return {
+        phase: 'hidden', t: 1, cubeScale: OMEGA_CUBE_SCALE, videoMix: 1,
+        aboutPos, omegaPos, cubeFade: 0, morphFactor: 1, bgAlpha: 0,
+      };
+    }
+    return {
+      phase: 'omega', t: 1, cubeScale: OMEGA_CUBE_SCALE, videoMix: 1,
+      aboutPos, omegaPos, cubeFade: omegaFade, morphFactor: 1, bgAlpha: 0,
+    };
+  }
+
+  // ── Omega-morph 阶段（正在从立方体变形为四面体）──
+  if (morphFactor > 0) {
+    return {
+      phase: 'omega-morph', t: 1,
+      cubeScale: lerp(ABOUT_CUBE_SCALE, OMEGA_CUBE_SCALE, morphFactor),
+      videoMix: 1,
+      aboutPos, omegaPos, cubeFade: 1, morphFactor, bgAlpha,
+    };
+  }
+
+  // ── 旧式立方体淡出（About 退场但 Omega 尚未开始，理论上不应触发）──
   const cubeFade = 1 - clamp(
     (aboutExitProgress - CUBE_FADEOUT_START) / (CUBE_FADEOUT_END - CUBE_FADEOUT_START),
     0, 1,
   );
 
-  if (scrollProgress < TRANSITION_START) {
-    return {
-      phase: 'hero',
-      t: 0,
-      cubeScale: 1.0,
-      videoMix: 0,
-      aboutPos,
-      cubeFade: 1,
-    };
-  }
-
-  // 立方体已完全淡出 → 隐藏阶段
   if (cubeFade <= 0) {
     return {
-      phase: 'hidden',
-      t: 1,
-      cubeScale: ABOUT_CUBE_SCALE,
-      videoMix: 1,
-      aboutPos,
-      cubeFade: 0,
+      phase: 'hidden', t: 1, cubeScale: ABOUT_CUBE_SCALE, videoMix: 1,
+      aboutPos, omegaPos, cubeFade: 0, morphFactor: 0, bgAlpha: 1,
     };
   }
 
   if (scrollProgress > TRANSITION_END) {
     return {
-      phase: 'about',
-      t: 1,
-      cubeScale: ABOUT_CUBE_SCALE,
-      videoMix: clamp((scrollProgress - VIDEO_FADE_START) / (VIDEO_FADE_END - VIDEO_FADE_START), 0, 1),
-      aboutPos,
-      cubeFade,
+      phase: 'about', t: 1, cubeScale: ABOUT_CUBE_SCALE,
+      videoMix: clamp(
+        (scrollProgress - VIDEO_FADE_START) / (VIDEO_FADE_END - VIDEO_FADE_START), 0, 1,
+      ),
+      aboutPos, omegaPos, cubeFade, morphFactor: 0, bgAlpha: 1,
     };
   }
 
-  const rawT = clamp((scrollProgress - TRANSITION_START) / (TRANSITION_END - TRANSITION_START), 0, 1);
+  // ── 过渡阶段（立方体从 Hero 位置移向 About 位置）──
+  const rawT = clamp(
+    (scrollProgress - TRANSITION_START) / (TRANSITION_END - TRANSITION_START), 0, 1,
+  );
   const t = easeSoftBounce(rawT, damping);
   const cubeScale = lerp(1.0, ABOUT_CUBE_SCALE, t);
-  const videoMix = clamp((scrollProgress - VIDEO_FADE_START) / (VIDEO_FADE_END - VIDEO_FADE_START), 0, 1);
-  return { phase: 'transition', t, cubeScale, videoMix, aboutPos, cubeFade };
+  const videoMix = clamp(
+    (scrollProgress - VIDEO_FADE_START) / (VIDEO_FADE_END - VIDEO_FADE_START), 0, 1,
+  );
+  return { phase: 'transition', t, cubeScale, videoMix, aboutPos, omegaPos, cubeFade, morphFactor: 0, bgAlpha: 1 };
 }
 
 /**
- * 计算立方体的理想目标位置（不直接移动立方体）
+ * 计算立方体/四面体的理想目标位置（不直接移动立方体）
  * 实际移动由 smoothFollowSpike 在每帧中完成
  */
 export function applySpikeTransition(spike, transition) {
@@ -438,6 +492,22 @@ export function applySpikeTransition(spike, transition) {
     // 计算目标位置（不直接设置 position）
     spike.transitionTarget.lerpVectors(spike.heroFreezePos, transition.aboutPos, transition.t);
     spike.dragging = false;
+  } else if (transition.phase === 'omega-morph') {
+    // 从 About 位置向 Omega 位置平滑移动，与变形同步
+    if (spike.phase === 'about' || spike.phase === 'transition') {
+      // 刚进入 omega-morph，停止 arcball
+      if (spike.arcballDragging) {
+        spike.arcballDragging = false;
+        spike.arcballPointerId = null;
+      }
+    }
+    spike.phase = 'omega-morph';
+    spike.transitionTarget.lerpVectors(transition.aboutPos, transition.omegaPos, transition.morphFactor);
+    spike.dragging = false;
+  } else if (transition.phase === 'omega') {
+    spike.phase = 'omega';
+    spike.transitionTarget.copy(transition.omegaPos);
+    spike.dragging = false;
   } else {
     // About 阶段
     spike.phase = 'about';
@@ -453,7 +523,8 @@ export function applySpikeTransition(spike, transition) {
  * @param {number} dt - 时间步长（秒）
  */
 export function smoothFollowSpike(spike, dt) {
-  if (spike.phase !== 'transition' && spike.phase !== 'about') return;
+  if (spike.phase !== 'transition' && spike.phase !== 'about'
+      && spike.phase !== 'omega-morph' && spike.phase !== 'omega') return;
   // 指数衰减追随 — TRANSITION_FOLLOW_SPEED 越大追随越快
   const followFactor = 1 - Math.exp(-TRANSITION_FOLLOW_SPEED * dt);
   spike.position.lerp(spike.transitionTarget, followFactor);
@@ -463,7 +534,8 @@ export function smoothFollowSpike(spike, dt) {
  * About 阶段 arcball 旋转 tick
  */
 export function tickAboutRotation(spike, dt) {
-  if (spike.phase !== 'about' && spike.phase !== 'transition') return;
+  if (spike.phase !== 'about' && spike.phase !== 'transition'
+      && spike.phase !== 'omega' && spike.phase !== 'omega-morph') return;
 
   // 空闲自转
   _idleSpinEuler.set(
@@ -492,7 +564,7 @@ export function getSpikeRotationMatrix3(spike, target) {
 
 // ── About 阶段 Arcball 交互事件处理 ──
 export function onAboutArcballDown(spike, rect, clientX, clientY) {
-  if (spike.phase !== 'about') return false;
+  if (spike.phase !== 'about' && spike.phase !== 'omega') return false;
   spike.arcballDragging = true;
   projectToArcball(rect, clientX, clientY, _arcStart);
   return true;

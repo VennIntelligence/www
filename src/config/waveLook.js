@@ -98,6 +98,36 @@ export const ABOUT_DRAG_SLERP = 0.28;
 // About 阶段空闲自转 slerp 系数。默认 0.06。
 export const ABOUT_IDLE_SLERP = 0.06;
 
+// --- Omega 阶段正四面体 ---
+// Omega 阶段四面体固定位置 (SDF 空间)。与 About 保持一致，Desktop 稍偏上居中。
+// 默认标准值：(0, 0.35, 0)，和 About 立方体相同位置，视觉上连续感更强。
+export const OMEGA_CUBE_POS_DESKTOP = new THREE.Vector3(0, 0.35, 0);
+// Mobile 版四面体位置。默认标准值：(0, 0.55, 0)。
+export const OMEGA_CUBE_POS_MOBILE = new THREE.Vector3(0, 0.55, 0);
+// Omega 阶段四面体缩放倍数（相对 Hero 阶段）。默认 2.18，与 About 立方体保持一致。缩小 20% → 1.744。
+export const OMEGA_CUBE_SCALE = 1.744;
+
+// --- About→Omega 变形过渡 ---
+// 变形开始的 aboutExitProgress 阈值。默认 0.25。
+// About 底部开始离开视口后不久即开始变形。调小→更早；调大→更晚。
+export const OMEGA_MORPH_START = 0.25;
+// 变形完成的 aboutExitProgress 阈值。默认 0.80。
+// 调小→变形更快完成；调大→变形拖得更长。
+export const OMEGA_MORPH_END = 0.80;
+// 液态金背景淡出开始的 aboutExitProgress 阈值。默认 0.25，与变形同步。
+export const OMEGA_BG_FADE_START = 0.25;
+// 液态金背景淡出完成的 aboutExitProgress 阈值。默认 0.65。
+// 背景比变形更早淡完，让四面体在透明背景上独立亮相。
+export const OMEGA_BG_FADE_END = 0.65;
+
+// --- 四面体淡出 ---
+// 四面体开始淡出的 productExitProgress 阈值（product section 底部开始离开视口）。
+// 默认 0.50。调小→更早开始消失；调大→更晚。
+export const OMEGA_FADEOUT_START = 0.50;
+// 四面体完全消失的 productExitProgress 阈值。默认 0.88。
+// 调小→消失更快；调大→消失更慢。
+export const OMEGA_FADEOUT_END = 0.88;
+
 // --- Hero→About 过渡 ---
 // 过渡开始的滚动进度。默认 0.15。当 scrollProgress 超过此值时开始过渡。
 // scrollProgress: 0 = Hero 完全可见, 1 = About 完全可见。

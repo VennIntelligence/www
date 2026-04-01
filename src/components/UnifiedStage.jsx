@@ -114,6 +114,8 @@ export default function UnifiedStage() {
       uCubeScale: { value: SPIKE_SIZE },
       uVideoMix: { value: 0 },
       uCubeFade: { value: 1.0 },
+      uMorphFactor: { value: 0.0 },  // 形状变形进度（0=立方体, 1=正四面体）
+      uBgAlpha: { value: 0.0 },      // 液态金背景不透明度
       // ── 视频纹理 ──
       uCameraTex: { value: placeholderTex },
       uCameraActive: { value: 0.0 },
@@ -196,6 +198,9 @@ export default function UnifiedStage() {
       aboutExitProgress: 0,
       // Hero section 底部 Y 位置（用于液滴边界推挤）
       heroBottomY: Infinity,
+      // Product section 滚动进度（用于 Omega 四面体出现/消失）
+      productScrollProgress: 0,
+      productExitProgress: 0,
     };
 
     // ── 预分配临时向量 ──
@@ -280,6 +285,16 @@ export default function UnifiedStage() {
 
       // 记录 Hero section 底部在视口中的 Y 位置（用于液滴边界推挤）
       interaction.heroBottomY = heroRect.bottom;
+
+      // productScrollProgress / productExitProgress：追踪 Product section 进出视口
+      const productSection = document.getElementById('product');
+      if (productSection) {
+        const productRect = productSection.getBoundingClientRect();
+        // productScrollProgress: 0=product顶部在视口底部以下, 1=product顶部到达视口顶部
+        interaction.productScrollProgress = clamp(1 - productRect.top / viewH, 0, 1);
+        // productExitProgress: 0=product底部在视口内, 1=product底部完全离开视口顶部
+        interaction.productExitProgress = 1 - clamp(productRect.bottom / viewH, 0, 1);
+      }
     }
 
     // ── 事件处理 ──
@@ -292,8 +307,8 @@ export default function UnifiedStage() {
       const isMouse = event.pointerType === 'mouse';
       const spikePad = isMouse ? SPIKE_MOUSE_PICK_PADDING : 0;
 
-      // About 阶段：arcball 旋转
-      if (spike.phase === 'about') {
+      // About/Omega 阶段：arcball 旋转
+      if (spike.phase === 'about' || spike.phase === 'omega') {
         if (isPointerNearSpike(event.clientX, event.clientY, rect, spikePad) ||
             event.currentTarget === dragHandle) {
           spike.arcballPointerId = event.pointerId;
@@ -596,13 +611,21 @@ export default function UnifiedStage() {
 
       // ── 滚动过渡 ──
       const isMobile = window.innerWidth < 768;
-      const transition = computeTransition(interaction.scrollProgress, isMobile, interaction.aboutExitProgress);
+      const transition = computeTransition(
+        interaction.scrollProgress,
+        isMobile,
+        interaction.aboutExitProgress,
+        interaction.productScrollProgress,
+        interaction.productExitProgress,
+      );
 
       // 更新过渡 uniform
       uniforms.uPhase.value = transition.t;
       uniforms.uCubeScale.value = transition.phase === 'hero' ? SPIKE_SIZE : SPIKE_SIZE * transition.cubeScale;
       uniforms.uVideoMix.value = transition.videoMix;
       uniforms.uCubeFade.value = transition.cubeFade;
+      uniforms.uMorphFactor.value = transition.morphFactor;
+      uniforms.uBgAlpha.value = transition.bgAlpha;
 
       // 过渡/About 阶段加载视频
       if (transition.phase !== 'hero' && transition.phase !== 'hidden' && !videoLoaded) {
@@ -647,8 +670,9 @@ export default function UnifiedStage() {
         uniforms.uSpikeRot.value.setFromMatrix4(heroRotMat4);
       }
 
-      // ── About/过渡 阶段旋转 ──
-      if (spike.phase === 'about' || spike.phase === 'transition') {
+      // ── About/过渡/Omega 阶段旋转 ──
+      if (spike.phase === 'about' || spike.phase === 'transition'
+          || spike.phase === 'omega' || spike.phase === 'omega-morph') {
         tickAboutRotation(spike, dt);
         getSpikeRotationMatrix3(spike, spikeRotMat3);
         uniforms.uSpikeRot.value.copy(spikeRotMat3);
@@ -773,7 +797,7 @@ export default function UnifiedStage() {
       updateDropUniforms();
 
       // 更新拖拽手柄位置
-      if (spike.phase === 'hero' || spike.phase === 'about') {
+      if (spike.phase === 'hero' || spike.phase === 'about' || spike.phase === 'omega') {
         worldToLocalScreen(spike.position, cachedRect, handleScreen);
         const handleSize = getSpikeHandleSize(cachedRect, spike.position.z);
         dragHandle.style.left = `${handleScreen.x}px`;

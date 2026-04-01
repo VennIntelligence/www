@@ -37,6 +37,8 @@ uniform float uPhase;        // 0=Hero, 1=About
 uniform float uCubeScale;    // 方块 SDF 半边长（Hero=0.3, About 约 0.55）
 uniform float uVideoMix;     // 视频纹理混合度
 uniform float uCubeFade;     // 立方体整体淡出（0=完全透明, 1=完全可见）
+uniform float uMorphFactor;  // 形状变形进度（0=立方体, 1=正四面体）
+uniform float uBgAlpha;      // 液态金背景不透明度（1=完全可见, 0=透明过渡到 Omega）
 
 // ── 视频纹理 ──
 uniform sampler2D uCameraTex;
@@ -131,6 +133,15 @@ float sdRoundBox(vec3 p, vec3 b, float r) {
   vec3 q = abs(p) - b + r;
   return length(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0) - r;
 }
+
+/* ── 正四面体 SDF ──
+ * r 为内切球半径。顶点指向 (±1,±1,±1) 的四个方向，构成正四面体。
+ * 与 sdRoundBox 通过 uMorphFactor 混合即可实现立方体→四面体变形。 */
+float sdTetrahedron(vec3 p, float r) {
+  float md = max(max(-p.x - p.y - p.z,  p.x + p.y - p.z),
+                 max(-p.x + p.y + p.z,  p.x - p.y + p.z));
+  return (md - r) / sqrt(3.0);
+}
 #endif
 
 /* ── Wobble ── */
@@ -214,7 +225,10 @@ float mapSpike(vec3 p) {
   #ifdef SPIKE_ENABLED
   if (gSpikeActive > 0.5) {
     vec3 sp = gSpikeRot * (p - gSpikePos);
-    spikeD = sdRoundBox(sp, vec3(gCubeScale), SPIKE_ROUND);
+    float dBox   = sdRoundBox(sp, vec3(gCubeScale), SPIKE_ROUND);
+    // 1.4 系数让四面体视觉体量与立方体对齐
+    float dTetra = sdTetrahedron(sp, gCubeScale * 1.4);
+    spikeD = mix(dBox, dTetra, uMorphFactor);
   }
   #endif
   return spikeD;
@@ -825,9 +839,11 @@ void main() {
       }
     }
 
-    // Beer's law absorption
+    // Beer's law absorption — 冷蓝玻璃 → 暖金玻璃（随 uMorphFactor 渐变）
+    // 冷蓝：稍微吸收红绿，保留蓝色。暖金：强吸收蓝，保留橙红。
     float pathLen = dBack;
-    vec3 absorption = exp(-GLASS_ABSORPTION * pathLen);
+    vec3 blendedAbsorption = mix(GLASS_ABSORPTION, vec3(0.02, 0.12, 0.45), uMorphFactor);
+    vec3 absorption = exp(-blendedAbsorption * pathLen);
     transmitted *= absorption;
 
     // Specular
@@ -835,8 +851,9 @@ void main() {
     float spec = specularLobe(nFront, v, keyL, 0.000006) * GLASS_SPEC_BOOST;
     vec3 specColor = vec3(1.0, 1.0, 0.98) * spec;
 
-    // Edge glow
-    vec3 edgeGlow = GLASS_EDGE_GLOW * pow(1.0 - cosTheta, 3.0) * GLASS_EDGE_GLOW_BOOST;
+    // Edge glow — 冷白 → 暖琥珀（随 uMorphFactor 渐变）
+    vec3 edgeGlowColor = mix(GLASS_EDGE_GLOW, vec3(1.0, 0.78, 0.28), uMorphFactor);
+    vec3 edgeGlow = edgeGlowColor * pow(1.0 - cosTheta, 3.0) * GLASS_EDGE_GLOW_BOOST;
 
     color = mix(transmitted, reflColor, fresnel) + specColor + edgeGlow;
     hitAlpha = 1.0;
@@ -848,21 +865,26 @@ void main() {
   } else {
     if (inAboutPhase) {
       color = liquidGoldBackground(screenUV);
-      hitAlpha = 1.0; // 液态金是不透明背景
+      // Omega 阶段 uBgAlpha→0，背景渐变为透明，让 ProductSection 内容透出
+      hitAlpha = uBgAlpha;
     } else {
       color = envMap(rd) * BG_ENV_BASE_MIX + backgroundGlow(rd);
-      hitAlpha = 0.0; // Hero 阶段背景区域保持之前行为
+      hitAlpha = 0.0;
     }
   }
 
-  // 立方体淡出：当 cubeFade < 1 时，将立方体区域混合向背景
-  // 对于玻璃材质路径，整个输出已包含立方体和背景的融合
+  // 立方体/四面体淡出
   if (uCubeFade < 0.999) {
-    vec3 bgColor = inAboutPhase
-      ? liquidGoldBackground(screenUV)
-      : envMap(rd) * BG_ENV_BASE_MIX + backgroundGlow(rd);
-    color = mix(bgColor, color, uCubeFade);
-    hitAlpha = inAboutPhase ? 1.0 : hitAlpha * uCubeFade;
+    if (inAboutPhase && uBgAlpha > 0.5) {
+      // About 阶段：立方体淡出混合到液态金背景
+      vec3 bgColor = liquidGoldBackground(screenUV);
+      color = mix(bgColor, color, uCubeFade);
+      hitAlpha = 1.0;
+    } else {
+      // Omega 阶段：四面体淡出到透明（而非混入金背景）
+      color *= uCubeFade;
+      hitAlpha = hitAlpha * uCubeFade;
+    }
   }
 
   #else
@@ -875,20 +897,23 @@ void main() {
   } else {
     if (inAboutPhase) {
       color = liquidGoldBackground(screenUV);
-      hitAlpha = 1.0;
+      hitAlpha = uBgAlpha;
     } else {
       color = envMap(rd) * BG_ENV_BASE_MIX + backgroundGlow(rd);
       hitAlpha = 0.0;
     }
   }
 
-  // 立方体淡出（非玻璃路径）
+  // 立方体/四面体淡出（非玻璃路径）
   if (uCubeFade < 0.999) {
-    vec3 bgColor = inAboutPhase
-      ? liquidGoldBackground(screenUV)
-      : envMap(rd) * BG_ENV_BASE_MIX + backgroundGlow(rd);
-    color = mix(bgColor, color, uCubeFade);
-    hitAlpha = inAboutPhase ? 1.0 : hitAlpha * uCubeFade;
+    if (inAboutPhase && uBgAlpha > 0.5) {
+      vec3 bgColor = liquidGoldBackground(screenUV);
+      color = mix(bgColor, color, uCubeFade);
+      hitAlpha = 1.0;
+    } else {
+      color *= uCubeFade;
+      hitAlpha = hitAlpha * uCubeFade;
+    }
   }
   #endif
 
