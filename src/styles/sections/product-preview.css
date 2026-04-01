@@ -605,37 +605,4 @@
   opacity: 1;
 }
 
-/* ============================================================
-   Product Section — Solid 降级（安卓 / 不支持 backdrop-filter）
-   ============================================================ */
-
-html[data-glass-backdrop="0"] .product-cta--ghost {
-  /* 实底按钮，不依赖 blur — 默认标准值：rgba(20,24,38,0.62) */
-  background: linear-gradient(
-    135deg,
-    rgba(20, 24, 38, 0.62) 0%,
-    rgba(14, 18, 30, 0.5) 100%
-  );
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-
-html[data-glass-backdrop="0"] .product-cta--ghost:hover {
-  background: linear-gradient(
-    135deg,
-    rgba(26, 30, 46, 0.7) 0%,
-    rgba(18, 22, 36, 0.58) 100%
-  );
-}
-
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .product-cta--ghost {
-    background: linear-gradient(
-      135deg,
-      rgba(20, 24, 38, 0.62) 0%,
-      rgba(14, 18, 30, 0.5) 100%
-    );
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-  }
-}
+/* Product Ghost 按钮：安卓/所有平台统一保持磨砂半透明，不加实底色 */

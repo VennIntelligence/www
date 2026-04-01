@@ -472,8 +472,17 @@
 }
 
 @media (max-width: 767px) {
+  /* section 本身不加 padding，让 footer 能贴紧左/右/底三条边 */
   .consultants-section {
-    padding: 74px 16px;
+    padding: 0;
+  }
+
+  /* 原来 section 的上下内边距转移到 content-wrapper */
+  .consultants-content-wrapper {
+    padding-top: 74px;
+    padding-bottom: 40px;
+    padding-left: 16px;
+    padding-right: 16px;
   }
 
   .consultants-content {
@@ -498,6 +507,13 @@
 
   .consultants-profile__tag {
     font-size: 0.64rem;
+  }
+
+  /* Footer 在 mobile 下贴紧 section 的左/右/底三条边，宽度撑满 */
+  .consultants-section > .footer {
+    width: 100%;
+    margin: 0;
+    border-radius: 0;
   }
 }
 

@@ -1,0 +1,57 @@
+/* ============================================================
+   LiquidGoldBackground — WebGL 液态金 shader 背景
+   定位覆盖 section 整个背景层
+   ============================================================ */
+
+.liquid-gold-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* CSS 渐变兜底 — WebGL 初始化失败时依然有金色底色，
+ * 不会变成全白/全透明的空区域。
+ * canvas 会叠在上面遮住这层，正常情况下不可见。
+ * 默认标准值：模拟 liquid gold shader 的大致色调 */
+.liquid-gold-bg__fallback {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 120% 80% at 30% 40%,
+      rgba(200, 149, 60, 0.20) 0%,
+      rgba(140, 95, 30, 0.14) 40%,
+      transparent 70%),
+    radial-gradient(ellipse 100% 90% at 70% 60%,
+      rgba(220, 170, 80, 0.16) 0%,
+      rgba(110, 80, 25, 0.10) 50%,
+      transparent 80%),
+    linear-gradient(
+      160deg,
+      rgb(18, 14, 10) 0%,
+      rgb(30, 22, 12) 30%,
+      rgb(24, 17, 10) 60%,
+      rgb(14, 10, 7) 100%);
+}
+
+/* 半透明叠加层 — 降低金色亮度、提升上层文字可读性
+ * 默认标准值：rgba(0,0,0,0.25)
+ * 调大 → 背景更暗，文字更易读；调小 → 金色更亮 */
+.liquid-gold-bg__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+}
+
+.liquid-gold-bg__canvas {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* 不拦截上层面板的鼠标事件 */
+}

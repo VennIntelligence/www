@@ -162,8 +162,8 @@ export const COPY = {
       sectionTitle: '咨询服务',
       name: 'Chengzhi Gao',
       tags: ['PhD of money', 'Life hacker', 'Unix old soul'],
-      bio1: '28岁退休，现在回来修复互联网。',
-      bio2: 'Venn Intelligence 联合创始人。',
+      bio1: '28岁退休，现在回来修复互联网',
+      bio2: 'Venn Intelligence 联合创始人',
       tiers: [
         {
           label: '层级一',

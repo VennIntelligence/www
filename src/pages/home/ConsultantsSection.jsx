@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { COPY } from '../../config/i18n';
 import { useLanguage } from '../../context/useLanguage';
-import FluidAmberBackground from '../../components/FluidAmberBackground';
+import LiquidGoldBackground from '../../components/LiquidGoldBackground';
 import '../../styles/sections/consultants.css';
 
 /**
@@ -38,8 +38,8 @@ export default function ConsultantsSection({ children }) {
       id="consultants"
       className="consultants-section"
     >
-      {/* 液态琥珀 WebGL shader 背景 */}
-      <FluidAmberBackground />
+      {/* 液态金 WebGL shader 背景 */}
+      <LiquidGoldBackground />
 
       <div className="consultants-content-wrapper">
         <div className="consultants-content">

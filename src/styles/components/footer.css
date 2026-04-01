@@ -215,21 +215,4 @@
   }
 }
 
-/* ============================================================
-   Footer — Solid 降级（安卓 / 不支持 backdrop-filter）
-   ============================================================ */
-
-html[data-glass-backdrop="0"] .footer {
-  /* 实底 footer — 默认标准值：rgba(12,14,20,0.88) */
-  background: linear-gradient(180deg, rgba(12, 14, 20, 0.88) 0%, rgba(10, 12, 18, 0.92) 100%);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .footer {
-    background: linear-gradient(180deg, rgba(12, 14, 20, 0.88) 0%, rgba(10, 12, 18, 0.92) 100%);
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-  }
-}
+/* Footer：安卓/所有平台统一保持磨砂半透明，不加实底色 */
