@@ -1,0 +1,145 @@
+/* ================================================================
+   glass-fallback.css — 公共磨砂/毛玻璃 fallback CSS 系统
+   ================================================================
+
+   此文件定义跨组件通用的 glass fallback token 与 mixin-like class。
+   NavBar、Footer、移动面板、各类 overlay 面板均通过 [prefix]--tier 类
+   来激活对应档位的视觉效果，无需各自重复实现。
+
+   三档降级策略（由 glassCompatibility.js 判定）：
+   ┌──────────────────────────────────────────────────────────┐
+   │ .gf--frost    CSS backdrop-filter 磨砂（iOS/桌面）        │
+   │ .gf--solid    增强型纯色半透明（安卓/不支持 backdrop）     │
+   │ .gf--liquid   由 LiquidGlass 组件渲染，此文件无关          │
+   └──────────────────────────────────────────────────────────┘
+
+   使用方法：
+   组件的 fallback 容器在 JSX 里通过 glassClass(prefix, opts) 得到
+   类似 "navbar__glass-fallback navbar__glass-fallback--frost" 的字符串，
+   然后在组件专属 CSS 里用以下 mixin token 变量覆盖即可：
+
+     .navbar__glass-fallback { --gf-bg-opacity: 0.45; ... }
+
+   ================================================================ */
+
+/* ----------------------------------------------------------------
+   全局磨砂 token — 可被各组件覆盖（:root 为基准值）
+   ---------------------------------------------------------------- */
+:root {
+  /* frost tier —— backdrop-filter 磨砂参数 */
+  /* --gf-frost-blur: blur 强度（默认 18px）。调大更朦胧，调小更锐利清晰 */
+  --gf-frost-blur: 18px;
+  /* --gf-frost-saturate: 彩色饱和度系数（默认 1.35）。调大背后颜色更鲜艳，调到 1.0 还原原色 */
+  --gf-frost-saturate: 1.35;
+  /* --gf-frost-brightness: 亮度增益（默认 1.08）。调大更亮透，调小更暗沉 */
+  --gf-frost-brightness: 1.08;
+
+  /* --gf-frost-bg: frost 层的背景色，需带透明度允许底层透过（默认 rgba(10,14,22,0.38)）*/
+  --gf-frost-bg: rgba(10, 14, 22, 0.38);
+  /* --gf-frost-border: frost 层顶部/边缘高光描边（默认 rgba(255,255,255,0.10)）*/
+  --gf-frost-border: rgba(255, 255, 255, 0.10);
+
+  /* solid tier —— 增强型不透明背景（安卓的最佳方案）*/
+  /* --gf-solid-bg: solid 层主背景色（默认 rgba(8,12,20,0.85)）。不透明度越高越实、越能遮挡底色 */
+  --gf-solid-bg: rgba(8, 12, 20, 0.85);
+  /* --gf-solid-bg-highlight: solid 层顶部渐变高光（默认 rgba(255,255,255,0.04)）。营造轻微玻璃过渡质感 */
+  --gf-solid-bg-highlight: rgba(255, 255, 255, 0.04);
+  /* --gf-solid-border: solid 层高光描边（默认 rgba(255,255,255,0.08)）*/
+  --gf-solid-border: rgba(255, 255, 255, 0.08);
+  /* --gf-solid-shadow: solid 层投影颜色（默认 rgba(0,0,0,0.35)）。调大阴影更深沉，调小更轻盈 */
+  --gf-solid-shadow: rgba(0, 0, 0, 0.35);
+
+  /* 强化态（scrolled/open）参数 */
+  /* --gf-scrolled-blur-boost: 滚动/激活后额外增加的 blur（默认 8px）*/
+  --gf-scrolled-blur-boost: 8px;
+  /* --gf-scrolled-opacity-boost: 滚动/激活后 solid 层背景不透明度增量（默认 0.08）*/
+  --gf-scrolled-opacity-boost: 0.08;
+}
+
+/* ================================================================
+   FROST TIER — backdrop-filter 磨砂（iOS + 桌面）
+   ================================================================ */
+
+/* 基础 frost 磨砂 */
+.gf--frost {
+  background: var(--gf-frost-bg);
+  backdrop-filter:
+    blur(var(--gf-frost-blur))
+    saturate(var(--gf-frost-saturate))
+    brightness(var(--gf-frost-brightness));
+  -webkit-backdrop-filter:
+    blur(var(--gf-frost-blur))
+    saturate(var(--gf-frost-saturate))
+    brightness(var(--gf-frost-brightness));
+}
+
+/* 滚动/激活后加强 frost */
+.gf--frost.gf--scrolled {
+  --gf-frost-blur: 26px;
+  --gf-frost-saturate: 1.48;
+  --gf-frost-brightness: 1.12;
+  --gf-frost-bg: rgba(8, 12, 18, 0.52);
+}
+
+/* ================================================================
+   SOLID TIER — 增强型纯色半透明（安卓 / 不支持 backdrop 的环境）
+   ================================================================
+
+   核心思路：
+   1. 高不透明度深色背景（0.85+），确保内容可读
+   2. 顶部 + 细高光渐变，营造"材质分层"感
+   3. 明显 box-shadow，模拟 Z 轴深度
+   4. 无 backdrop-filter —— 安卓上它要么透明要么渲染错误
+   ================================================================ */
+
+.gf--solid {
+  background:
+    linear-gradient(
+      180deg,
+      var(--gf-solid-bg-highlight) 0%,
+      transparent 40%
+    ),
+    var(--gf-solid-bg);
+  /* 无 backdrop-filter — 安卓上不可靠 */
+  box-shadow:
+    0 2px 24px var(--gf-solid-shadow),
+    inset 0 1px 0 var(--gf-solid-border);
+}
+
+/* 滚动/激活后加深 solid 层（进一步隔离背景干扰）*/
+.gf--solid.gf--scrolled {
+  --gf-solid-bg: rgba(4, 8, 16, 0.92);
+  --gf-solid-shadow: rgba(0, 0, 0, 0.48);
+}
+
+/* ================================================================
+   组合工具：.glass-surface
+   可直接用于小型面板、tooltip、浮层等，无需专属前缀
+   tier 由 data-glass-tier 属性（由 syncGlassCompatibility 注入）控制
+   ================================================================ */
+
+/* frost 平台上的通用磨砂面板 */
+[data-glass-tier="frost"] .glass-surface,
+[data-glass-tier="liquid"] .glass-surface {
+  background: var(--gf-frost-bg);
+  backdrop-filter:
+    blur(var(--gf-frost-blur))
+    saturate(var(--gf-frost-saturate));
+  -webkit-backdrop-filter:
+    blur(var(--gf-frost-blur))
+    saturate(var(--gf-frost-saturate));
+  border: 1px solid var(--gf-frost-border);
+}
+
+/* solid 平台（安卓）的通用面板 */
+[data-glass-tier="solid"] .glass-surface {
+  background:
+    linear-gradient(
+      160deg,
+      var(--gf-solid-bg-highlight) 0%,
+      transparent 35%
+    ),
+    var(--gf-solid-bg);
+  box-shadow: 0 4px 28px var(--gf-solid-shadow);
+  border: 1px solid var(--gf-solid-border);
+}

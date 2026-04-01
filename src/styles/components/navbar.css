@@ -45,33 +45,65 @@
 }
 
 /* ---- CSS 玻璃降级（移动端 + 不支持 Liquid 的环境）---- */
+
+/*
+ * Navbar 的 frost/solid 两档均在此定义，token 变量覆盖 glass-fallback.css 中的全局默认值。
+ * --gf-frost-blur: navbar frost 磨砂半径（默认 14px；调大更朦胧，调小更锐利）
+ * --gf-solid-bg:   安卓 navbar 背景（默认 rgba(6,10,18,0.88)；调高更实，调低在安卓上可能透明）
+ */
 .navbar__glass-fallback {
   position: relative;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    180deg,
-    var(--navbar-fallback-idle-top) 0%,
-    var(--navbar-fallback-idle-bottom) 100%
-  );
-  backdrop-filter: blur(12px) saturate(1.24) brightness(1.08);
-  -webkit-backdrop-filter: blur(12px) saturate(1.24) brightness(1.08);
-  transition: backdrop-filter 0.5s ease, -webkit-backdrop-filter 0.5s ease, background 0.5s ease;
+  transition: background 0.5s ease, box-shadow 0.5s ease;
 }
 
-/* 滚动后 — 加强模糊与饱和度，凸显导航栏存在感 */
-.navbar__glass-fallback--scrolled {
-  background: linear-gradient(
-    180deg,
-    var(--navbar-fallback-scrolled-top) 0%,
-    var(--navbar-fallback-scrolled-bottom) 100%
-  );
-  backdrop-filter: blur(18px) saturate(1.4) brightness(1.12);
-  -webkit-backdrop-filter: blur(18px) saturate(1.4) brightness(1.12);
+/* frost tier（iOS / 桌面）：backdrop-filter 磨砂 */
+.navbar__glass-fallback--frost {
+  background: rgba(8, 12, 20, 0.34);
+  backdrop-filter: blur(14px) saturate(1.28) brightness(1.06);
+  -webkit-backdrop-filter: blur(14px) saturate(1.28) brightness(1.06);
 }
 
+/* frost 滚动后加强磨砂 */
+.navbar__glass-fallback--frost.navbar__glass-fallback--scrolled {
+  background: rgba(6, 9, 16, 0.52);
+  backdrop-filter: blur(22px) saturate(1.45) brightness(1.12);
+  -webkit-backdrop-filter: blur(22px) saturate(1.45) brightness(1.12);
+}
+
+/*
+ * solid tier（安卓 fallback）—— 不依赖 backdrop-filter
+ * 安卓上 backdrop-filter 渲染极不可靠（实测往往完全透明）。
+ * 使用高不透明度深色背景 + 顶部高光渐变 + box-shadow 营造纵深质感。
+ * 默认标准值：rgba(6,10,18,0.88)；调大第四项（不透明度）更清晰，调小在安卓上会透明。
+ */
 .navbar__glass-fallback--solid {
-  /* 保持磨砂半透明 — 不加实底色 */
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.05) 0%,
+      transparent 40%
+    ),
+    rgba(6, 10, 18, 0.88);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.08),
+    0 4px 20px rgba(0, 0, 0, 0.32);
+  /* 不使用 backdrop-filter —— 安卓上渲染不可靠 */
+}
+
+/* solid 滚动后进一步加深不透明度 */
+.navbar__glass-fallback--solid.navbar__glass-fallback--scrolled {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.06) 0%,
+      transparent 40%
+    ),
+    rgba(4, 7, 14, 0.94);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.10),
+    0 6px 28px rgba(0, 0, 0, 0.44);
 }
 
 .navbar__inner {
@@ -404,23 +436,35 @@
     );
   }
 
+  /* frost/solid tier mobile panel */
   .navbar__mobile-panel {
     position: relative;
     width: 100%;
-    /* Removed max-height constraint to let items fill naturally */
-    padding: 10px 0; /* Vertical padding only */
+    padding: 10px 0;
     border-left: 1px solid var(--navbar-mobile-panel-border);
     border-right: 1px solid var(--navbar-mobile-panel-border);
     border-bottom: 1px solid var(--navbar-mobile-panel-border);
     border-radius: 0;
+    /* frost default */
     background: var(--navbar-mobile-panel-bg);
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
     backdrop-filter: blur(26px) saturate(1.45);
     -webkit-backdrop-filter: blur(26px) saturate(1.45);
-    overflow: visible; /* Let content flow naturally */
+    overflow: visible;
     transform: translateY(-16px) scale(0.98);
     transform-origin: top center;
     transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* Android solid tier override — strong opaque background, no backdrop-filter */
+  /* --navbar-mobile-panel-solid: default rgba(4,8,18,0.95); increase opacity value for more solid look */
+  [data-glass-tier="solid"] .navbar__mobile-panel {
+    background: rgba(4, 8, 18, 0.95);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      0 18px 40px rgba(0, 0, 0, 0.52);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 
   .navbar__mobile-menu--open .navbar__mobile-panel {

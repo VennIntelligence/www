@@ -6,6 +6,7 @@ import LanguageToggle from './LanguageToggle';
 import { COPY } from '../config/i18n';
 import { useLanguage } from '../context/useLanguage';
 import { getGlassCompatibility } from '../utils/glassCompatibility';
+import { glassClass } from '../utils/glassUtils';
 import '../styles/components/navbar.css';
 
 // 导航栏区块配置，已从硬编码文本变为仅用ID查找，配合多语言字典进行翻译使用
@@ -69,14 +70,12 @@ export default function Navbar() {
     ...NAVBAR_GLASS_BASE,
     ...(scrolled ? NAVBAR_GLASS_SCROLLED : NAVBAR_GLASS_IDLE),
   };
-  const glassFallbackClassName = [
-    'navbar__glass-fallback',
-    scrolled ? 'navbar__glass-fallback--scrolled' : '',
-    isMobile ? 'navbar__glass-fallback--mobile' : 'navbar__glass-fallback--desktop',
-    glassCompatibility.backdropReliable ? '' : 'navbar__glass-fallback--solid',
-  ]
-    .filter(Boolean)
-    .join(' ');
+  // 使用公共工具函数生成标准化 fallback class，自动包含正确的 --frost / --solid tier 后缀
+  const glassFallbackClassName = glassClass('navbar__glass-fallback', {
+    scrolled,
+    compat: glassCompatibility,
+    extra: [isMobile ? 'navbar__glass-fallback--mobile' : 'navbar__glass-fallback--desktop'],
+  });
 
   useEffect(() => {
     // 记录每个 section 的实时交叉比例
