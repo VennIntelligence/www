@@ -12,8 +12,8 @@ import '../styles/components/navbar.css';
 // 导航栏区块配置，已从硬编码文本变为仅用ID查找，配合多语言字典进行翻译使用
 const NAV_LINKS = [
   { id: 'hero' },
-  { id: 'about' },
-  { id: 'product' },
+  { id: 'sigma' },
+  { id: 'omega' },
   { id: 'consultants' },
   { id: 'blog', route: '/blog' },
 ];

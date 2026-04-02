@@ -125,12 +125,12 @@ void main() {
     field      += bump * 0.3;
   }
 
-  // 金色调色盘
-  vec3 goldBase   = vec3(0.83,0.61,0.22);
-  vec3 goldBright = vec3(1.00,0.84,0.45);
-  vec3 goldDeep   = vec3(0.55,0.35,0.08);
-  vec3 goldShadow = vec3(0.18,0.10,0.02);
-  vec3 whiteHot   = vec3(1.00,0.97,0.88);
+  // 金色调色盘 — 中间值：暗处留黑，亮处比原始更纯
+  vec3 goldBase   = vec3(0.87, 0.65, 0.20);   // 主体金，比原始(0.83)稍亮但不过分
+  vec3 goldBright = vec3(1.00, 0.88, 0.50);   // 高光区，两次调参中间值
+  vec3 goldDeep   = vec3(0.58, 0.38, 0.06);   // 过渡区，接近原始
+  vec3 goldShadow = vec3(0.16, 0.09, 0.01);   // 最暗处保持接近黑色
+  vec3 whiteHot   = vec3(1.00, 0.97, 0.88);   // 极亮高光点（恢复原始）
 
   float NdotL1 = max(dot(normal,light1),0.);
   float NdotL2 = max(dot(normal,light2),0.);
@@ -160,19 +160,19 @@ void main() {
   vec3 env    = mix(vec3(.12,.07,.02), vec3(.45,.30,.12), reflUv.y);
   env         = mix(env, vec3(.7,.55,.25), smoothstep(.6,1.,reflUv.y));
 
-  vec3 col = diffuse*.4 + specular*fres + env*fres*.5;
-  col += base * 0.12;
+  vec3 col = diffuse*0.50 + specular*fres + env*fres*0.55;
+  col += base * 0.16;  // ambient 微提，不过亮
 
   // 细纹细部
   float ripple = noise(uv*u_rippleScale + t*2.);
   ripple = ripple*ripple;
   col += whiteHot * smoothstep(.6,.9,ripple) * 0.08 * fres;
 
-  // 晕影与暗角
+  // 暗角：0.50 基础保留主体明暗对比，不全压暗也不全铺亮
   float dist    = length(uv);
-  float vignette = 1. - smoothstep(.3,1.2,dist);
-  col *= .35 + vignette*.65;
-  col += goldBright * smoothstep(.8,.0,dist) * 0.15;
+  float vignette = 1. - smoothstep(.35, 1.25, dist);
+  col *= 0.50 + vignette * 0.50;
+  col += goldBright * smoothstep(.85, .0, dist) * 0.18;
 
   // ACES Tone Mapping
   col = col*(2.51*col+0.03)/(col*(2.43*col+0.59)+0.14);

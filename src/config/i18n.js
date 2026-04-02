@@ -2,15 +2,15 @@ export const COPY = {
   nav: {
     en: {
       hero: 'Home',
-      about: 'Σ',
-      product: 'Ω',
+      sigma: 'Σ',
+      omega: 'Ω',
       consultants: 'Consultants',
       blog: 'Blog',
     },
     zh: {
       hero: '首页',
-      about: 'Σ',
-      product: 'Ω',
+      sigma: 'Σ',
+      omega: 'Ω',
       consultants: '咨询',
       blog: '博客',
     },
@@ -38,7 +38,7 @@ export const COPY = {
       socialEmail: 'contact@vennai.org',
     },
   },
-  about: {
+  sigma: {
     en: {
       subheading: 'Project',
       headingLines: [
@@ -108,7 +108,7 @@ export const COPY = {
       ctaReadMore: '查看详情',
     },
   },
-  product: {
+  omega: {
     en: {
       subheading: 'Project',
       headingLines: [
@@ -183,7 +183,7 @@ export const COPY = {
   consultants: {
     en: {
       sectionTitle: 'Consulting',
-      name: 'Chengzhi Gao',
+      name: 'Taitan Pascal',
       tags: ['PhD of money', 'Life hacker', 'Unix old soul'],
       bio1: 'Retired at 28, Now back to fix the internet.',
       bio2: 'Co-founder of Venn Intelligence.',
@@ -208,7 +208,7 @@ export const COPY = {
     },
     zh: {
       sectionTitle: '咨询服务',
-      name: 'Chengzhi Gao',
+      name: 'Taitan Pascal',
       tags: ['PhD of money', 'Life hacker', 'Unix old soul'],
       bio1: '28岁退休，现在回来修复互联网',
       bio2: 'Venn Intelligence 联合创始人',
@@ -250,7 +250,7 @@ export const COPY = {
     en: {
       description: 'Humanity never built proper infrastructure for collective intelligence. We\'re funding the first attempts.',
       email: 'contact@vennai.org',
-      product: 'Product',
+      omega: 'Omega',
       blog: 'Blog',
       twitter: '@venn_foundation',
       github: 'VennIntelligence',
@@ -259,7 +259,7 @@ export const COPY = {
     zh: {
       description: '人类还没有为集体智慧建过一层像样的基础设施，我们在资助第一批尝试者。',
       email: 'contact@vennai.org',
-      product: '产品',
+      omega: '产品',
       blog: '博客',
       twitter: '@venn_foundation',
       github: 'VennIntelligence',

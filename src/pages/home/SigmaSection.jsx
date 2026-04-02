@@ -6,7 +6,7 @@ import MagnetText from '../../components/MagnetText';
 import useCharMagnet from '../../hooks/useCharMagnet';
 import { COPY } from '../../config/i18n';
 import { useLanguage } from '../../context/useLanguage';
-import '../../styles/sections/about.css';
+import '../../styles/sections/sigma.css';
 
 /**
  * ArrowRight — 内联 SVG 箭头图标
@@ -39,23 +39,23 @@ function PillarCard({ pillar, index }) {
   return (
     <Motion.div
       ref={ref}
-      className="about-pillar"
+      className="sigma-pillar"
       initial={{ opacity: 0, y: 30 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.5, delay: index * 0.1 }}
     >
       {/* 序号 + 标题同一行 */}
-      <div className="about-pillar__header">
-        <span className="about-pillar__icon">{pillar.icon}</span>
-        <h3 className="about-pillar__title">{pillar.title}</h3>
+      <div className="sigma-pillar__header">
+        <span className="sigma-pillar__icon">{pillar.icon}</span>
+        <h3 className="sigma-pillar__title">{pillar.title}</h3>
       </div>
-      <p className="about-pillar__desc">{pillar.desc}</p>
+      <p className="sigma-pillar__desc">{pillar.desc}</p>
     </Motion.div>
   );
 }
 
 /**
- * AboutSection — Project Σ 介绍
+ * SigmaSection — Project Σ 介绍
  *
  * 布局策略：
  * - Desktop (>767px)：单屏，内容底部对齐，方块居中
@@ -65,9 +65,9 @@ function PillarCard({ pillar, index }) {
  *
  * 标题支持模糊→清晰出场 + 逐字符磁吸交互
  */
-export default function AboutSection() {
+export default function SigmaSection() {
   const { lang } = useLanguage();
-  const copy = COPY.about[lang];
+  const copy = COPY.sigma[lang];
   const sectionRef = useRef(null);
   const headingH2Ref = useRef(null);
 
@@ -109,74 +109,74 @@ export default function AboutSection() {
   return (
     <section
       ref={sectionRef}
-      id="about"
-      className="about-section"
+      id="sigma"
+      className="sigma-section"
       style={{ position: 'relative' }}
     >
 
       {/* 主内容 */}
       <div
-        className="about-content"
+        className="sigma-content"
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
       >
         {/* ═══ 第一屏（移动端）：标签 + 标题 + CTA + manifesto ═══ */}
-        <div className="about-screen-1" ref={headingRevealRef}>
+        <div className="sigma-screen-1" ref={headingRevealRef}>
           {/* Project [Σ] 大标签 — 发光竖线 + 文字 + 白框Σ徽章 */}
           <div
-            className={`about-subheading about-blur-reveal ${headingInView ? 'is-revealed' : ''}`}
+            className={`sigma-subheading sigma-blur-reveal ${headingInView ? 'is-revealed' : ''}`}
           >
-            <div className="about-subheading__line" />
+            <div className="sigma-subheading__line" />
             <span>{copy.subheading}</span>
-            <span className="about-sigma-badge">Σ</span>
+            <span className="sigma-badge">Σ</span>
           </div>
 
           {/* 标题 + CTA + 宣言 */}
-          <div className="about-columns">
+          <div className="sigma-columns">
             {/* 左侧：标题 + CTA 按钮 */}
             <Motion.div
-              className={`about-heading about-blur-reveal ${headingInView ? 'is-revealed' : ''}`}
+              className={`sigma-heading sigma-blur-reveal ${headingInView ? 'is-revealed' : ''}`}
               style={{ y: yHeading, transitionDelay: '0.15s' }}
             >
-              <h2 className="about-heading__h2" ref={headingH2Ref}>
-                <MagnetText key={`${lang}-0`} tag="span" className="about-heading__light">
+              <h2 className="sigma-heading__h2" ref={headingH2Ref}>
+                <MagnetText key={`${lang}-0`} tag="span" className="sigma-heading__light">
                   {copy.headingLines[0]}
                 </MagnetText>
                 <br />
-                <MagnetText key={`${lang}-1`} tag="span" className="about-heading__light">
+                <MagnetText key={`${lang}-1`} tag="span" className="sigma-heading__light">
                   {copy.headingLines[1]}
                 </MagnetText>
                 <br />
-                <MagnetText key={`${lang}-2`} tag="span" className="about-heading__display">
+                <MagnetText key={`${lang}-2`} tag="span" className="sigma-heading__display">
                   {copy.headingLines[2]}
                 </MagnetText>
               </h2>
 
               {/* CTA 按钮紧跟标题下方 */}
-              <div className="about-cta-inline">
-                <Link to="/blog/project-sigma-manifesto" className="about-cta-inline__btn">
+              <div className="sigma-cta-inline">
+                <Link to="/blog/project-sigma-manifesto" className="sigma-cta-inline__btn">
                   {copy.ctaReadMore}
-                  <ArrowRight className="about-cta-inline__arrow" />
+                  <ArrowRight className="sigma-cta-inline__arrow" />
                 </Link>
               </div>
             </Motion.div>
 
             {/* 右侧：宣言摘要 */}
             <Motion.div
-              className={`about-manifesto about-blur-reveal ${headingInView ? 'is-revealed' : ''}`}
+              className={`sigma-manifesto sigma-blur-reveal ${headingInView ? 'is-revealed' : ''}`}
               style={{ y: yBody, opacity: opBody, transitionDelay: '0.3s' }}
             >
-              <p className="about-manifesto__text">{copy.manifesto}</p>
-              <p className="about-manifesto__highlight">{copy.manifestoHighlight}</p>
+              <p className="sigma-manifesto__text">{copy.manifesto}</p>
+              <p className="sigma-manifesto__highlight">{copy.manifestoHighlight}</p>
             </Motion.div>
           </div>
         </div>
 
         {/* ═══ 第二屏（移动端）：四大支柱 ═══ */}
-        <div className="about-screen-2">
-          <div className="about-pillars">
-            <span className="about-pillars__label">{copy.pillarTitle}</span>
-            <div className="about-pillars__grid">
+        <div className="sigma-screen-2">
+          <div className="sigma-pillars">
+            <span className="sigma-pillars__label">{copy.pillarTitle}</span>
+            <div className="sigma-pillars__grid">
               {copy.pillars.map((pillar, i) => (
                 <PillarCard key={pillar.icon} pillar={pillar} index={i} />
               ))}

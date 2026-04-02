@@ -502,7 +502,7 @@ vec3 liquidGoldBackground(vec2 screenUV) {
   vec3 glight3   = normalize(vec3( 0.0, 0.8, 0.5));
 
   /* ── 液态背景色板 ──
-   * ✅ 颜色配置在 waveLook.js 中，用 VS Code 选色器修改即可，无需改这里。
+   * ✅ 颜色配置在 dropletLook.js 中，用 VS Code 选色器修改即可，无需改这里。
    * 由 unifiedShaderBuilder.js 经 cssColorToVec3 转换后注入为 #define。 */
   vec3 colBase   = LIQUID_COL_BASE;    /* 主色调：中间调基准 */
   vec3 colBright = LIQUID_COL_BRIGHT;  /* 高光：亮部反射 */
@@ -565,6 +565,153 @@ vec3 liquidGoldBackground(vec2 screenUV) {
 
   return gcol;
 }
+
+/* ════════════════════════════════════════════════════
+   磨砂暖金背景 — Omega 阶段原生渲染
+   效果：暖金色光源从背后照射，几个大型深色有机形体
+   缓慢漂移，遮住部分光线形成柔和阴影；物体边缘有
+   金色裹光，模拟光绕过物体边缘溢出的感觉。
+   零噪点，纯粹柔和的磨砂玻璃质感。
+   所有可调参数来自 frostedWaveLook.js → #define FW_*
+   ════════════════════════════════════════════════════ */
+
+/* ── FBM 噪声（仅用于遮蔽体形状扰动，无颗粒用途）── */
+float fwHash21(vec2 p) {
+  p = fract(p * vec2(127.1, 311.7));
+  return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
+float fwNoise(vec2 p) {
+  vec2 i = floor(p);
+  vec2 f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  float a = fwHash21(i);
+  float b = fwHash21(i + vec2(1.0, 0.0));
+  float c = fwHash21(i + vec2(0.0, 1.0));
+  float d = fwHash21(i + vec2(1.0, 1.0));
+  return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+}
+
+float fwFbm(vec2 p) {
+  float v = 0.0, a = 0.5;
+  for (int i = 0; i < 3; i++) {
+    v += a * fwNoise(p);
+    p  = p * 2.0 + vec2(1.7, 9.2);
+    a *= 0.5;
+  }
+  return v;
+}
+
+/* ── 遮蔽体 shadow mask：0=在外, 1=在中心 ──
+ * 这个 mask 用于暗化背景光（遮住光源），中心最暗。*/
+float fwShadowMask(vec2 uv, vec2 center, float radius) {
+  float d = length(uv - center) / max(radius, 0.001);
+  return 1.0 - smoothstep(0.0, 1.0 + FW_BLUR_SOFTNESS, d);
+}
+
+/* ── 裹光 rim mask：遮蔽体外廓发光薄带 ──
+ * 取 dist ≈ 1.0 附近的环形区域，形成边缘金色光晕。*/
+float fwRimMask(vec2 uv, vec2 center, float radius) {
+  float d = length(uv - center) / max(radius, 0.001);
+  float outer = smoothstep(1.0 + FW_RIM_WIDTH, 1.0, d);
+  float inner = smoothstep(1.0, 1.0 - FW_RIM_WIDTH, d);
+  return outer - inner;
+}
+
+/* 渲染磨砂暖金背景。返回不透明 RGB。 */
+vec3 frostedWaveBackground(vec2 screenUV) {
+  /* 标准归一化坐标空间（长边对齐 1.0）*/
+  vec2 uv = (screenUV - 0.5) * vec2(
+    uResolution.x / min(uResolution.x, uResolution.y),
+    uResolution.y / min(uResolution.x, uResolution.y)
+  );
+
+  float t = uTime;
+
+  /* ── FBM 坐标扰动：让遮蔽体形状有机化 ──
+   * 用两组缓慢流动的 FBM 场扭曲 UV，使形体边缘自然起伏，
+   * 不是硬圆，而是像有流体感的有机形体。 */
+  vec2 warpUV = uv * FW_NOISE_SCALE;
+  float wx = fwFbm(warpUV + vec2(0.00, t * FW_FLOW_SPEED * 0.40));
+  float wy = fwFbm(warpUV + vec2(5.20, t * FW_FLOW_SPEED * 0.32));
+  vec2 uvW = uv + (vec2(wx, wy) - 0.5) * FW_WARP_AMPLITUDE;
+
+  /* ── 三个漂移遮蔽体中心轨迹 ──
+   * 李萨如椭圆轨迹，速度不同相位错开，永远各在不同区域。 */
+  float tA = t * FW_BLOB_SPEED_A;
+  vec2 centerA = vec2(
+    sin(tA * 0.61 + 0.00) * 0.50,
+    cos(tA * 0.43 + 1.10) * 0.36
+  );
+
+  float tB = t * FW_BLOB_SPEED_B;
+  vec2 centerB = vec2(
+    cos(tB * 0.53 + 2.40) * 0.66,
+    sin(tB * 0.38 + 0.70) * 0.42
+  );
+
+  float tC = t * FW_BLOB_SPEED_C;
+  vec2 centerC = vec2(
+    sin(tC * 0.47 + 4.80) * 0.46 - 0.10,
+    cos(tC * 0.59 + 2.90) * 0.34 + 0.10
+  );
+
+  /* ── 暖金背景底色 ──
+   * 从深琥珀（bgDark）到暖琥珀（bgMid）的径向渐变，
+   * 中心偏亮，模拟有光源在画面中间偏右上。 */
+  float radialBright = 1.0 - smoothstep(0.0, 1.4, length(uv - vec2(0.15, 0.10)));
+  vec3 col = mix(FW_BG_DARK, FW_BG_MID, radialBright * 0.85);
+
+  /* ── 热核高光：光源中心叠加更亮的暖白金色 ── */
+  float hotMask = exp(-dot(uv - vec2(0.12, 0.08), uv - vec2(0.12, 0.08)) * FW_HOT_FALLOFF);
+  col += FW_HOT_COLOR * hotMask * FW_HOT_GAIN;
+
+  /* ── 鼠标/触摸互动光斑 ──
+   * uGoldMouse 是屏幕像素坐标（WebGL Y 朝上），(-1,-1) 表示无鼠标。
+   * 转换到归一化坐标空间后叠加一个暖金色移动光斑。 */
+  float mouseInfluence = 0.0;
+  if (uGoldMouse.x >= 0.0) {
+    vec2 mUV = (uGoldMouse / uResolution - 0.5) *
+               vec2(uResolution.x / min(uResolution.x, uResolution.y),
+                    uResolution.y / min(uResolution.x, uResolution.y));
+    vec2 toM = uv - mUV;
+    float mouseMask = exp(-dot(toM, toM) * FW_MOUSE_FALLOFF);
+    col += FW_MOUSE_COLOR * mouseMask * FW_MOUSE_GAIN;
+    mouseInfluence = mouseMask * FW_MOUSE_SHADOW_PUSH;
+  }
+
+  /* ── 遮蔽阴影：每个形体使背景暗化 ──
+   * mask 越大处越暗（光被遮住），三者叠加后 clamp 防止纯黑。
+   * 鼠标附近的遮蔽被减弱（mouseInfluence 驱散），营造光明追逐感。 */
+  float maskA = fwShadowMask(uvW, centerA, FW_BLOB_RADIUS_A);
+  float maskB = fwShadowMask(uvW, centerB, FW_BLOB_RADIUS_B);
+  float maskC = fwShadowMask(uvW, centerC, FW_BLOB_RADIUS_C);
+
+  float totalShadow = clamp(
+    maskA * FW_SHADOW_A + maskB * FW_SHADOW_B + maskC * FW_SHADOW_C,
+    0.0, 0.82
+  );
+  /* 鼠标附近驱散阴影 */
+  totalShadow *= 1.0 - mouseInfluence;
+  /* 乘法暗化：shadow=0 时不变，shadow→0.82 时降至约 18% 亮度 */
+  col *= 1.0 - totalShadow;
+
+  /* ── 金色裹光：遮蔽体外廓的薄薄金色发光带 ──
+   * 模拟强光从后方绕过物体边缘溢出的效果，
+   * 让形体边缘有清晰的"被光照到"的金色轮廓。 */
+  float rimA = fwRimMask(uvW, centerA, FW_BLOB_RADIUS_A);
+  float rimB = fwRimMask(uvW, centerB, FW_BLOB_RADIUS_B);
+  float rimC = fwRimMask(uvW, centerC, FW_BLOB_RADIUS_C);
+  col += FW_RIM_COLOR * (rimA + rimB + rimC) * FW_RIM_GAIN;
+
+  /* ── 晕影：四边压暗，强化中心光感 ── */
+  float vig = 1.0 - smoothstep(FW_VIGNETTE_INNER, FW_VIGNETTE_OUTER, length(uv));
+  col *= FW_VIGNETTE_DARK_FLOOR + (1.0 - FW_VIGNETTE_DARK_FLOOR) * vig;
+
+  col *= FW_MASTER_BRIGHTNESS;
+  return max(col, vec3(0.0));
+}
+
 
 /* ════════════════════════════════════════════════════
    视频纹理采样工具
@@ -864,26 +1011,30 @@ void main() {
     hitAlpha = 1.0;
   } else {
     if (inAboutPhase) {
-      color = liquidGoldBackground(screenUV);
-      // Omega 阶段 uBgAlpha→0，背景渐变为透明，让 ProductSection 内容透出
-      hitAlpha = uBgAlpha;
+      vec3 goldBg  = liquidGoldBackground(screenUV);
+      vec3 seqBg   = frostedWaveBackground(screenUV);
+      /* uBgAlpha: 1=液态金, 0=亮片海。平滑过渡避免突变 */
+      color    = mix(seqBg, goldBg, uBgAlpha);
+      hitAlpha = 1.0;
     } else {
-      color = envMap(rd) * BG_ENV_BASE_MIX + backgroundGlow(rd);
+      color    = envMap(rd) * BG_ENV_BASE_MIX + backgroundGlow(rd);
       hitAlpha = 0.0;
     }
   }
 
   // 立方体/四面体淡出
   if (uCubeFade < 0.999) {
-    if (inAboutPhase && uBgAlpha > 0.5) {
-      // About 阶段：立方体淡出混合到液态金背景
-      vec3 bgColor = liquidGoldBackground(screenUV);
+    if (inAboutPhase) {
+      // 用 uBgAlpha 平滑混合两种背景，与上面的渲染路径一致，避免硬切换闪烁
+      vec3 goldBgF  = liquidGoldBackground(screenUV);
+      vec3 seqBgF   = frostedWaveBackground(screenUV);
+      vec3 bgColor  = mix(seqBgF, goldBgF, uBgAlpha);
       color = mix(bgColor, color, uCubeFade);
       hitAlpha = 1.0;
     } else {
-      // Omega 阶段：四面体淡出到透明（而非混入金背景）
-      color *= uCubeFade;
-      hitAlpha = hitAlpha * uCubeFade;
+      // Hero 阶段：淡出到透明
+      color    *= uCubeFade;
+      hitAlpha  = hitAlpha * uCubeFade;
     }
   }
 
@@ -896,23 +1047,29 @@ void main() {
     hitAlpha = 1.0;
   } else {
     if (inAboutPhase) {
-      color = liquidGoldBackground(screenUV);
-      hitAlpha = uBgAlpha;
+      vec3 goldBg  = liquidGoldBackground(screenUV);
+      vec3 seqBg   = frostedWaveBackground(screenUV);
+      /* uBgAlpha: 1=液态金, 0=亮片海。平滑过渡。*/
+      color    = mix(seqBg, goldBg, uBgAlpha);
+      hitAlpha = 1.0;
     } else {
-      color = envMap(rd) * BG_ENV_BASE_MIX + backgroundGlow(rd);
+      color    = envMap(rd) * BG_ENV_BASE_MIX + backgroundGlow(rd);
       hitAlpha = 0.0;
     }
   }
 
   // 立方体/四面体淡出（非玻璃路径）
   if (uCubeFade < 0.999) {
-    if (inAboutPhase && uBgAlpha > 0.5) {
-      vec3 bgColor = liquidGoldBackground(screenUV);
+    if (inAboutPhase) {
+      // 用 uBgAlpha 平滑混合两种背景，与上面的渲染路径一致，避免硬切换闪烁
+      vec3 goldBgF  = liquidGoldBackground(screenUV);
+      vec3 seqBgF   = frostedWaveBackground(screenUV);
+      vec3 bgColor  = mix(seqBgF, goldBgF, uBgAlpha);
       color = mix(bgColor, color, uCubeFade);
       hitAlpha = 1.0;
     } else {
-      color *= uCubeFade;
-      hitAlpha = hitAlpha * uCubeFade;
+      color    *= uCubeFade;
+      hitAlpha  = hitAlpha * uCubeFade;
     }
   }
   #endif
@@ -924,11 +1081,12 @@ void main() {
   vec2 vig = vUv - 0.5;
   color *= 1.0 - dot(vig, vig) * 0.35;
 
-  /* About 阶段：液态金背景已原生渲染，输出完全不透明。
+  /* About 阶段：液态金背景原生渲染，输出完全不透明。
+   * Omega 阶段：亮片海背景原生渲染，同样完全不透明（hitAlpha=1.0）。
    * Hero 阶段：背景区域保持 alpha=0（透明，露出页面背景）。
    * 过渡：使用 uPhase 平滑混合，避免突变。 */
   float alpha = mix(1.0, hitAlpha, smoothstep(0.3, 0.7, uPhase));
-  /* About 阶段强制 alpha=1.0 — 液态金不需要透明 */
+  /* About/Omega 阶段强制 alpha=1.0 — 背景完全不透明 */
   if (inAboutPhase) alpha = max(alpha, hitAlpha);
   gl_FragColor = vec4(color * alpha, alpha);
 }

@@ -1,7 +1,8 @@
 import { WAVE_LOOK, RENDER_SCALE, cssColorToVec3,
   LIQUID_BG_COL_BASE, LIQUID_BG_COL_BRIGHT,
   LIQUID_BG_COL_DEEP, LIQUID_BG_COL_SHADOW, LIQUID_BG_COL_PEAK,
-} from '../config/waveLook';
+} from '../config/dropletLook';
+import { FROSTED_WAVE_LOOK } from '../config/frostedWaveLook';
 import { fragmentShaderBody } from '../shaders/unifiedFragment';
 
 // ══════════════════════════════════════════════════════════════
@@ -23,6 +24,7 @@ function glslVec3(values) {
 const bg = WAVE_LOOK.background;
 const st = WAVE_LOOK.studio;
 const sp = WAVE_LOOK.spike;
+const fw = FROSTED_WAVE_LOOK;
 
 // 液态背景色板：CSS 字符串 → [r,g,b] float 数组
 const lbBase   = cssColorToVec3(LIQUID_BG_COL_BASE);
@@ -133,12 +135,44 @@ const LOOK_MAP = [
   ['CAMERA_TRANSMIT_DIM',              sp.cameraTransmitDim],
 
   // ── 液态背景色板（About 阶段）──
-  // 来源：waveLook.js 里的 CSS 颜色字符串，此处经 cssColorToVec3 转换后注入为 #define
+  // 来源：dropletLook.js 里的 CSS 颜色字符串，此处经 cssColorToVec3 转换后注入为 #define
   ['LIQUID_COL_BASE',   lbBase,   'v3'],
   ['LIQUID_COL_BRIGHT', lbBright, 'v3'],
   ['LIQUID_COL_DEEP',   lbDeep,   'v3'],
   ['LIQUID_COL_SHADOW', lbShadow, 'v3'],
   ['LIQUID_COL_PEAK',   lbPeak,   'v3'],
+
+  // ── Frosted Wave 暖金磨砂背景（Omega 阶段）──
+  // 参数来自 frostedWaveLook.js
+  ['FW_FLOW_SPEED',         fw.flowSpeed],
+  ['FW_NOISE_SCALE',        fw.noiseScale],
+  ['FW_WARP_AMPLITUDE',     fw.warpAmplitude],
+  ['FW_BLOB_SPEED_A',       fw.blobSpeedA],
+  ['FW_BLOB_SPEED_B',       fw.blobSpeedB],
+  ['FW_BLOB_SPEED_C',       fw.blobSpeedC],
+  ['FW_BLOB_RADIUS_A',      fw.blobRadiusA],
+  ['FW_BLOB_RADIUS_B',      fw.blobRadiusB],
+  ['FW_BLOB_RADIUS_C',      fw.blobRadiusC],
+  ['FW_BLUR_SOFTNESS',      fw.blurSoftness],
+  ['FW_SHADOW_A',           fw.shadowStrengthA],
+  ['FW_SHADOW_B',           fw.shadowStrengthB],
+  ['FW_SHADOW_C',           fw.shadowStrengthC],
+  ['FW_BG_DARK',            fw.bgDark,            'v3'],
+  ['FW_BG_MID',             fw.bgMid,             'v3'],
+  ['FW_RIM_COLOR',          fw.rimColor,          'v3'],
+  ['FW_RIM_GAIN',           fw.rimGain],
+  ['FW_RIM_WIDTH',          fw.rimWidth],
+  ['FW_HOT_COLOR',          fw.hotColor,          'v3'],
+  ['FW_HOT_GAIN',           fw.hotGain],
+  ['FW_HOT_FALLOFF',        fw.hotFalloff],
+  ['FW_MOUSE_COLOR',        fw.mouseColor,        'v3'],
+  ['FW_MOUSE_GAIN',         fw.mouseGain],
+  ['FW_MOUSE_FALLOFF',      fw.mouseFalloff],
+  ['FW_MOUSE_SHADOW_PUSH',  fw.mouseShadowPush],
+  ['FW_VIGNETTE_INNER',     fw.vignetteInner],
+  ['FW_VIGNETTE_OUTER',     fw.vignetteOuter],
+  ['FW_VIGNETTE_DARK_FLOOR',fw.vignetteDarkFloor],
+  ['FW_MASTER_BRIGHTNESS',  fw.masterBrightness],
 ];
 
 function buildLookDefines() {
@@ -201,5 +235,30 @@ export function buildUnifiedShader(_tier = 'high', tierOverrides = null) {
 
 /** 获取渲染分辨率缩放 */
 export function getRenderScale() {
+  return RENDER_SCALE;
+}
+
+/**
+ * 检测 GPU 性能档位。
+ * 用 WebGL debug 扩展读取显卡名称来粗略判断。
+ * @returns {'high'|'medium'|'low'}
+ */
+export function detectGPUTier() {
+  const canvas = document.createElement('canvas');
+  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  if (!gl) return 'low';
+  const ext = gl.getExtension('WEBGL_debug_renderer_info');
+  if (ext) {
+    const r = gl.getParameter(ext.UNMASKED_RENDERER_WEBGL).toLowerCase();
+    if (r.includes('intel') || r.includes('swiftshader') || r.includes('llvmpipe')) return 'low';
+    if (r.includes('apple') || r.includes('nvidia') || r.includes('radeon')) return 'high';
+  }
+  return 'medium';
+}
+
+/**
+ * 获取 GPU 档位对应的缩放比例。
+ */
+export function getTierScale(tier) {
   return RENDER_SCALE;
 }

@@ -37,7 +37,7 @@
  */
 
 import { useRef } from 'react';
-import { detectGPUTier, getTierScale } from '../utils/waveShaderBuilder';
+import { detectGPUTier, getTierScale } from '../utils/unifiedShaderBuilder';
 
 // ── 自适应采样配置 ──
 

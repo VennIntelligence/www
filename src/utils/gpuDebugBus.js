@@ -180,7 +180,7 @@ class GPUDebugBus {
       `// GPU: ${this.gpuName}`,
       '// ══════════════════════════════════════════════════════════════',
       '',
-      '// --- waveLook.js → TIER_SCALE ---',
+      '// --- dropletLook.js → TIER_SCALE ---',
       `export const TIER_SCALE = { high: ${p.high.renderScale} };`,
       '',
       '// --- shader builder → TIER_DEFINES ---',

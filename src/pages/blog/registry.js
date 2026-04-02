@@ -14,6 +14,8 @@
 
 import projectSigmaMeta from './posts/project-sigma-manifesto/meta';
 import ProjectSigmaArticle from './posts/project-sigma-manifesto/index';
+import projectOmegaMeta from './posts/project-omega-manifesto/meta';
+import ProjectOmegaArticle from './posts/project-omega-manifesto/index';
 
 /**
  * 文章注册表
@@ -25,6 +27,11 @@ import ProjectSigmaArticle from './posts/project-sigma-manifesto/index';
  *   - Component: 文章内容 React 组件
  */
 export const BLOG_POSTS = [
+  {
+    slug: 'project-omega-manifesto',
+    meta: projectOmegaMeta,
+    Component: ProjectOmegaArticle,
+  },
   {
     slug: 'project-sigma-manifesto',
     meta: projectSigmaMeta,

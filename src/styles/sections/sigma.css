@@ -5,7 +5,7 @@
    ============================================================ */
 
 /* ---------- 容器 ---------- */
-.about-section {
+.sigma-section {
   --about-bg: 0 0% 0%;
   --about-fg: 0 0% 100%;
 
@@ -24,19 +24,42 @@
   cursor: default;
 }
 
-.about-section.is-rotating {
+.sigma-section.is-rotating {
   cursor: grabbing;
   user-select: none;
 }
 
-.about-section::before {
+.sigma-section::before {
   content: '';
   position: absolute;
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  /* 移除渐变遮罩 — UnifiedStage 已负责背景渲染 */
-  background: transparent;
+  /* Desktop：左 2/5 半透明黑磨砂 → 右 3/5 全透明，提升标题可读性。
+   * 默认标准值：rgba(0,0,0,0.72) 在 0%，到 40% 处完全透明。
+   * 调大 0.72 → 遮罩更暗更遮；调小 → 更透。
+   * 调大 40% → 遮罩覆盖范围更宽。 */
+  /* 左侧几乎全黑，保持到15%才开始过渡，65%处完全透明，右边全透明。
+   * 默认标准值：0%→rgba(0,0,0,0.95)，15%→0.95，65%→0.0。
+   * 调大第一、二项透明度 → 左侧更暗；调大65% → 遮罩覆盖范围更宽。 */
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.99) 0%,
+    rgba(0, 0, 0, 0.0) 35%,
+    rgba(0, 0, 0, 0.0)  100%
+  );
+}
+
+/* Mobile：上 1/3 半透明黑磨砂 → 下 2/3 全透明 */
+@media (max-width: 767px) {
+  .sigma-section::before {
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.85) 0%,
+      rgba(0, 0, 0, 0.4) 15%,
+      rgba(0, 0, 0, 0.0)  40%
+    );
+  }
 }
 
 /* ---------- Three.js 玻璃方块背景 ---------- */
@@ -70,7 +93,7 @@
 }
 
 /* ---------- 主内容 ---------- */
-.about-content {
+.sigma-content {
   position: relative;
   z-index: 10;
   flex: 1;
@@ -82,7 +105,7 @@
 }
 
 @media (max-width: 767px) {
-  .about-content {
+  .sigma-content {
     justify-content: flex-start;
     padding: 0 24px 0;
   }
@@ -90,17 +113,17 @@
 
 /* ---------- 两屏布局（移动端） ---------- */
 /* Desktop: screen-1 和 screen-2 正常流式堆叠 */
-.about-screen-1 {
+.sigma-screen-1 {
   /* Desktop 无特殊处理 */
 }
 
-.about-screen-2 {
+.sigma-screen-2 {
   /* Desktop 无特殊处理 */
 }
 
 @media (max-width: 767px) {
   /* 移动端第一屏：上半留空给方块，内容底部对齐 */
-  .about-screen-1 {
+  .sigma-screen-1 {
     min-height: 100vh;
     min-height: 100svh;
     display: flex;
@@ -112,7 +135,7 @@
   }
 
   /* 移动端第二屏：支柱卡片独立一屏 */
-  .about-screen-2 {
+  .sigma-screen-2 {
     min-height: 100vh;
     min-height: 100svh;
     display: flex;
@@ -123,7 +146,7 @@
 }
 
 /* ---------- Project Σ 标签（大字 + 白框 Σ 柔光晕） ---------- */
-.about-subheading {
+.sigma-subheading {
   display: flex;
   align-items: center;
   gap: 16px;
@@ -137,7 +160,7 @@
 }
 
 /* 发光呼吸竖线 */
-.about-subheading__line {
+.sigma-subheading__line {
   width: 5px;
   height: 1.1em;
   background: linear-gradient(180deg, rgba(160, 220, 255, 1) 0%, rgba(80, 160, 255, 0.9) 100%);
@@ -171,7 +194,7 @@
 }
 
 /* Σ 标志白框容器 */
-.about-sigma-badge {
+.sigma-badge {
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -190,7 +213,7 @@
  * 使用 conic-gradient 旋转 + 大幅模糊(blur)，消除金属感
  * 内外都有 blur 衰减，产生柔和的脉冲激光循环效果
  */
-.about-sigma-badge::before {
+.sigma-badge::before {
   content: '';
   position: absolute;
   /* 光晕扩散范围；默认标准值：-10px。调大(更负)则光晕更大。 */
@@ -215,7 +238,7 @@
 }
 
 /* 外层呼吸柔光 — 更大范围的散射 */
-.about-sigma-badge::after {
+.sigma-badge::after {
   content: '';
   position: absolute;
   /* 外层柔光范围；默认标准值：-18px。调大则柔光扩散更远。 */
@@ -259,7 +282,7 @@
 }
 
 /* ---------- 两栏布局 ---------- */
-.about-columns {
+.sigma-columns {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
@@ -267,7 +290,7 @@
 }
 
 @media (max-width: 1023px) {
-  .about-columns {
+  .sigma-columns {
     flex-direction: column;
     gap: 24px;
     align-items: flex-start;
@@ -275,29 +298,29 @@
 }
 
 /* ---------- 标题 ---------- */
-.about-heading {
+.sigma-heading {
   flex: 1;
 }
 
-.about-heading__h2 {
+.sigma-heading__h2 {
   font-size: clamp(1.8rem, 4.5vw, 3.5rem);
   line-height: 1.0;
   letter-spacing: -0.02em;
   color: hsl(var(--about-fg));
 }
 
-.about-heading__light {
+.sigma-heading__light {
   font-weight: 300;
   /* key 变更重挂载时触发此动画；默认标准值：320ms。 */
   animation: about-title-reveal 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 /* 每行错开 50ms，形成依次入场感 */
-.about-heading__light + br + .about-heading__light {
+.sigma-heading__light + br + .sigma-heading__light {
   animation-delay: 50ms;
 }
-.about-heading__light + br + .about-heading__light + br + .about-heading__display,
-.about-heading__display {
+.sigma-heading__light + br + .sigma-heading__light + br + .sigma-heading__display,
+.sigma-heading__display {
   font-weight: 600;
   /* 兜底色：即使渐变裁剪不生效也保持可见 */
   color: rgba(200, 230, 255, 0.96);
@@ -309,7 +332,7 @@
  * 否则父层 text-fill 透明会导致整行“可选中但看不见”。
  */
 @supports ((-webkit-background-clip: text) or (background-clip: text)) {
-  .about-heading__display .magnet-char {
+  .sigma-heading__display .magnet-char {
     background: linear-gradient(135deg, rgba(200, 230, 255, 1), rgba(120, 180, 255, 0.8));
     -webkit-background-clip: text;
     background-clip: text;
@@ -319,27 +342,30 @@
 }
 
 /* ---------- CTA 按钮（标题下方）— 精致透明玻璃感 ---------- */
-.about-cta-inline {
+.sigma-cta-inline {
   margin-top: 32px;
 }
 
-.about-cta-inline__btn {
+.sigma-cta-inline__btn {
   display: inline-flex;
   align-items: center;
   gap: 12px;
   padding: 14px 32px;
   border-radius: 100px;
   
-  /* 非常淡的冷色底，呈现毛玻璃特有的清透感 */
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+  /* 亮蓝色主题底；默认标准值：rgba(80,160,255,0.12) → rgba(60,140,240,0.04)。
+   * 调大 alpha → 底色更蓝更实；调小 → 更透明。 */
+  background: linear-gradient(135deg, rgba(80, 160, 255, 0.12), rgba(60, 140, 240, 0.04));
   
-  /* 双层边框伪装，实现边缘提亮，消除廉价感 */
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-top-color: rgba(255, 255, 255, 0.35);
-  border-bottom-color: rgba(255, 255, 255, 0.05);
+  /* 蓝色边框；默认标准值：rgba(100,180,255,0.35)。
+   * 调大 → 边框更亮；调小 → 更隐。 */
+  border: 1px solid rgba(100, 180, 255, 0.35);
+  border-top-color: rgba(140, 210, 255, 0.55);
+  border-bottom-color: rgba(60, 130, 220, 0.15);
 
-  color: rgba(255, 255, 255, 0.9);
-  /* CTA 按钮字号；默认标准值：clamp(0.85rem, 1.1vw, 1rem)。整体微调字号更精致 */
+  /* 亮蓝白文字；默认标准值：rgba(180,225,255,0.95) */
+  color: rgba(180, 225, 255, 0.95);
+  /* CTA 按钮字号；默认标准值：clamp(0.8rem, 1vw, 0.95rem) */
   font-size: clamp(0.8rem, 1vw, 0.95rem);
   font-weight: 500;
   letter-spacing: 0.12em;
@@ -349,35 +375,76 @@
   backdrop-filter: blur(16px) saturate(1.2);
   -webkit-backdrop-filter: blur(16px) saturate(1.2);
   
+  /* 蓝色外发光 + 内高光；默认标准值：外层 rgba(80,160,255,0.15)，内高光 rgba(140,210,255,0.20)。 */
   box-shadow:
     0 12px 32px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15); /* 内高光增强折射感 */
+    0 0 16px rgba(80, 160, 255, 0.15),
+    inset 0 1px 0 rgba(140, 210, 255, 0.20);
+  text-shadow: 0 0 8px rgba(100, 180, 255, 0.3);
   transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-.about-cta-inline__btn:hover {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05));
-  border-color: rgba(255, 255, 255, 0.25);
-  border-top-color: rgba(255, 255, 255, 0.5);
+.sigma-cta-inline__btn:hover {
+  /* hover 态蓝色加深；默认标准值：rgba(80,160,255,0.20) → rgba(60,140,240,0.10)。 */
+  background: linear-gradient(135deg, rgba(80, 160, 255, 0.20), rgba(60, 140, 240, 0.10));
+  border-color: rgba(120, 200, 255, 0.50);
+  border-top-color: rgba(160, 220, 255, 0.70);
   color: #fff;
   box-shadow:
     0 16px 40px rgba(0, 0, 0, 0.3),
-    0 0 24px rgba(180, 220, 255, 0.15), /* 淡淡蓝白外发光 */
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    0 0 28px rgba(80, 160, 255, 0.30),
+    0 0 56px rgba(60, 140, 240, 0.12),
+    inset 0 1px 0 rgba(160, 220, 255, 0.35);
   transform: translateY(-2px);
-  text-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+  text-shadow: 0 0 14px rgba(100, 180, 255, 0.5);
 }
 
-.about-cta-inline__arrow {
-  width: 14px; /* 从16px略微缩小，配合实心三角形 */
+/*
+ * 安卓 solid tier fallback — Sigma CTA 按钮
+ * 安卓上 backdrop-filter 渲染透明，按钮消失。改用纯白半透明底 + inset 描边模拟磨砂质感。
+ * 不加任何彩色，纯白半透明；blur 程度比 navbar 低。
+ * 默认标准值：rgba(255,255,255,0.20)；调大更实，调小按钮会变透明。
+ */
+[data-glass-tier="solid"] .sigma-cta-inline__btn {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(80, 160, 255, 0.22) 0%,
+      rgba(60, 140, 240, 0.10) 100%
+    );
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-color: rgba(100, 180, 255, 0.35);
+  border-top-color: rgba(140, 210, 255, 0.50);
+  box-shadow:
+    inset 0 1px 0 rgba(140, 210, 255, 0.30),
+    0 4px 20px rgba(0, 0, 0, 0.18);
+  color: rgba(180, 225, 255, 0.95);
+}
+
+[data-glass-tier="solid"] .sigma-cta-inline__btn:hover {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(80, 160, 255, 0.30) 0%,
+      rgba(60, 140, 240, 0.16) 100%
+    );
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transform: translateY(-2px);
+}
+
+.sigma-cta-inline__arrow {
+  width: 14px;
   height: 14px;
   transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.3));
+  /* 蓝色箭头发光；默认标准值：rgba(100,180,255,0.5) */
+  filter: drop-shadow(0 0 4px rgba(100, 180, 255, 0.5));
 }
 
-.about-cta-inline__btn:hover .about-cta-inline__arrow {
+.sigma-cta-inline__btn:hover .sigma-cta-inline__arrow {
   transform: translateX(4px);
-  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.7));
+  filter: drop-shadow(0 0 8px rgba(100, 180, 255, 0.8));
 }
 
 /* ---------- 宣言摘要（含磨砂玻璃底板） ---------- */
@@ -387,7 +454,7 @@
  * 默认标准值：rgba(255,255,255,0.06) + blur(14px)。
  * 调大 alpha 则底板更明显；调大 blur 则磨砂感更强。
  */
-.about-manifesto {
+.sigma-manifesto {
   max-width: 480px;
   padding: 20px 24px;
 
@@ -403,7 +470,7 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.10);
 }
 
-.about-manifesto__text {
+.sigma-manifesto__text {
   /* 正文字号对齐 hero slogan；默认标准值：clamp(0.86rem, 1.2vw, 1.02rem) */
   font-size: clamp(0.86rem, 1.2vw, 1.02rem);
   line-height: 1.7;
@@ -411,7 +478,7 @@
   margin: 0 0 14px;
 }
 
-.about-manifesto__highlight {
+.sigma-manifesto__highlight {
   /* 高亮文字略大于正文；默认标准值：clamp(0.9rem, 1.3vw, 1.08rem) */
   font-size: clamp(0.9rem, 1.3vw, 1.08rem);
   line-height: 1.6;
@@ -423,19 +490,19 @@
 }
 
 /* ---------- 四大支柱 ---------- */
-.about-pillars {
+.sigma-pillars {
   margin-top: 40px;
   position: relative;
   z-index: 10;
 }
 
 @media (max-width: 767px) {
-  .about-pillars {
+  .sigma-pillars {
     margin-top: 0;
   }
 }
 
-.about-pillars__label {
+.sigma-pillars__label {
   display: block;
   /* 支柱标签字号；默认标准值：clamp(0.8rem, 1vw, 0.9rem) */
   font-size: clamp(0.8rem, 1vw, 0.9rem);
@@ -446,25 +513,25 @@
   margin-bottom: 16px;
 }
 
-.about-pillars__grid {
+.sigma-pillars__grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
 }
 
 @media (max-width: 1023px) {
-  .about-pillars__grid {
+  .sigma-pillars__grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 560px) {
-  .about-pillars__grid {
+  .sigma-pillars__grid {
     grid-template-columns: 1fr;
   }
 }
 
-.about-pillar {
+.sigma-pillar {
   padding: 20px;
   border-radius: 12px;
   /* 白色磨砂玻璃卡片底板；默认标准值：rgba(255,255,255,0.08) + blur(14px)。
@@ -478,21 +545,21 @@
   transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.about-pillar:hover {
+.sigma-pillar:hover {
   background: rgba(255, 255, 255, 0.13);
   border-color: rgba(255, 255, 255, 0.22);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.28);
 }
 
 /* 序号 + 标题同行显示 */
-.about-pillar__header {
+.sigma-pillar__header {
   display: flex;
   align-items: baseline;
   gap: 10px;
   margin-bottom: 10px;
 }
 
-.about-pillar__icon {
+.sigma-pillar__icon {
   display: inline-block;
   /* 序号字号；默认标准值：clamp(0.85rem, 1.1vw, 1rem) */
   font-size: clamp(0.85rem, 1.1vw, 1rem);
@@ -502,7 +569,7 @@
   flex-shrink: 0;
 }
 
-.about-pillar__title {
+.sigma-pillar__title {
   /* 卡片标题字号；默认标准值：clamp(0.9rem, 1.2vw, 1.05rem) */
   font-size: clamp(0.9rem, 1.2vw, 1.05rem);
   font-weight: 600;
@@ -511,7 +578,7 @@
   letter-spacing: 0.01em;
 }
 
-.about-pillar__desc {
+.sigma-pillar__desc {
   /* 卡片描述字号；默认标准值：clamp(0.82rem, 1.1vw, 0.95rem) */
   font-size: clamp(0.82rem, 1.1vw, 0.95rem);
   line-height: 1.6;
@@ -526,13 +593,13 @@
  * 当 framer-motion 检测到 inView 后，添加 .is-revealed 类触发清晰化。
  * 持续时间；默认标准值：1.2s。模糊程度；默认标准值：16px。
  */
-.about-blur-reveal {
+.sigma-blur-reveal {
   filter: blur(16px);
   opacity: 0;
   transition: filter 1.2s cubic-bezier(0.22, 1, 0.36, 1), opacity 1.2s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.about-blur-reveal.is-revealed {
+.sigma-blur-reveal.is-revealed {
   filter: blur(0px);
   opacity: 1;
 }

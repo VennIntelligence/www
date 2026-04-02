@@ -75,35 +75,34 @@
 /*
  * solid tier（安卓 fallback）—— 不依赖 backdrop-filter
  * 安卓上 backdrop-filter 渲染极不可靠（实测往往完全透明）。
- * 使用高不透明度深色背景 + 顶部高光渐变 + box-shadow 营造纵深质感。
- * 默认标准值：rgba(6,10,18,0.88)；调大第四项（不透明度）更清晰，调小在安卓上会透明。
+ * 纯白半透明，不加任何彩色；inset 描边 + box-shadow 模拟磨砂质感。
+ * 默认标准值：rgba(255,255,255,0.18)；调大更实，调小在安卓上会透明。
  */
 .navbar__glass-fallback--solid {
   background:
     linear-gradient(
       180deg,
-      rgba(255, 255, 255, 0.05) 0%,
-      transparent 40%
-    ),
-    rgba(6, 10, 18, 0.88);
+      rgba(255, 255, 255, 0.24) 0%,
+      rgba(255, 255, 255, 0.12) 100%
+    );
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.08),
-    0 4px 20px rgba(0, 0, 0, 0.32);
+    inset 0 1px 0 rgba(255, 255, 255, 0.40),
+    0 2px 24px rgba(0, 0, 0, 0.18);
   /* 不使用 backdrop-filter —— 安卓上渲染不可靠 */
 }
 
-/* solid 滚动后进一步加深不透明度 */
+/* solid 滚动后进一步加深：不透明度从 0.12≈0.24 升至 0.18≈0.30 */
+/* 默认标准值：rgba(255,255,255,0.18≈0.30)；调大第四项让滚动后更实 */
 .navbar__glass-fallback--solid.navbar__glass-fallback--scrolled {
   background:
     linear-gradient(
       180deg,
-      rgba(255, 255, 255, 0.06) 0%,
-      transparent 40%
-    ),
-    rgba(4, 7, 14, 0.94);
+      rgba(255, 255, 255, 0.30) 0%,
+      rgba(255, 255, 255, 0.18) 100%
+    );
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.10),
-    0 6px 28px rgba(0, 0, 0, 0.44);
+    inset 0 1px 0 rgba(255, 255, 255, 0.50),
+    0 4px 32px rgba(0, 0, 0, 0.24);
 }
 
 .navbar__inner {
@@ -147,7 +146,8 @@
 .navbar__link {
   position: relative;
   padding: 8px 18px;
-  color: rgba(255, 255, 255, 0.6);
+  /* 未激活链接颜色；默认标准值：rgba(255,255,255,0.82)。调大更显眼，调小更灰暗。 */
+  color: rgba(255, 255, 255, 0.866);
   text-decoration: none;
   font-family: 'Inter', sans-serif;
   font-size: 14px; /* Adjusted slightly for uppercase aesthetic */
@@ -168,10 +168,10 @@
 }
 
 /* Inactive links dim when there's an active one */
-/* 默认标准值 opacity: 0.45，当前调亮至 0.62；数值越大越亮，越小越灰 */
+/* 有激活项时其余链接的压暗程度；默认标准值 opacity: 0.55；数值越大越亮，越小越灰 */
 .navbar__links:has(.navbar__link--active) .navbar__link:not(.navbar__link--active) {
   filter: blur(0.3px);
-  opacity: 0.62;
+  opacity: 0.55;
 }
 
 .navbar__link:hover {

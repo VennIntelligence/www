@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 // ══════════════════════════════════════════════════════════════
-// WaveCanvas 全局配置
+// 液滴 + 立方体渲染全局配置（Hero / Sigma / Omega 阶段共用）
 // 调参改这里即可，不用翻 shader 或组件代码
 // ══════════════════════════════════════════════════════════════
 
@@ -83,33 +83,33 @@ export const SPIKE_THROW_GAIN = 0.22;
 // 松手后给予的最小速度。默认 0.5。确保松手后立方体至少以此速度飞出。
 export const SPIKE_RELEASE_MIN_SPEED = 0.5;
 
-// --- About 阶段立方体 ---
-// About 阶段立方体固定位置 (SDF 空间)。Desktop: 稍偏上居中。Mobile: 居上。
+// --- Sigma 阶段立方体 ---
+// Sigma 阶段立方体固定位置 (SDF 空间)。Desktop: 稍偏上居中。Mobile: 居上。
 export const ABOUT_CUBE_POS_DESKTOP = new THREE.Vector3(0, 0.35, 0);
 export const ABOUT_CUBE_POS_MOBILE = new THREE.Vector3(0, 0.55, 0);
-// About 阶段立方体缩放倍数（相对 Hero 阶段）。默认 2.38（原 1.83 放大约30%）。让 About 的方块更大。
+// Sigma 阶段立方体缩放倍数（相对 Hero 阶段）。默认 2.38（原 1.83 放大约30%）。让 Sigma 的方块更大。
 export const ABOUT_CUBE_SCALE = 2.18;
-// 手动被冻结到 About 位置后整个方块变大时用的 GLSL 半边长。默认 0.55。
+// 手动被冻结到 Sigma 位置后整个方块变大时用的 GLSL 半边长。默认 0.55。
 export const ABOUT_CUBE_SIZE_GLSL = 0.55;
-// About 阶段空闲自转速度 [x, y, z] 弧度/秒。默认 [0.15, 0.25, 0.08]。
+// Sigma 阶段空闲自转速度 [x, y, z] 弧度/秒。默认 [0.15, 0.25, 0.08]。
 export const ABOUT_IDLE_SPIN = [0.15, 0.25, 0.08];
-// About 阶段 Arcball 旋转 slerp 追随系数（越大越灵敏）。默认 0.28。
+// Sigma 阶段 Arcball 旋转 slerp 追随系数（越大越灵敏）。默认 0.28。
 export const ABOUT_DRAG_SLERP = 0.28;
-// About 阶段空闲自转 slerp 系数。默认 0.06。
+// Sigma 阶段空闲自转 slerp 系数。默认 0.06。
 export const ABOUT_IDLE_SLERP = 0.06;
 
 // --- Omega 阶段正四面体 ---
-// Omega 阶段四面体固定位置 (SDF 空间)。与 About 保持一致，Desktop 稍偏上居中。
-// 默认标准值：(0, 0.35, 0)，和 About 立方体相同位置，视觉上连续感更强。
+// Omega 阶段四面体固定位置 (SDF 空间)。与 Sigma 保持一致，Desktop 稍偏上居中。
+// 默认标准值：(0, 0.35, 0)，和 Sigma 立方体相同位置，视觉上连续感更强。
 export const OMEGA_CUBE_POS_DESKTOP = new THREE.Vector3(0, 0.35, 0);
 // Mobile 版四面体位置。默认标准值：(0, 0.55, 0)。
 export const OMEGA_CUBE_POS_MOBILE = new THREE.Vector3(0, 0.55, 0);
-// Omega 阶段四面体缩放倍数（相对 Hero 阶段）。默认 2.18，与 About 立方体保持一致。缩小 20% → 1.744。
+// Omega 阶段四面体缩放倍数（相对 Hero 阶段）。默认 2.18，与 Sigma 立方体保持一致。缩小 20% → 1.744。
 export const OMEGA_CUBE_SCALE = 1.744;
 
-// --- About→Omega 变形过渡 ---
-// 变形开始的 aboutExitProgress 阈值。默认 0.25。
-// About 底部开始离开视口后不久即开始变形。调小→更早；调大→更晚。
+// --- Sigma→Omega 变形过渡 ---
+// 变形开始的 sigmaExitProgress 阈值。默认 0.25。
+// Sigma 底部开始离开视口后不久即开始变形。调小→更早；调大→更晚。
 export const OMEGA_MORPH_START = 0.25;
 // 变形完成的 aboutExitProgress 阈值。默认 0.80。
 // 调小→变形更快完成；调大→变形拖得更长。
@@ -121,16 +121,16 @@ export const OMEGA_BG_FADE_START = 0.25;
 export const OMEGA_BG_FADE_END = 0.65;
 
 // --- 四面体淡出 ---
-// 四面体开始淡出的 productExitProgress 阈值（product section 底部开始离开视口）。
+// 四面体开始淡出的 omegaExitProgress 阈值（omega section 底部开始离开视口）。
 // 默认 0.50。调小→更早开始消失；调大→更晚。
 export const OMEGA_FADEOUT_START = 0.50;
 // 四面体完全消失的 productExitProgress 阈值。默认 0.88。
 // 调小→消失更快；调大→消失更慢。
 export const OMEGA_FADEOUT_END = 0.88;
 
-// --- Hero→About 过渡 ---
+// --- Hero→Sigma 过渡 ---
 // 过渡开始的滚动进度。默认 0.15。当 scrollProgress 超过此值时开始过渡。
-// scrollProgress: 0 = Hero 完全可见, 1 = About 完全可见。
+// scrollProgress: 0 = Hero 完全可见, 1 = Sigma 完全可见。
 // 调小 → 更早开始过渡；调大 → 滑更远才开始变化。
 export const TRANSITION_START = 0.15;
 // 过渡完成的滚动进度。默认 0.92。
@@ -154,7 +154,7 @@ export const VIDEO_FADE_START = 0.5;
 export const VIDEO_FADE_END = 0.95;
 
 // --- 立方体消失 ---
-// 立方体开始淡出的滚动进度（相对于 About section 底部离开视口的进度）。默认 0.6。
+// 立方体开始淡出的滚动进度（相对于 Sigma section 底部离开视口的进度）。默认 0.6。
 // 当 aboutBottomProgress 超过此值时，立方体开始淡出。
 // 调小 → 更早开始消失；调大 → 更晚才开始消失。
 export const CUBE_FADEOUT_START = 0.6;
@@ -166,7 +166,7 @@ export const CUBE_FADEOUT_END = 0.95;
 export const DEMO_VIDEO_PATH = '/video/demo-fallback.mp4';
 
 // ╔══════════════════════════════════════════════════════════════╗
-// ║  液态背景色板 — About 阶段背景配色入口                       ║
+// ║  液态背景色板 — Sigma 阶段背景配色入口                       ║
 // ║  全部使用 CSS 颜色字符串，VS Code / Hub 选色器可直接点击     ║
 // ║  改色后 Vite HMR 自动刷新，无需改任何 GLSL 文件             ║
 // ╚══════════════════════════════════════════════════════════════╝
@@ -196,22 +196,22 @@ export function cssColorToVec3(css) {
 }
 
 // ──────────────────────────────────────────────────────────────
-// 🎨 液态背景色板（About 阶段）
+// 🎨 液态背景色板（Sigma 阶段）
 // 直接用 VS Code 选色器点击颜色块修改，改完 HMR 自动生效
 // 色板关系：colBase 是主色，其余按对比度比例缩放
 // ──────────────────────────────────────────────────────────────
 
 // 主色调：中间调基准色。整体偏色从这里开始改。
 // 默认标准值：rgba(60, 83, 93)（灰蓝绿）
-export const LIQUID_BG_COL_BASE   = /* #rgb */ 'rgba(73, 114, 117, 1)';
+export const LIQUID_BG_COL_BASE   = /* #rgb */ 'rgba(59, 92, 95, 1)';
 
 // 高光色：亮部反射，约为 colBase 的 2.2× 提亮。
 // 默认标准值：rgba(133, 166, 194)（蒸汽蓝）
-export const LIQUID_BG_COL_BRIGHT = /* #rgb */ 'rgba(117, 158, 153, 1)';
+export const LIQUID_BG_COL_BRIGHT = /* #rgb */ 'rgba(95, 129, 125, 1)';
 
 // 暗部色：阴影中间层，约为 colBase 的 0.45×。
 // 默认标准值：rgba(26, 36, 43)（深蓝绿灰）
-export const LIQUID_BG_COL_DEEP   = /* #rgb */ 'rgba(26, 43, 43, 1)';
+export const LIQUID_BG_COL_DEEP   = /* #rgb */ 'rgba(19, 32, 32, 1)';
 
 // 最暗处：接近纯黑，轻微色偏即可。
 // 默认标准值：rgba(8, 10, 15)（近黑微蓝）
@@ -219,7 +219,7 @@ export const LIQUID_BG_COL_SHADOW = /* #rgb */ 'rgba(0, 0, 0, 1)';
 
 // 最亮高光：镜面反射点，保持冷白即可，一般无需修改。
 // 默认标准值：rgba(217, 235, 255)（冷白偏青）
-export const LIQUID_BG_COL_PEAK   = /* #rgb */ 'rgba(217, 255, 252, 1)';
+export const LIQUID_BG_COL_PEAK   = /* #rgb */ 'rgba(219, 255, 252, 1)';
 
 // 流动速度 — 默认 0.03。调大(→0.3)：流动更快；调小(→0.02)：接近静止
 export const LIQUID_BG_FLOW_SPEED = 0.03;
@@ -461,7 +461,7 @@ export const WAVE_LOOK = {
     glassEdgeGlow: [0.7, 0.85, 1.0],
     // 边缘 Fresnel 光辉强度。
     glassEdgeGlowBoost: 0.12,
-    // === 摄像头环境映射参数 (About 页玻璃方块专用) ===
+    // === 摄像头环境映射参数 (Sigma 页玻璃方块专用) ===
     // 折射偏移缩放。调大透镜畸变更夸张，调小更微弱。
     // 参考: 0.15（微弱） ~ 0.6（强烈），默认 0.35
     cameraRefractScale: 0.2,

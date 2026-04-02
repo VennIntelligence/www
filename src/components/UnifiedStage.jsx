@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import { vertexShader } from '../shaders/waveVertex';
+import { vertexShader } from '../shaders/fullscreenVertex';
 import { buildUnifiedShader, getRenderScale } from '../utils/unifiedShaderBuilder';
 import { createFrameThrottle } from '../utils/frameThrottle';
 import {
@@ -49,7 +49,7 @@ import {
   LIQUID_BG_UV_SCALE,
   LIQUID_BG_RIPPLE_SCALE,
   LIQUID_BG_SPEC_POWER,
-} from '../config/waveLook';
+} from '../config/dropletLook';
 
 /**
  * UnifiedStage — 统一渲染层
@@ -277,34 +277,34 @@ export default function UnifiedStage() {
     // ── 计算滚动过渡进度 ──
     function updateScrollProgress() {
       const heroSection = document.getElementById('hero');
-      const aboutSection = document.getElementById('about');
-      if (!heroSection || !aboutSection) return;
+      const sigmaSection = document.getElementById('sigma');
+      if (!heroSection || !sigmaSection) return;
 
       const heroRect = heroSection.getBoundingClientRect();
-      const aboutRect = aboutSection.getBoundingClientRect();
+      const sigmaRect = sigmaSection.getBoundingClientRect();
       const viewH = window.innerHeight;
 
-      // scrollProgress: 0 = Hero 完全在视口中, 1 = About 完全在视口中
+      // scrollProgress: 0 = Hero 完全在视口中, 1 = Sigma 完全在视口中
       const heroBottom = heroRect.bottom;
       const progress = 1 - clamp(heroBottom / viewH, 0, 1);
       interaction.scrollProgress = progress;
 
-      // aboutExitProgress: About 底部离开视口的进度
-      // 0 = About 底部还在视口内（或更低）, 1 = About 底部完全离开视口顶部
-      const aboutBottom = aboutRect.bottom;
-      interaction.aboutExitProgress = 1 - clamp(aboutBottom / viewH, 0, 1);
+      // aboutExitProgress: Sigma 底部离开视口的进度
+      // 0 = Sigma 底部还在视口内（或更低）, 1 = Sigma 底部完全离开视口顶部
+      const sigmaBottom = sigmaRect.bottom;
+      interaction.aboutExitProgress = 1 - clamp(sigmaBottom / viewH, 0, 1);
 
       // 记录 Hero section 底部在视口中的 Y 位置（用于液滴边界推挤）
       interaction.heroBottomY = heroRect.bottom;
 
-      // productScrollProgress / productExitProgress：追踪 Product section 进出视口
-      const productSection = document.getElementById('product');
-      if (productSection) {
-        const productRect = productSection.getBoundingClientRect();
-        // productScrollProgress: 0=product顶部在视口底部以下, 1=product顶部到达视口顶部
-        interaction.productScrollProgress = clamp(1 - productRect.top / viewH, 0, 1);
-        // productExitProgress: 0=product底部在视口内, 1=product底部完全离开视口顶部
-        interaction.productExitProgress = 1 - clamp(productRect.bottom / viewH, 0, 1);
+      // productScrollProgress / productExitProgress：追踪 Omega section 进出视口
+      const omegaSection = document.getElementById('omega');
+      if (omegaSection) {
+        const omegaRect = omegaSection.getBoundingClientRect();
+        // productScrollProgress: 0=omega顶部在视口底部以下, 1=omega顶部到达视口顶部
+        interaction.productScrollProgress = clamp(1 - omegaRect.top / viewH, 0, 1);
+        // productExitProgress: 0=omega底部在视口内, 1=omega底部完全离开视口顶部
+        interaction.productExitProgress = 1 - clamp(omegaRect.bottom / viewH, 0, 1);
       }
     }
 
@@ -463,14 +463,14 @@ export default function UnifiedStage() {
           }
           container.style.cursor = hovering ? 'grab' : '';
         }
-      } else if (spike.phase === 'about') {
+      } else if (spike.phase === 'about' || spike.phase === 'omega' || spike.phase === 'omega-morph') {
         if (isPointerNearSpike(event.clientX, event.clientY, rect, SPIKE_MOUSE_PICK_PADDING)) {
           container.style.cursor = 'grab';
         } else {
           container.style.cursor = '';
         }
 
-        // About 阶段：更新液态背景鼠标位置（WebGL 坐标系：Y 轴朝上）
+        // About/Omega 阶段：更新背景鼠标位置（WebGL 坐标系：Y 轴朝上）
         const dpr = (window.devicePixelRatio || 1) * scale;
         uniforms.uGoldMouse.value.set(
           (event.clientX - rect.left) * dpr,
@@ -496,7 +496,7 @@ export default function UnifiedStage() {
      * About content 有 pointer-events:auto，事件不会到达 UnifiedStage 层。
      * 通过全局监听确保 About 阶段始终能跟踪鼠标。 */
     const onGlobalMouseMove = (ev) => {
-      if (spike.phase !== 'about') return;
+      if (spike.phase !== 'about' && spike.phase !== 'omega' && spike.phase !== 'omega-morph') return;
       const rect = container.getBoundingClientRect();
       // 确认鼠标在 About section 区域内
       if (ev.clientX < rect.left || ev.clientX > rect.right ||

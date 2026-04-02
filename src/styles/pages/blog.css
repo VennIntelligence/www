@@ -5,6 +5,8 @@
 /* ---------- 页面容器 ---------- */
 .blog-page {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   /* 纯黑背景 + 顶部极淡的蓝色光晕（Halo）*/
   background-color: #000000;
   background-image: radial-gradient(circle at 50% -10%, rgba(48, 120, 255, 0.08) 0%, transparent 60%);
@@ -13,8 +15,10 @@
 }
 
 .blog-page__inner {
+  flex: 1; /* 撑满剩余空间，让 Footer 沉到底部 */
   max-width: 860px;
   margin: 0 auto;
+  width: 100%;
   padding: 120px 40px 80px;
 }
 

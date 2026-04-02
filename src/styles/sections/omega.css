@@ -5,9 +5,9 @@
    ============================================================ */
 
 /* ---------- 容器 ---------- */
-.product-section {
-  --product-bg: 0 0% 0%;
-  --product-fg: 0 0% 100%;
+.omega-section {
+  --omega-bg: 0 0% 0%;
+  --omega-fg: 0 0% 100%;
 
   position: relative;
   z-index: 1;
@@ -15,7 +15,7 @@
   display: flex;
   flex-direction: column;
   background: transparent;
-  color: hsl(var(--product-fg));
+  color: hsl(var(--omega-fg));
   overflow: visible;
   font-family: var(--font-sans);
   pointer-events: none;
@@ -24,22 +24,33 @@
 
 /* ---------- 渐进遮罩 ---------- */
 /*
- * 上下黑边 + 中心淡化，让摆波 canvas 平滑融入。
- * 默认标准值：上下 18%，中心透明度 0.55。
+ * Desktop：左侧几乎全黑，保持到 15% 才开始过渡，65% 处完全透明，右边全透明。
+ * Mobile ：上方近乎全黑 → 下方全透明。
+ * 默认标准值：0%→rgba(0,0,0,0.95)，15%→0.95，65%→0.0。
+ * 调大第一、二项透明度 → 左侧更暗；调大65% → 遮罩覆盖范围更宽。
  */
-.product-vignette {
-  background:
-    linear-gradient(to bottom,
-      rgba(10, 10, 10, 0.82) 0%,
-      rgba(10, 10, 10, 0)    18%,
-      rgba(10, 10, 10, 0.55) 50%,
-      rgba(10, 10, 10, 0)    82%,
-      rgba(10, 10, 10, 0.82) 100%
+.omega-vignette {
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.999) 0%,
+    rgba(0, 0, 0, 0.0) 39%,
+    rgba(0, 0, 0, 0.0)  85%
+  );
+}
+
+@media (max-width: 767px) {
+  .omega-vignette {
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.92) 0%,
+      rgba(0, 0, 0, 0.4) 14%,
+      rgba(0, 0, 0, 0.0)  40%
     );
+  }
 }
 
 /* ---------- 主内容 ---------- */
-.product-content {
+.omega-content {
   position: relative;
   z-index: 10;
   flex: 1;
@@ -51,7 +62,7 @@
 }
 
 @media (max-width: 767px) {
-  .product-content {
+  .omega-content {
     justify-content: flex-start;
     padding: 0 24px 0;
   }
@@ -59,16 +70,19 @@
 
 /* ---------- 两屏布局（移动端） ---------- */
 @media (max-width: 767px) {
-  .product-screen-1 {
+  .omega-screen-1 {
     min-height: 100vh;
     min-height: 100svh;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
+    /* 标题从屏幕上 1/3 处开始，避免被 navbar 遮挑。
+       默认标准值：33vh；调小则标题下移，调大则上移更居中。 */
+    justify-content: flex-start;
+    padding-top: 33vh;
     padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
   }
 
-  .product-screen-2 {
+  .omega-screen-2 {
     min-height: 100vh;
     min-height: 100svh;
     display: flex;
@@ -82,7 +96,7 @@
 /*
  * 字号；默认标准值：clamp(1.6rem, 4vw, 3.2rem)。与 About 对齐。
  */
-.product-subheading {
+.omega-subheading {
   display: flex;
   align-items: center;
   gap: 16px;
@@ -91,11 +105,11 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   margin-bottom: 16px;
-  color: hsl(var(--product-fg));
+  color: hsl(var(--omega-fg));
 }
 
 /* 发光呼吸竖线 — 金琥珀色（区别于 About 的蓝色） */
-.product-subheading__line {
+.omega-subheading__line {
   width: 5px;
   height: 1.1em;
   background: linear-gradient(180deg, rgba(255, 210, 120, 1) 0%, rgba(210, 140, 40, 0.9) 100%);
@@ -129,7 +143,7 @@
 }
 
 /* Ω 标志白框容器 */
-.product-omega-badge {
+.omega-badge {
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -144,7 +158,7 @@
 }
 
 /* 旋转光晕 — 金色版 */
-.product-omega-badge::before {
+.omega-badge::before {
   content: '';
   position: absolute;
   /* 光晕扩散范围；默认标准值：-10px */
@@ -168,7 +182,7 @@
 }
 
 /* 外层呼吸柔光 — 金色散射 */
-.product-omega-badge::after {
+.omega-badge::after {
   content: '';
   position: absolute;
   /* 外层柔光范围；默认标准值：-18px */
@@ -203,7 +217,7 @@
 }
 
 /* ---------- 两栏布局 ---------- */
-.product-columns {
+.omega-columns {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
@@ -211,7 +225,7 @@
 }
 
 @media (max-width: 1023px) {
-  .product-columns {
+  .omega-columns {
     flex-direction: column;
     gap: 24px;
     align-items: flex-start;
@@ -219,38 +233,38 @@
 }
 
 /* ---------- 标题 ---------- */
-.product-heading {
+.omega-heading {
   flex: 1;
 }
 
-.product-heading__h2 {
+.omega-heading__h2 {
   font-size: clamp(1.8rem, 4.5vw, 3.5rem);
   line-height: 1.0;
   letter-spacing: -0.02em;
-  color: hsl(var(--product-fg));
+  color: hsl(var(--omega-fg));
 }
 
-.product-heading__light {
+.omega-heading__light {
   font-weight: 300;
   /* key 变更重挂载时触发此动画；默认标准值：320ms */
-  animation: product-title-reveal 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: omega-title-reveal 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.product-heading__light + br + .product-heading__light {
+.omega-heading__light + br + .omega-heading__light {
   animation-delay: 50ms;
 }
 
-.product-heading__light + br + .product-heading__light + br + .product-heading__display,
-.product-heading__display {
+.omega-heading__light + br + .omega-heading__light + br + .omega-heading__display,
+.omega-heading__display {
   font-weight: 600;
   /* 兜底色 */
   color: rgba(255, 230, 160, 0.96);
-  animation: product-title-reveal 320ms cubic-bezier(0.22, 1, 0.36, 1) 100ms both;
+  animation: omega-title-reveal 320ms cubic-bezier(0.22, 1, 0.36, 1) 100ms both;
 }
 
 /* MagnetText 拆字后的渐变裁剪 — 金琥珀色 */
 @supports ((-webkit-background-clip: text) or (background-clip: text)) {
-  .product-heading__display .magnet-char {
+  .omega-heading__display .magnet-char {
     background: linear-gradient(135deg, rgba(255, 230, 160, 1), rgba(210, 150, 60, 0.8));
     -webkit-background-clip: text;
     background-clip: text;
@@ -265,7 +279,7 @@
  * 字号；默认标准值：clamp(1.05rem, 1.9vw, 1.6rem)。字重 300 保持轻盈。
  * 颜色用暖金，与 h2 display 行的金色形成呼吸感延续。
  */
-.product-subline {
+.omega-subline {
   margin-top: 18px;
   /* 字号；默认标准值：clamp(1.05rem, 1.9vw, 1.6rem)。调大则更醒目。 */
   font-size: clamp(1.05rem, 1.9vw, 1.6rem);
@@ -296,7 +310,7 @@
 /*
  * 复用 About 按钮风格，左对齐，水平排列
  */
-.product-cta-inline {
+.omega-cta-inline {
   margin-top: 32px;
   display: flex;
   gap: 12px;
@@ -304,7 +318,7 @@
 }
 
 /* ---- Base ---- */
-.product-cta {
+.omega-cta {
   --glass-cursor-x: 50%;
   --glass-cursor-y: 50%;
 
@@ -328,7 +342,7 @@
 }
 
 /* 鼠标跟随光斑 */
-.product-cta::before {
+.omega-cta::before {
   content: '';
   position: absolute;
   width: 120px;
@@ -344,14 +358,14 @@
   transition: opacity 0.35s ease;
 }
 
-.product-cta:hover::before { opacity: 1; }
+.omega-cta:hover::before { opacity: 1; }
 
-.product-cta:hover {
+.omega-cta:hover {
   transform: translateY(-2px);
 }
 
 /* ---- Primary — 金色玻璃 ---- */
-.product-cta--primary {
+.omega-cta--primary {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-top-color: rgba(255, 255, 255, 0.35);
@@ -364,7 +378,7 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
-.product-cta--primary:hover {
+.omega-cta--primary:hover {
   background: linear-gradient(135deg, rgba(255, 220, 100, 0.12), rgba(210, 150, 40, 0.06));
   border-color: rgba(255, 220, 100, 0.3);
   border-top-color: rgba(255, 220, 100, 0.5);
@@ -376,26 +390,123 @@
   text-shadow: 0 0 12px rgba(255, 220, 100, 0.4);
 }
 
-/* ---- Ghost ---- */
-.product-cta--ghost {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.005) 50%, rgba(255, 255, 255, 0.02) 100%);
-  color: rgba(255, 255, 255, 0.68);
-  border: 1px solid rgba(255, 255, 255, 0.10);
+/* ---- Ghost — 亮金色玻璃 ---- */
+.omega-cta--ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  /* 亮金色主题底；默认标准值：rgba(255,200,80,0.10) → rgba(210,150,40,0.03)。
+   * 调大 alpha → 底色更金更实；调小 → 更透明。 */
+  background: linear-gradient(135deg, rgba(255, 200, 80, 0.10) 0%, rgba(210, 150, 40, 0.03) 50%, rgba(255, 220, 100, 0.06) 100%);
+  /* 亮金色文字；默认标准值：rgba(255,225,150,0.92) */
+  color: rgba(255, 225, 150, 0.92);
+  /* 金色边框；默认标准值：rgba(255,200,80,0.30)。调大 → 边框更亮 */
+  border: 1px solid rgba(255, 200, 80, 0.30);
+  border-top-color: rgba(255, 220, 120, 0.45);
   backdrop-filter: blur(6px) saturate(1.1);
   -webkit-backdrop-filter: blur(6px) saturate(1.1);
+  /* 金色外发光；默认标准值：rgba(255,200,80,0.10) */
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.06) inset,
-    0 -1px 0 rgba(255, 255, 255, 0.02) inset;
+    0 0 14px rgba(255, 200, 80, 0.10),
+    0 1px 0 rgba(255, 220, 100, 0.12) inset,
+    0 -1px 0 rgba(255, 200, 80, 0.04) inset;
+  text-decoration: none;
+  text-shadow: 0 0 8px rgba(255, 200, 80, 0.25);
 }
 
-.product-cta--ghost:hover {
-  background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.015) 50%, rgba(255,255,255,0.04) 100%);
-  color: rgba(255, 255, 255, 0.85);
-  border-color: rgba(255, 255, 255, 0.20);
+.omega-cta--ghost:hover {
+  /* hover 金色调深；默认标准值：rgba(255,200,80,0.16) → rgba(210,150,40,0.06)。 */
+  background: linear-gradient(135deg, rgba(255,200,80,0.16) 0%, rgba(210,150,40,0.06) 50%, rgba(255,220,100,0.10) 100%);
+  color: rgba(255, 240, 190, 1);
+  border-color: rgba(255, 220, 100, 0.50);
+  border-top-color: rgba(255, 235, 150, 0.65);
   box-shadow:
-    0 0 16px rgba(255, 255, 255, 0.04),
-    0 1px 0 rgba(255, 255, 255, 0.10) inset,
-    0 -1px 0 rgba(255, 255, 255, 0.04) inset;
+    0 0 24px rgba(255, 200, 80, 0.22),
+    0 0 48px rgba(210, 150, 40, 0.10),
+    0 1px 0 rgba(255, 220, 100, 0.20) inset,
+    0 -1px 0 rgba(255, 200, 80, 0.08) inset;
+  text-shadow: 0 0 14px rgba(255, 200, 80, 0.45);
+}
+
+/*
+ * 安卓 solid tier fallback — 两个 CTA 按钮
+ * 安卓上 backdrop-filter 渲染透明，按钮消失。改用纯白半透明底 + inset 描边模拟磨砂质感。
+ * 不加任何彩色，纯白半透明；blur程度比 navbar 低。
+ * 默认标准值：rgba(255,255,255,0.16)；调大更实，调小按钮会变透明。
+ */
+[data-glass-tier="solid"] .omega-cta--primary {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.22) 0%,
+      rgba(255, 255, 255, 0.10) 100%
+    );
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-color: rgba(255, 255, 255, 0.28);
+  border-top-color: rgba(255, 255, 255, 0.45);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 4px 20px rgba(0, 0, 0, 0.18);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+[data-glass-tier="solid"] .omega-cta--primary:hover {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.28) 0%,
+      rgba(255, 255, 255, 0.14) 100%
+    );
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/*
+ * ghost 按钮 solid fallback：金色主题。
+ * 默认标准值：rgba(255,200,80,0.13)。调大更实，调小按钮会变透明。
+ */
+[data-glass-tier="solid"] .omega-cta--ghost {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 200, 80, 0.16) 0%,
+      rgba(210, 150, 40, 0.08) 100%
+    );
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-color: rgba(255, 200, 80, 0.30);
+  border-top-color: rgba(255, 220, 120, 0.42);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 220, 100, 0.22),
+    inset 0 -1px 0 rgba(255, 200, 80, 0.06);
+  color: rgba(255, 225, 150, 0.92);
+}
+
+[data-glass-tier="solid"] .omega-cta--ghost:hover {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 200, 80, 0.24) 0%,
+      rgba(210, 150, 40, 0.12) 100%
+    );
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* ---- Arrow icon inside ghost CTA ---- */
+.omega-cta__arrow {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  /* 金色箭头发光；默认标准值：rgba(255,200,80,0.5) */
+  filter: drop-shadow(0 0 4px rgba(255, 200, 80, 0.5));
+}
+
+.omega-cta--ghost:hover .omega-cta__arrow {
+  transform: translateX(4px);
+  filter: drop-shadow(0 0 8px rgba(255, 200, 80, 0.8));
 }
 
 /* ---------- 宣言摘要（磨砂玻璃底板） ---------- */
@@ -403,7 +514,7 @@
  * 白色磨砂玻璃底板；默认标准值：rgba(255,255,255,0.04) + blur(10px)。
  * 调大 alpha 则底板更明显；调大 blur 则磨砂感更强。
  */
-.product-manifesto {
+.omega-manifesto {
   max-width: 480px;
   padding: 20px 24px;
   background: rgba(255, 255, 255, 0.04);
@@ -417,20 +528,20 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.10);
 }
 
-.product-manifesto__text {
+.omega-manifesto__text {
   /* 正文字号；默认标准值：clamp(0.86rem, 1.2vw, 1.02rem) */
   font-size: clamp(0.86rem, 1.2vw, 1.02rem);
   line-height: 1.7;
-  color: hsl(var(--product-fg) / 0.55);
+  color: hsl(var(--omega-fg) / 0.55);
   margin: 0 0 14px;
 }
 
-.product-manifesto__highlight {
+.omega-manifesto__highlight {
   /* 高亮文字略大于正文；默认标准值：clamp(0.9rem, 1.3vw, 1.08rem) */
   font-size: clamp(0.9rem, 1.3vw, 1.08rem);
   line-height: 1.6;
   font-weight: 500;
-  color: hsl(var(--product-fg) / 0.85);
+  color: hsl(var(--omega-fg) / 0.85);
   margin: 0;
   padding-left: 14px;
   /* 金琥珀分割线，区别于 About 的蓝色 */
@@ -438,49 +549,49 @@
 }
 
 /* ---------- 四大支柱 ---------- */
-.product-pillars {
+.omega-pillars {
   margin-top: 40px;
   position: relative;
   z-index: 10;
 }
 
 @media (max-width: 767px) {
-  .product-pillars {
+  .omega-pillars {
     margin-top: 0;
   }
 }
 
-.product-pillars__label {
+.omega-pillars__label {
   display: block;
   /* 支柱标签字号；默认标准值：clamp(0.8rem, 1vw, 0.9rem) */
   font-size: clamp(0.8rem, 1vw, 0.9rem);
   font-weight: 500;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: hsl(var(--product-fg) / 0.5);
+  color: hsl(var(--omega-fg) / 0.5);
   margin-bottom: 16px;
 }
 
-.product-pillars__grid {
+.omega-pillars__grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
 }
 
 @media (max-width: 1023px) {
-  .product-pillars__grid {
+  .omega-pillars__grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 560px) {
-  .product-pillars__grid {
+  .omega-pillars__grid {
     grid-template-columns: 1fr;
   }
 }
 
 /* 支柱卡片 — 金色点缀磨砂玻璃 */
-.product-pillar {
+.omega-pillar {
   padding: 20px;
   border-radius: 12px;
   /*
@@ -496,20 +607,20 @@
   transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.product-pillar:hover {
+.omega-pillar:hover {
   background: rgba(255, 220, 100, 0.06);
   border-color: rgba(255, 200, 80, 0.22);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.14), 0 0 12px rgba(255, 200, 80, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.28);
 }
 
-.product-pillar__header {
+.omega-pillar__header {
   display: flex;
   align-items: baseline;
   gap: 10px;
   margin-bottom: 10px;
 }
 
-.product-pillar__icon {
+.omega-pillar__icon {
   display: inline-block;
   /* 序号字号；默认标准值：clamp(0.85rem, 1.1vw, 1rem) */
   font-size: clamp(0.85rem, 1.1vw, 1rem);
@@ -520,20 +631,20 @@
   flex-shrink: 0;
 }
 
-.product-pillar__title {
+.omega-pillar__title {
   /* 卡片标题字号；默认标准值：clamp(0.9rem, 1.2vw, 1.05rem) */
   font-size: clamp(0.9rem, 1.2vw, 1.05rem);
   font-weight: 600;
-  color: hsl(var(--product-fg) / 0.92);
+  color: hsl(var(--omega-fg) / 0.92);
   margin: 0;
   letter-spacing: 0.01em;
 }
 
-.product-pillar__desc {
+.omega-pillar__desc {
   /* 卡片描述字号；默认标准值：clamp(0.82rem, 1.1vw, 0.95rem) */
   font-size: clamp(0.82rem, 1.1vw, 0.95rem);
   line-height: 1.6;
-  color: hsl(var(--product-fg) / 0.72);
+  color: hsl(var(--omega-fg) / 0.72);
   margin: 0;
 }
 
@@ -542,7 +653,7 @@
  * 初始状态：模糊+透明。inView 后添加 .is-revealed 触发清晰化。
  * 持续时间；默认标准值：1.2s。模糊程度；默认标准值：16px。
  */
-.product-blur-reveal {
+.omega-blur-reveal {
   filter: blur(16px);
   opacity: 0;
   transition:
@@ -550,7 +661,7 @@
     opacity 1.2s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.product-blur-reveal.is-revealed {
+.omega-blur-reveal.is-revealed {
   filter: blur(0px);
   opacity: 1;
 }
@@ -559,7 +670,7 @@
  * 语言切换标题行入场动画
  * 初始标准值：blur 8px，translateY 0.3em，持续 320ms。
  */
-@keyframes product-title-reveal {
+@keyframes omega-title-reveal {
   from {
     opacity: 0;
     filter: blur(8px);

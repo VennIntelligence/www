@@ -41,7 +41,7 @@ import {
   OMEGA_BG_FADE_END,
   OMEGA_FADEOUT_START,
   OMEGA_FADEOUT_END,
-} from '../config/waveLook';
+} from '../config/dropletLook';
 
 // ══════════════════════════════════════════════════════════════
 // 统一物理引擎
