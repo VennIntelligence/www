@@ -16,6 +16,8 @@ import projectSigmaMeta from './posts/project-sigma-manifesto/meta';
 import ProjectSigmaArticle from './posts/project-sigma-manifesto/index';
 import projectOmegaMeta from './posts/project-omega-manifesto/meta';
 import ProjectOmegaArticle from './posts/project-omega-manifesto/index';
+import timeManager2Meta from './posts/time-manager-part-2/meta';
+import TimeManager2Article from './posts/time-manager-part-2/index';
 
 /**
  * 文章注册表
@@ -27,6 +29,11 @@ import ProjectOmegaArticle from './posts/project-omega-manifesto/index';
  *   - Component: 文章内容 React 组件
  */
 export const BLOG_POSTS = [
+  {
+    slug: 'time-manager-part-2',
+    meta: timeManager2Meta,
+    Component: TimeManager2Article,
+  },
   {
     slug: 'project-omega-manifesto',
     meta: projectOmegaMeta,
