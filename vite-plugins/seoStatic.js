@@ -86,15 +86,20 @@ function buildSitemap(metas) {
     })),
   ];
 
+  // 每个 URL 都声明 en/zh/x-default hreflang 替代链接
   const entries = urls.map(u => `  <url>
     <loc>${u.loc}</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="${u.loc}" />
+    <xhtml:link rel="alternate" hreflang="zh" href="${u.loc}" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="${u.loc}" />
     <lastmod>${u.lastmod}</lastmod>
     <changefreq>${u.changefreq}</changefreq>
     <priority>${u.priority}</priority>
   </url>`).join('\n');
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
 ${entries}
 </urlset>`;
 }
@@ -109,7 +114,7 @@ function buildLlmsFullTxt(metas, i18n) {
   lines.push('');
   lines.push('> This file contains the complete textual content of vennai.org,');
   lines.push('> exported in plain Markdown for AI agent consumption.');
-  lines.push('> Auto-generated at build time.');
+  lines.push('> Bilingual: English + 中文. Auto-generated at build time.');
   lines.push('');
 
   // ── 组织描述 ──
@@ -120,10 +125,13 @@ function buildLlmsFullTxt(metas, i18n) {
   lines.push('Founded by Taitan Pascal. Website: https://vennai.org');
   lines.push('Email: contact@vennai.org | Twitter: @venn_foundation | GitHub: VennIntelligence');
   lines.push('');
+  lines.push('文氏智能基金会是一个研究型组织，资助人类集体智慧的首批基础设施协议。');
+  lines.push('由 Taitan Pascal 创立。网站：https://vennai.org');
+  lines.push('');
 
-  // ── 从 i18n 提取项目内容 ──
+  // ── 从 i18n 提取项目内容（英文 + 中文） ──
   if (i18n) {
-    // Project Σ
+    // Project Σ — English
     const sigma = i18n.sigma?.en;
     if (sigma) {
       lines.push('## Project Σ — Collective Intelligence Protocol');
@@ -148,7 +156,30 @@ function buildLlmsFullTxt(metas, i18n) {
       }
     }
 
-    // Project Ω
+    // Project Σ — 中文
+    const sigmaZh = i18n.sigma?.zh;
+    if (sigmaZh) {
+      lines.push('## Project Σ — 集体智慧协议（中文）');
+      lines.push('');
+      const heading = sigmaZh.headingLines;
+      const headingText = Array.isArray(heading) ? heading.join('') : '';
+      if (headingText) lines.push(headingText);
+      lines.push('');
+      if (sigmaZh.manifesto) lines.push(sigmaZh.manifesto);
+      if (sigmaZh.manifestoHighlight) lines.push('');
+      if (sigmaZh.manifestoHighlight) lines.push(`**${sigmaZh.manifestoHighlight}**`);
+      lines.push('');
+      if (sigmaZh.pillars) {
+        lines.push(`### ${sigmaZh.pillarTitle || '支柱'}`);
+        lines.push('');
+        for (const p of sigmaZh.pillars) {
+          lines.push(`- **${p.title}**: ${p.desc}`);
+        }
+        lines.push('');
+      }
+    }
+
+    // Project Ω — English
     const omega = i18n.omega?.en;
     if (omega) {
       lines.push('## Project Ω — AI-Native Trading Infrastructure');
@@ -175,7 +206,32 @@ function buildLlmsFullTxt(metas, i18n) {
       }
     }
 
-    // Consulting
+    // Project Ω — 中文
+    const omegaZh = i18n.omega?.zh;
+    if (omegaZh) {
+      lines.push('## Project Ω — AI 原生交易基础设施（中文）');
+      lines.push('');
+      const heading = omegaZh.headingLines;
+      const headingText = Array.isArray(heading) ? heading.join('') : '';
+      if (headingText) lines.push(headingText);
+      lines.push('');
+      if (omegaZh.subtitle) lines.push(omegaZh.subtitle);
+      lines.push('');
+      if (omegaZh.manifesto) lines.push(omegaZh.manifesto);
+      if (omegaZh.manifestoHighlight) lines.push('');
+      if (omegaZh.manifestoHighlight) lines.push(`**${omegaZh.manifestoHighlight}**`);
+      lines.push('');
+      if (omegaZh.pillars) {
+        lines.push(`### ${omegaZh.pillarTitle || '架构'}`);
+        lines.push('');
+        for (const p of omegaZh.pillars) {
+          lines.push(`- **${p.title}**: ${p.desc}`);
+        }
+        lines.push('');
+      }
+    }
+
+    // Consulting — English
     const consult = i18n.consultants?.en;
     if (consult) {
       lines.push('## Consulting');
@@ -187,19 +243,35 @@ function buildLlmsFullTxt(metas, i18n) {
       }
       lines.push('');
     }
+
+    // Consulting — 中文
+    const consultZh = i18n.consultants?.zh;
+    if (consultZh) {
+      lines.push('## 咨询服务（中文）');
+      lines.push('');
+      lines.push(`**${consultZh.name}** — ${consultZh.bio1} ${consultZh.bio2}`);
+      lines.push('');
+      for (const tier of (consultZh.tiers || [])) {
+        lines.push(`- **${tier.name}**: ${tier.price} ${tier.duration} — ${tier.summary}`);
+      }
+      lines.push('');
+    }
   }
 
-  // ── 博客文章 ──
+  // ── 博客文章（双语） ──
   if (metas.length > 0) {
-    lines.push('## Blog Posts');
+    lines.push('## Blog Posts / 博客文章');
     lines.push('');
     for (const m of metas) {
       const en = m.en || {};
+      const zh = m.zh || {};
       lines.push(`### ${en.title || m.slug}`);
+      if (zh.title) lines.push(`### ${zh.title}`);
       lines.push(`- URL: ${SITE_URL}/blog/${m.slug}`);
       lines.push(`- Date: ${m.date}`);
       lines.push(`- Tags: ${(m.tags || []).join(', ')}`);
-      if (en.excerpt) lines.push(`- Summary: ${en.excerpt}`);
+      if (en.excerpt) lines.push(`- Summary (EN): ${en.excerpt}`);
+      if (zh.excerpt) lines.push(`- 摘要 (ZH): ${zh.excerpt}`);
       lines.push('');
     }
   }

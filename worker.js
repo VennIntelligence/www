@@ -4,6 +4,18 @@ const STRIPE_API_BASE = 'https://api.stripe.com/v1';
 const SIGNATURE_TOLERANCE_SECONDS = 300;
 const APP_SHELL_VERSION = '2026-04-19-checkout';
 
+// ── 中文 SEO：meta 标签注入 ──
+// Worker 层根据 Accept-Language 头注入中文 meta，
+// 让 Google 中文爬虫和中文用户首屏都能看到中文 title/description。
+const ZH_META = {
+  title: '文氏智能基金会 — AI 基础设施与智能交易',
+  description: '文氏智能基金会 — 资助人类集体智慧的首批基础设施协议。Project Σ（去中心化智能协议）和 Project Ω（AI 原生交易系统）。',
+  ogTitle: '文氏智能基金会 — AI 基础设施与智能交易',
+  ogDescription: '资助人类集体智慧的首批基础设施协议。Project Σ（去中心化智能协议）和 Project Ω（AI 原生交易系统）。',
+  twitterTitle: '文氏智能基金会',
+  twitterDescription: '资助人类集体智慧的首批基础设施协议。',
+};
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -143,12 +155,91 @@ async function handleAppShell(request, env, url) {
   const headers = new Headers(assetResponse.headers);
 
   headers.set('Cache-Control', 'no-store');
+  // Vary on Accept-Language so CDN caches per-language versions
+  headers.set('Vary', 'Accept-Language');
+
+  const prefersZh = detectChinesePreference(request);
+
+  // 如果偏好中文，注入中文 meta 标签
+  if (prefersZh) {
+    let html = await assetResponse.text();
+    html = injectChineseMeta(html);
+    return new Response(html, {
+      status: assetResponse.status,
+      statusText: assetResponse.statusText,
+      headers,
+    });
+  }
 
   return new Response(assetResponse.body, {
     status: assetResponse.status,
     statusText: assetResponse.statusText,
     headers,
   });
+}
+
+/**
+ * 检测请求是否偏好中文。
+ * 解析 Accept-Language 头，如果 zh 系列语言的权重高于 en 则返回 true。
+ */
+function detectChinesePreference(request) {
+  const acceptLang = request.headers.get('Accept-Language') || '';
+  // 快速检测：包含 zh 且不是纯 en 偏好
+  if (!acceptLang.includes('zh')) return false;
+
+  // 解析语言权重
+  const langs = acceptLang.split(',').map(part => {
+    const [lang, qPart] = part.trim().split(';');
+    const q = qPart ? parseFloat(qPart.replace('q=', '')) : 1.0;
+    return { lang: lang.trim().toLowerCase(), q: isNaN(q) ? 0 : q };
+  });
+
+  const zhQ = Math.max(0, ...langs.filter(l => l.lang.startsWith('zh')).map(l => l.q));
+  const enQ = Math.max(0, ...langs.filter(l => l.lang.startsWith('en')).map(l => l.q));
+
+  return zhQ > 0 && zhQ >= enQ;
+}
+
+/**
+ * 将 index.html 中的英文 meta 标签替换为中文版本。
+ * 仅替换 SEO 关键标签，保留其余内容不变。
+ */
+function injectChineseMeta(html) {
+  return html
+    // <html lang>
+    .replace('<html lang="en">', '<html lang="zh-CN">')
+    // <title>
+    .replace(/<title>[^<]+<\/title>/, `<title>${ZH_META.title}</title>`)
+    // <meta name="description">
+    .replace(
+      /<meta name="description" content="[^"]*" \/>/,
+      `<meta name="description" content="${ZH_META.description}" />`
+    )
+    // og:title
+    .replace(
+      /<meta property="og:title" content="[^"]*" \/>/,
+      `<meta property="og:title" content="${ZH_META.ogTitle}" />`
+    )
+    // og:description
+    .replace(
+      /<meta property="og:description" content="[^"]*" \/>/,
+      `<meta property="og:description" content="${ZH_META.ogDescription}" />`
+    )
+    // og:locale — 切换主语言
+    .replace(
+      /<meta property="og:locale" content="en_US" \/>/,
+      '<meta property="og:locale" content="zh_CN" />'
+    )
+    // twitter:title
+    .replace(
+      /<meta name="twitter:title" content="[^"]*" \/>/,
+      `<meta name="twitter:title" content="${ZH_META.twitterTitle}" />`
+    )
+    // twitter:description
+    .replace(
+      /<meta name="twitter:description" content="[^"]*" \/>/,
+      `<meta name="twitter:description" content="${ZH_META.twitterDescription}" />`
+    );
 }
 
 function isAppShellRequest(request, url) {

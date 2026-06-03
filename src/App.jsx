@@ -5,6 +5,7 @@ import ScrollToTop from './components/common/ScrollToTop';
 import NotFound from './pages/NotFound';
 import { LanguageProvider } from './context/LanguageContext';
 import { syncGlassCompatibility } from './utils/glassCompatibility';
+import { useDocumentMeta } from './hooks/useDocumentMeta';
 import './index.css';
 
 // ── Code-split 重型页面 ──
@@ -18,6 +19,16 @@ const BlogArticlePage = lazy(() => import('./pages/BlogArticlePage'));
 const GPUDebugPanel = import.meta.env.VITE_GPU_DEBUG === 'true'
   ? lazy(() => import('./components/GPUDebugPanel'))
   : null;
+
+/**
+ * DocumentMetaUpdater — 动态 SEO meta 标签同步
+ * 必须在 BrowserRouter + LanguageProvider 内部渲染，
+ * 因为依赖 useLocation 和 useLanguage。
+ */
+function DocumentMetaUpdater() {
+  useDocumentMeta();
+  return null;
+}
 
 /**
  * App — 纯路由根组件
@@ -42,6 +53,7 @@ function App() {
   return (
     <LanguageProvider>
       <BrowserRouter>
+        <DocumentMetaUpdater />
         <ScrollToTop />
         <Navbar />
         <Routes>
@@ -85,3 +97,4 @@ function App() {
 }
 
 export default App;
+
