@@ -19,7 +19,6 @@
 | 成立日期 | 2026年2月25日 |
 | 注册号 | 2026-001903366 |
 | 地址 | 30 N Gould St Ste N, Sheridan, WY 82801 |
-| 创始人 | Chengzhi Gao |
 | 注册代理人 | Northwest Registered Agent Service Inc |
 
 ---
@@ -66,11 +65,6 @@
 ### ③ 关于我们 (About / Mission)
 - [ ] 公司使命和愿景（2-3 段简短描述）
 - [ ] 核心方向：去中心化隐私、LLM 时代基础设施
-- [ ] 创始人简介卡片：
-  - 姓名：Chengzhi Gao
-  - 学历：东南大学机械工程博士
-  - 经验：十年 Linux 底层工具开发
-  - 标签：编程大师 / 古法编程最后一人 / Agent 编程大师 / Prompt 调教大师
 - [ ] 公司注册信息（Wyoming LLC, 成立于 2026.2.25）
 
 ### ④ 产品展示 (Product — VennTriggerTrade)

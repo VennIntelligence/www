@@ -173,78 +173,73 @@
   width: 100%;
   aspect-ratio: 16 / 9;
   border-radius: 14px;
-  border: 1px solid rgba(200, 149, 60, 0.22);
-  /* 磨砂半透明暗色背景 — 取代原来的全黑 #0e0b08
-   * 默认标准值：rgba(14,10,6,0.72) + blur(18px)
-   * 高不透明度保证安卓等不支持 blur 的平台也有深色底 */
-  background: rgba(14, 10, 6, 0.72);
-  backdrop-filter: blur(18px) saturate(1.15);
-  -webkit-backdrop-filter: blur(18px) saturate(1.15);
+  border: 1px solid rgba(246, 250, 255, 0.62);
+  /* 银色镜面底色。
+   * 默认标准值：多层 linear/radial-gradient 模拟亮银反光。
+   * 提高白色 stop 占比会更亮；提高灰色 stop 占比会更像磨砂金属。 */
+  background:
+    radial-gradient(72% 92% at 22% 10%, rgba(255, 255, 255, 0.96) 0%, rgba(232, 238, 246, 0.48) 42%, transparent 68%),
+    radial-gradient(64% 78% at 82% 84%, rgba(255, 255, 255, 0.72) 0%, rgba(176, 188, 204, 0.32) 46%, transparent 72%),
+    linear-gradient(126deg, #fafdff 0%, #aeb8c4 18%, #ffffff 34%, #7f8b9a 52%, #eef4fb 70%, #9aa6b5 100%);
   box-shadow:
-    inset 0 0 24px rgba(0, 0, 0, 0.5),
-    0 16px 32px rgba(0, 0, 0, 0.35),
-    0 0 36px rgba(140, 100, 20, 0.12),
-    0 4px 20px rgba(100, 70, 10, 0.2);
+    inset 0 1px 0 rgba(255, 255, 255, 0.96),
+    inset 0 -24px 42px rgba(55, 70, 88, 0.24),
+    inset 0 0 34px rgba(255, 255, 255, 0.28),
+    0 18px 38px rgba(0, 0, 0, 0.28),
+    0 0 42px rgba(230, 240, 255, 0.18);
   overflow: hidden;
+  transition:
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
 }
 
-/* 线稿图片 — CSS filter 将绿色线条（hue ~120°）旋转为琥珀金色（~45°）
- * hue-rotate(-75deg): 绿 → 黄金
- * saturate(1.3):      适度增艳，避免偏淡
- * brightness(1.05):   微提亮，补偿旋转后的感知损失 */
-.consultants-avatar__img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 30%;
-  opacity: 0.88;
-  filter: hue-rotate(-75deg) saturate(1.3) brightness(1.05);
-  transition: opacity 0.4s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), filter 0.4s ease;
-}
-
-/* hover: 线条提亮 + 微放大 */
-.consultants-avatar:hover .consultants-avatar__img {
-  opacity: 1;
-  transform: scale(1.03);
-}
-
-/* hover: 边框发光 */
 .consultants-avatar:hover {
-  border-color: rgba(220, 170, 80, 0.45);
+  transform: scale(1.01);
+  border-color: rgba(255, 255, 255, 0.82);
   box-shadow:
-    inset 0 0 24px rgba(0, 0, 0, 0.6),
-    0 16px 32px rgba(0, 0, 0, 0.35),
-    0 0 48px rgba(160, 110, 20, 0.22),
-    0 4px 20px rgba(120, 80, 10, 0.3);
+    inset 0 1px 0 rgba(255, 255, 255, 1),
+    inset 0 -22px 42px rgba(45, 62, 82, 0.20),
+    inset 0 0 40px rgba(255, 255, 255, 0.34),
+    0 20px 44px rgba(0, 0, 0, 0.30),
+    0 0 54px rgba(238, 246, 255, 0.28);
 }
 
-/* CRT 扫描线 + 底部渐暗 */
 .consultants-avatar::before {
   content: '';
   position: absolute;
   inset: 0;
   z-index: 1;
   pointer-events: none;
+  /* 斜向反光带。
+   * 默认标准值：22deg、三条高光带。
+   * 角度越接近 0deg 越水平；高光 alpha 越高镜面越亮。 */
   background:
-    repeating-linear-gradient(
-      0deg,
-      transparent 0px,
-      transparent 3px,
-      rgba(0, 0, 0, 0.12) 3px,
-      rgba(0, 0, 0, 0.12) 4px
-    ),
-    linear-gradient(180deg, transparent 55%, rgba(0, 12, 6, 0.45) 100%);
+    linear-gradient(22deg, transparent 0 18%, rgba(255, 255, 255, 0.72) 24%, transparent 32%),
+    linear-gradient(22deg, transparent 42%, rgba(255, 255, 255, 0.42) 48%, transparent 58%),
+    linear-gradient(22deg, transparent 68%, rgba(255, 255, 255, 0.58) 74%, transparent 82%);
+  mix-blend-mode: screen;
+  opacity: 0.72;
+  transition: opacity 0.35s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* CRT 暗角 */
 .consultants-avatar::after {
   content: '';
   position: absolute;
   inset: 0;
   z-index: 2;
   pointer-events: none;
-  background: radial-gradient(ellipse at center, transparent 50%, rgba(0, 10, 5, 0.45) 100%);
+  /* 镜面边缘压暗。
+   * 默认标准值：外圈 rgba(35,45,58,0.34)。
+   * alpha 调大边缘更厚重；调小整体更平、更白。 */
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.52), transparent 18%, transparent 78%, rgba(88, 104, 124, 0.22)),
+    radial-gradient(ellipse at center, transparent 54%, rgba(35, 45, 58, 0.34) 100%);
+}
+
+.consultants-avatar:hover::before {
+  opacity: 0.92;
+  transform: translateX(2.5%);
 }
 
 .consultants-profile__name {
@@ -579,9 +574,10 @@ html[data-glass-backdrop="0"] .consultants-panel--premium:hover {
 }
 
 html[data-glass-backdrop="0"] .consultants-avatar {
-  /* 完全不透明深色底，保证安卓上照片有清晰深色衬底
-   * 默认标准值：rgba(10,7,4,0.95) */
-  background: rgba(10, 7, 4, 0.95);
+  /* 兼容层银色实底。
+   * 默认标准值：linear-gradient(126deg, #fafdff, #9aa6b5)。
+   * 亮色比例调高会更像亮镜；灰色比例调高会更像哑光金属。 */
+  background: linear-gradient(126deg, #fafdff 0%, #b4beca 24%, #ffffff 42%, #858f9d 62%, #eef4fb 100%);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 }
@@ -620,7 +616,7 @@ html[data-glass-backdrop="0"] .consultants-cta--premium:hover {
   }
 
   .consultants-avatar {
-    background: rgba(10, 7, 4, 0.95);
+    background: linear-gradient(126deg, #fafdff 0%, #b4beca 24%, #ffffff 42%, #858f9d 62%, #eef4fb 100%);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }

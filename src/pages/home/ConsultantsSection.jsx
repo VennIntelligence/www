@@ -109,14 +109,7 @@ export default function ConsultantsSection({ children }) {
             {/* Panel 1: Profile */}
             <GlassPanel variant="profile">
               <div className="consultants-panel__inner consultants-panel__inner--profile">
-                <div className="consultants-avatar">
-                  <img
-                    src="/consul-lines.png"
-                    alt={content.name}
-                    className="consultants-avatar__img"
-                    loading="lazy"
-                  />
-                </div>
+                <div className="consultants-avatar" aria-hidden="true" />
 
                 <h2 className="consultants-profile__name">{content.name}</h2>
 
