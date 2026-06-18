@@ -204,7 +204,7 @@ export const COPY = {
       name: 'Taitan Pascal',
       tags: ['PhD of money', 'Life hacker', 'Unix old soul'],
       bio1: 'Retired at 28, Now back to fix the internet.',
-      bio2: 'Independent advisor under a studio name.',
+      bio2: 'Independent advisor under a pseudonym.',
       tiers: [
         {
           label: 'Invite Rate',
@@ -238,7 +238,7 @@ export const COPY = {
       name: 'Taitan Pascal',
       tags: ['PhD of money', 'Life hacker', 'Unix old soul'],
       bio1: '28岁退休，现在回来修复互联网',
-      bio2: '以画名提供独立咨询',
+      bio2: '以化名提供独立咨询',
       tiers: [
         {
           label: '邀请码价',

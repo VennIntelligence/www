@@ -173,20 +173,20 @@
   width: 100%;
   aspect-ratio: 16 / 9;
   border-radius: 14px;
-  border: 1px solid rgba(246, 250, 255, 0.62);
-  /* 银色镜面底色。
-   * 默认标准值：多层 linear/radial-gradient 模拟亮银反光。
-   * 提高白色 stop 占比会更亮；提高灰色 stop 占比会更像磨砂金属。 */
+  border: 1px solid rgba(255, 218, 104, 0.42);
+  /* 暗金镜面底色。
+   * 默认标准值：多层 linear/radial-gradient 模拟暖金反光。
+   * 提高亮金 stop 占比会更亮；提高深棕 stop 占比会更贴近背景、更低调。 */
   background:
-    radial-gradient(72% 92% at 22% 10%, rgba(255, 255, 255, 0.96) 0%, rgba(232, 238, 246, 0.48) 42%, transparent 68%),
-    radial-gradient(64% 78% at 82% 84%, rgba(255, 255, 255, 0.72) 0%, rgba(176, 188, 204, 0.32) 46%, transparent 72%),
-    linear-gradient(126deg, #fafdff 0%, #aeb8c4 18%, #ffffff 34%, #7f8b9a 52%, #eef4fb 70%, #9aa6b5 100%);
+    radial-gradient(72% 92% at 20% 10%, rgba(255, 225, 132, 0.66) 0%, rgba(143, 93, 24, 0.30) 42%, transparent 68%),
+    radial-gradient(64% 78% at 82% 84%, rgba(255, 204, 86, 0.46) 0%, rgba(83, 52, 14, 0.38) 46%, transparent 72%),
+    linear-gradient(126deg, #4f310b 0%, #b37a22 18%, #f1c764 34%, #735019 52%, #d6a342 70%, #3a2509 100%);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.96),
-    inset 0 -24px 42px rgba(55, 70, 88, 0.24),
-    inset 0 0 34px rgba(255, 255, 255, 0.28),
+    inset 0 1px 0 rgba(255, 236, 162, 0.68),
+    inset 0 -24px 42px rgba(38, 20, 4, 0.30),
+    inset 0 0 34px rgba(255, 208, 92, 0.18),
     0 18px 38px rgba(0, 0, 0, 0.28),
-    0 0 42px rgba(230, 240, 255, 0.18);
+    0 0 34px rgba(255, 190, 70, 0.12);
   overflow: hidden;
   transition:
     transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
@@ -196,13 +196,13 @@
 
 .consultants-avatar:hover {
   transform: scale(1.01);
-  border-color: rgba(255, 255, 255, 0.82);
+  border-color: rgba(255, 224, 126, 0.62);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 1),
-    inset 0 -22px 42px rgba(45, 62, 82, 0.20),
-    inset 0 0 40px rgba(255, 255, 255, 0.34),
+    inset 0 1px 0 rgba(255, 238, 170, 0.76),
+    inset 0 -22px 42px rgba(38, 20, 4, 0.26),
+    inset 0 0 40px rgba(255, 205, 84, 0.24),
     0 20px 44px rgba(0, 0, 0, 0.30),
-    0 0 54px rgba(238, 246, 255, 0.28);
+    0 0 42px rgba(255, 192, 72, 0.18);
 }
 
 .consultants-avatar::before {
@@ -215,9 +215,9 @@
    * 默认标准值：22deg、三条高光带。
    * 角度越接近 0deg 越水平；高光 alpha 越高镜面越亮。 */
   background:
-    linear-gradient(22deg, transparent 0 18%, rgba(255, 255, 255, 0.72) 24%, transparent 32%),
-    linear-gradient(22deg, transparent 42%, rgba(255, 255, 255, 0.42) 48%, transparent 58%),
-    linear-gradient(22deg, transparent 68%, rgba(255, 255, 255, 0.58) 74%, transparent 82%);
+    linear-gradient(22deg, transparent 0 18%, rgba(255, 236, 156, 0.48) 24%, transparent 32%),
+    linear-gradient(22deg, transparent 42%, rgba(255, 198, 74, 0.28) 48%, transparent 58%),
+    linear-gradient(22deg, transparent 68%, rgba(255, 224, 124, 0.34) 74%, transparent 82%);
   mix-blend-mode: screen;
   opacity: 0.72;
   transition: opacity 0.35s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
@@ -230,11 +230,11 @@
   z-index: 2;
   pointer-events: none;
   /* 镜面边缘压暗。
-   * 默认标准值：外圈 rgba(35,45,58,0.34)。
-   * alpha 调大边缘更厚重；调小整体更平、更白。 */
+   * 默认标准值：外圈 rgba(38,20,4,0.42)。
+   * alpha 调大边缘更厚重；调小整体更平、更亮。 */
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.52), transparent 18%, transparent 78%, rgba(88, 104, 124, 0.22)),
-    radial-gradient(ellipse at center, transparent 54%, rgba(35, 45, 58, 0.34) 100%);
+    linear-gradient(180deg, rgba(255, 224, 132, 0.30), transparent 18%, transparent 78%, rgba(78, 46, 10, 0.24)),
+    radial-gradient(ellipse at center, transparent 54%, rgba(38, 20, 4, 0.42) 100%);
 }
 
 .consultants-avatar:hover::before {
@@ -574,10 +574,10 @@ html[data-glass-backdrop="0"] .consultants-panel--premium:hover {
 }
 
 html[data-glass-backdrop="0"] .consultants-avatar {
-  /* 兼容层银色实底。
-   * 默认标准值：linear-gradient(126deg, #fafdff, #9aa6b5)。
-   * 亮色比例调高会更像亮镜；灰色比例调高会更像哑光金属。 */
-  background: linear-gradient(126deg, #fafdff 0%, #b4beca 24%, #ffffff 42%, #858f9d 62%, #eef4fb 100%);
+  /* 兼容层暗金实底。
+   * 默认标准值：linear-gradient(126deg, #4f310b, #d6a342)。
+   * 亮金比例调高会更显眼；深棕比例调高会更融入背景。 */
+  background: linear-gradient(126deg, #4f310b 0%, #a36d1f 24%, #d6a342 42%, #735019 62%, #3a2509 100%);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 }
@@ -616,7 +616,7 @@ html[data-glass-backdrop="0"] .consultants-cta--premium:hover {
   }
 
   .consultants-avatar {
-    background: linear-gradient(126deg, #fafdff 0%, #b4beca 24%, #ffffff 42%, #858f9d 62%, #eef4fb 100%);
+    background: linear-gradient(126deg, #4f310b 0%, #a36d1f 24%, #d6a342 42%, #735019 62%, #3a2509 100%);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }
