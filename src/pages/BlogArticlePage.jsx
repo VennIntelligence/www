@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useLanguage } from '../context/useLanguage';
 import { COPY } from '../config/i18n';
@@ -51,7 +52,9 @@ export default function BlogArticlePage() {
           </header>
 
           <div className="blog-detail__body">
-            <ArticleComponent />
+            <Suspense fallback={null}>
+              <ArticleComponent />
+            </Suspense>
           </div>
         </article>
       </div>

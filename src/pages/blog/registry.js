@@ -12,12 +12,16 @@
  *   3. 在本文件导入并注册
  */
 
+import { lazy } from 'react';
 import projectSigmaMeta from './posts/project-sigma-manifesto/meta';
-import ProjectSigmaArticle from './posts/project-sigma-manifesto/index';
 import projectOmegaMeta from './posts/project-omega-manifesto/meta';
-import ProjectOmegaArticle from './posts/project-omega-manifesto/index';
 import timeManager2Meta from './posts/time-manager-part-2/meta';
-import TimeManager2Article from './posts/time-manager-part-2/index';
+
+// Component 使用 lazy() 按需加载 —— time-manager-part-2 依赖 mermaid（体积巨大），
+// 静态导入会把它打进 /blog 列表页共享的 chunk，导致所有文章都要下载 mermaid。
+const ProjectSigmaArticle = lazy(() => import('./posts/project-sigma-manifesto/index'));
+const ProjectOmegaArticle = lazy(() => import('./posts/project-omega-manifesto/index'));
+const TimeManager2Article = lazy(() => import('./posts/time-manager-part-2/index'));
 
 /**
  * 文章注册表
