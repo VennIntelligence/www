@@ -267,3 +267,15 @@ src/
 - [ ] Non-first-screen videos defer loading until first visible
 - [ ] New heavy components register quality params in `gpuDebugBus.js` and listen for `gpu-debug-rebuild`
 - [ ] Build passes: `npx vite build`
+
+---
+
+## 8. Git & Repository Access
+
+- This repo's `origin` remote must point at the SSH alias `github-venn`, not HTTPS: `git@github-venn:VennIntelligence/www.git`.
+- Pushing over HTTPS (or via the default `gh`/git credential identity, e.g. `Gaochengzhi`) fails with `403` — that account has no write access to `VennIntelligence/*` repos.
+- The alias is defined in `~/.ssh/config` (`Host github-venn`, `IdentityFile ~/.ssh/id_ed25519_venn_kernel_scheduling`). Verify with `ssh -T git@github-venn` (expect `Hi VennIntelligence!`).
+- If `origin` ever ends up back on HTTPS (e.g. after a fresh clone), fix it before pushing:
+  ```
+  git remote set-url origin git@github-venn:VennIntelligence/www.git
+  ```
