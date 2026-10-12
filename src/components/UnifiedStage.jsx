@@ -1,8 +1,9 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { vertexShader } from '../shaders/fullscreenVertex';
-import { buildUnifiedShader, getRenderScale } from '../utils/unifiedShaderBuilder';
+import { buildUnifiedShader } from '../utils/unifiedShaderBuilder';
 import { createFrameThrottle } from '../utils/frameThrottle';
+import { getCappedDPR } from '../utils/cappedDPR';
 import {
   clamp,
   smoothstep,
@@ -37,6 +38,8 @@ import {
   DROP_BOUNDARY_CUSHION,
   DROP_BOUNDARY_STIFFNESS,
   DROP_BOUNDARY_DAMPING,
+  HOVER_ENERGY_CAP,
+  HOVER_ENERGY_RAMP,
   SPIKE_FREE_DAMPING,
   SPIKE_THROW_GAIN,
   SPIKE_MOUSE_PICK_PADDING,
@@ -77,7 +80,8 @@ export default function UnifiedStage() {
     const h = () => container.clientHeight;
 
     // ── 渲染画质 ──
-    const baseDPR = window.devicePixelRatio || 1;
+    // DPR 封顶（桌面 2 / 移动 1.5）：3x 屏上未封顶的缓冲像素量随 DPR 平方增长
+    const baseDPR = getCappedDPR();
     let scale = RENDER_SCALE;
 
     // ── Three.js 初始化 ──
@@ -196,6 +200,8 @@ export default function UnifiedStage() {
       pointerActive: false,
       pointerWorld: new THREE.Vector3(),
       pointerEnergy: 0,
+      // 指针是否悬停在液滴/立方体上（未拖拽）——驱动悬停邀请涟漪
+      hoverNear: false,
       scrollEnergy: 0,
       scrollGravity: 0,
       lastPointerAt: performance.now(),
@@ -209,8 +215,7 @@ export default function UnifiedStage() {
       aboutExitProgress: 0,
       // Hero section 底部 Y 位置（用于液滴边界推挤）
       heroBottomY: Infinity,
-      // Product section 滚动进度（用于 Omega 四面体出现/消失）
-      productScrollProgress: 0,
+      // Ω section 底部离开视口的进度（用于四面体淡出）
       productExitProgress: 0,
     };
 
@@ -284,7 +289,8 @@ export default function UnifiedStage() {
       const sigmaRect = sigmaSection.getBoundingClientRect();
       const viewH = window.innerHeight;
 
-      // scrollProgress: 0 = Hero 完全在视口中, 1 = Sigma 完全在视口中
+      // scrollProgress: 0 = Hero 完全在视口中, 1 = Hero 完全离开。
+      // 液滴 → 立方体的过渡紧跟 Hero 退场；Drive 区块背景不透明，立方体在其下方成形，Sigma 进入时已就位。
       const heroBottom = heroRect.bottom;
       const progress = 1 - clamp(heroBottom / viewH, 0, 1);
       interaction.scrollProgress = progress;
@@ -297,14 +303,11 @@ export default function UnifiedStage() {
       // 记录 Hero section 底部在视口中的 Y 位置（用于液滴边界推挤）
       interaction.heroBottomY = heroRect.bottom;
 
-      // productScrollProgress / productExitProgress：追踪 Omega section 进出视口
+      // productExitProgress: 0=omega底部在视口内, 1=omega底部完全离开视口顶部（驱动四面体淡出）
       const omegaSection = document.getElementById('omega');
       if (omegaSection) {
-        const omegaRect = omegaSection.getBoundingClientRect();
-        // productScrollProgress: 0=omega顶部在视口底部以下, 1=omega顶部到达视口顶部
-        interaction.productScrollProgress = clamp(1 - omegaRect.top / viewH, 0, 1);
-        // productExitProgress: 0=omega底部在视口内, 1=omega底部完全离开视口顶部
-        interaction.productExitProgress = 1 - clamp(omegaRect.bottom / viewH, 0, 1);
+        interaction.productExitProgress =
+          1 - clamp(omegaSection.getBoundingClientRect().bottom / viewH, 0, 1);
       }
     }
 
@@ -450,6 +453,7 @@ export default function UnifiedStage() {
         const spikePad = isMouse ? SPIKE_MOUSE_PICK_PADDING : 0;
         if (isPointerNearSpike(event.clientX, event.clientY, rect, spikePad)) {
           container.style.cursor = 'grab';
+          interaction.hoverNear = true;
         } else {
           let hovering = false;
           for (let i = 0; i < drops.length; i++) {
@@ -462,8 +466,10 @@ export default function UnifiedStage() {
             }
           }
           container.style.cursor = hovering ? 'grab' : '';
+          interaction.hoverNear = hovering;
         }
       } else if (spike.phase === 'about' || spike.phase === 'omega' || spike.phase === 'omega-morph') {
+        interaction.hoverNear = false;
         if (isPointerNearSpike(event.clientX, event.clientY, rect, SPIKE_MOUSE_PICK_PADDING)) {
           container.style.cursor = 'grab';
         } else {
@@ -471,7 +477,7 @@ export default function UnifiedStage() {
         }
 
         // About/Omega 阶段：更新背景鼠标位置（WebGL 坐标系：Y 轴朝上）
-        const dpr = (window.devicePixelRatio || 1) * scale;
+        const dpr = baseDPR * scale;
         uniforms.uGoldMouse.value.set(
           (event.clientX - rect.left) * dpr,
           (rect.height - (event.clientY - rect.top)) * dpr
@@ -486,6 +492,7 @@ export default function UnifiedStage() {
     const onPointerLeave = (event) => {
       if (event.pointerType === 'mouse' && !spike.dragging && !spike.arcballDragging && interaction.draggedDropIndex < 0) {
         interaction.pointerActive = false;
+        interaction.hoverNear = false;
         container.style.cursor = '';
         // 鼠标离开时重置液态背景鼠标状态
         uniforms.uGoldMouse.value.set(-1, -1);
@@ -504,7 +511,7 @@ export default function UnifiedStage() {
         uniforms.uGoldMouse.value.set(-1, -1);
         return;
       }
-      const dpr = (window.devicePixelRatio || 1) * scale;
+      const dpr = baseDPR * scale;
       uniforms.uGoldMouse.value.set(
         (ev.clientX - rect.left) * dpr,
         (rect.height - (ev.clientY - rect.top)) * dpr
@@ -522,6 +529,7 @@ export default function UnifiedStage() {
       interaction.scrollEnergy = clamp(interaction.scrollEnergy + intensity * 0.008, 0, 1.25);
 
       updateScrollProgress();
+      if (frozen) syncFrozen(); // 滚回 Hero–Ω 范围时解冻渲染循环
     };
 
     // 移动端 touchstart 拦截
@@ -626,13 +634,50 @@ export default function UnifiedStage() {
     }
 
     // ── 渲染循环 ──
-    const startTime = performance.now();
+    let startTime = performance.now();
     let lastFrameAt = startTime;
     let animId;
     // 缓存容器尺寸，仅在 resize 时更新（避免每帧 getBoundingClientRect 引发 layout thrashing）
     let cachedRect = container.getBoundingClientRect();
 
     const frameThrottle = createFrameThrottle();
+
+    // ── 冻结控制（AGENTS.md §4.4：出界 / 页面后台即停渲染循环，只停 RAF 不释放资源）──
+    let frozen = false;
+    let freezeStart = 0;
+
+    function freeze() {
+      if (frozen) return;
+      frozen = true;
+      freezeStart = performance.now();
+      cancelAnimationFrame(animId);
+      releaseDrag(); // 冻结时释放拖拽 / arcball 交互状态
+    }
+
+    function thaw() {
+      if (!frozen) return;
+      frozen = false;
+      const now = performance.now();
+      startTime += now - freezeStart; // 时间补偿，避免 uTime 跳变
+      lastFrameAt = now;
+      lastT = now; // 避免冻结间隔污染自适应画质的帧时间采样
+      tick();
+    }
+
+    // 出界判定：滚过 Ω 底部后整个渲染层进入 hidden 阶段
+    function stageOffscreen() {
+      return computeTransition(
+        interaction.scrollProgress,
+        window.innerWidth < 768,
+        interaction.aboutExitProgress,
+        interaction.productExitProgress,
+      ).phase === 'hidden';
+    }
+
+    function syncFrozen() {
+      if (document.visibilityState === 'visible' && !stageOffscreen()) thaw();
+      else freeze();
+    }
 
     function tick() {
       animId = requestAnimationFrame(tick);
@@ -650,7 +695,6 @@ export default function UnifiedStage() {
         interaction.scrollProgress,
         isMobile,
         interaction.aboutExitProgress,
-        interaction.productScrollProgress,
         interaction.productExitProgress,
       );
 
@@ -680,6 +724,10 @@ export default function UnifiedStage() {
 
       if (interaction.draggedDropIndex >= 0 && interaction.pointerActive) {
         interaction.pointerEnergy = clamp(interaction.pointerEnergy + dt * 2.0, 0, 0.8);
+      } else if (interaction.hoverNear && interaction.pointerActive
+          && interaction.pointerEnergy <= HOVER_ENERGY_CAP) {
+        // 悬停邀请反馈：指针停在液滴/立方体上时表面泛起轻微涟漪（能量上限低于拖拽的 0.8）
+        interaction.pointerEnergy = Math.min(interaction.pointerEnergy + dt * HOVER_ENERGY_RAMP, HOVER_ENERGY_CAP);
       } else {
         interaction.pointerEnergy *= pointerDecay;
       }
@@ -722,8 +770,8 @@ export default function UnifiedStage() {
         container.style.pointerEvents = 'none';
         container.style.visibility = 'hidden';
         renderer.render(scene, camera); // 最后一帧渲染
-        adaptQuality();
-        return; // 跳过后续渲染
+        freeze(); // 停 RAF；滚回视口时由 onScroll → syncFrozen 解冻
+        return;
       } else {
         // 非 hidden 阶段：确保容器可见
         container.style.pointerEvents = 'auto';
@@ -863,6 +911,10 @@ export default function UnifiedStage() {
     // 初始滚动进度
     updateScrollProgress();
 
+    // ── Page Visibility：tab 切走即冻结，切回补偿时间后恢复 ──
+    const onVisibilityChange = () => syncFrozen();
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
     const onResize = () => {
       cachedRect = container.getBoundingClientRect();
       applyScale();
@@ -884,6 +936,7 @@ export default function UnifiedStage() {
     return () => {
       window.removeEventListener('gpu-debug-rebuild', onDebugRebuild);
       window.removeEventListener('mousemove', onGlobalMouseMove);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
       cancelAnimationFrame(animId);
       releaseDrag();
       container.style.cursor = '';

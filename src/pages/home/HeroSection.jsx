@@ -6,10 +6,11 @@ import {
   useSpring,
   useTransform,
 } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 import MagnetText from '../../components/MagnetText';
 import useCharMagnet from '../../hooks/useCharMagnet';
-import { IconX, IconGitHub, IconEmail } from '../../components/common/SocialIcons';
+import { IconX, IconEmail, IconArrowRight } from '../../components/common/SocialIcons';
 import { COPY } from '../../config/i18n';
 import { useLanguage } from '../../context/useLanguage';
 import '../../styles/sections/hero.css';
@@ -177,6 +178,22 @@ export default function HeroSection() {
                 );
               })}
             </h1>
+
+            {/* 赛事署名行：紧贴大标题下方，无框，衬线赛事名 + 金色年份，整行可点跳 /drive */}
+            <Link to="/drive" className="hero__challenge">
+              <span className="hero__challenge-kicker">
+                <span className="hero__challenge-dot" aria-hidden="true" />
+                {copy.challenge.kicker}
+              </span>
+              <span className="hero__challenge-title">
+                {copy.challenge.title}
+                <em className="hero__challenge-year">{copy.challenge.year}</em>
+              </span>
+              <span className="hero__challenge-cta">
+                {copy.challenge.cta}
+                <IconArrowRight className="hero__challenge-arrow" />
+              </span>
+            </Link>
           </div>
         </div>
 
@@ -229,16 +246,6 @@ export default function HeroSection() {
               >
                 <IconX className="hero__social-icon" />
                 <span>{copy.socialTwitter}</span>
-              </a>
-              <a
-                href="https://github.com/VennIntelligence/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hero__social-link"
-                title={copy.socialGithub}
-              >
-                <IconGitHub className="hero__social-icon" />
-                <span>{copy.socialGithub}</span>
               </a>
               <a
                 href="mailto:contact@vennai.org"

@@ -11,15 +11,20 @@ import '../styles/components/navbar.css';
 
 // 导航栏区块配置，已从硬编码文本变为仅用ID查找，配合多语言字典进行翻译使用
 // hero 已由 Logo 承担入口，不再作为独立菜单项
+// 带 children 的条目渲染成下拉分组：顶栏只占一格，之后新增项目往 children 里加即可，
+// 不必再重排顶栏。等项目数量超出下拉承载力，再把 children 迁到独立的 /projects 列表页。
 const NAV_LINKS = [
-  { id: 'sigma' },
-  { id: 'omega' },
+  { id: 'projects', children: [{ id: 'drive' }, { id: 'omega' }, { id: 'sigma' }] },
   { id: 'consultants' },
   { id: 'blog', route: '/blog' },
 ];
 
 // 触发导航栏滚动状态（如模糊增强等视觉变化）的滚动像素阈值
-const NAVBAR_SCROLL_THRESHOLD = 30;
+/* 导航栏滚动态滞回阈值：向下越过 ENTER(默认 48px) 才进入 scrolled，
+   向上回到 EXIT(默认 12px) 以内才退出 —— 在阈值附近来回滚动不再反复
+   翻转状态（每次翻转都会重算液态玻璃位移图，O(宽×高) 的开销）。 */
+const NAVBAR_SCROLL_ENTER = 48;
+const NAVBAR_SCROLL_EXIT = 12;
 
 // 用于监听当前访问的页面区块，从而高亮对应导航菜单项
 const NAVBAR_SECTION_OBSERVER = {
@@ -27,9 +32,10 @@ const NAVBAR_SECTION_OBSERVER = {
   rootMargin: '-60px 0px 0px 0px', // 顶部偏移量，用于平衡导航的高度带来的遮挡偏差
 };
 
-// 用于从多个同时可见的区块中选出当前「主角」——取 DOM 顺序最靠后且交叉比 ≥ 20% 的区块
+// 用于从多个同时可见的区块中选出当前「主角」——取 DOM 顺序最靠后且交叉比 ≥ 20% 的区块。
+// 必须与 HomePage.jsx 里 section 的真实 DOM 顺序一致（导航菜单的排列顺序与此无关）。
 // hero 虽然不是菜单项，仍然参与可见性检测（滚到顶部时不应高亮任何菜单项）
-const SECTION_ORDER = ['hero', ...NAV_LINKS.filter(l => !l.route).map(l => l.id)];
+const SECTION_ORDER = ['hero', 'drive', 'sigma', 'omega', 'consultants'];
 
 // 导航栏液态毛玻璃组件的基础物理渲染常量
 const NAVBAR_GLASS_BASE = {
@@ -61,6 +67,8 @@ export default function Navbar() {
   // 默认 null：当用户在 hero 区域时不高亮任何菜单项
   const [activeSection, setActiveSection] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  // 当前展开的桌面端下拉分组 id（null 表示全部收起）
+  const [openGroup, setOpenGroup] = useState(null);
   const [scrolled, setScrolled] = useState(false);
   const [glassCompatibility, setGlassCompatibility] = useState(() => getGlassCompatibility());
   const { lang, setLang } = useLanguage();
@@ -80,7 +88,8 @@ export default function Navbar() {
   });
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > NAVBAR_SCROLL_THRESHOLD);
+    const onScroll = () =>
+      setScrolled((prev) => (prev ? window.scrollY > NAVBAR_SCROLL_EXIT : window.scrollY > NAVBAR_SCROLL_ENTER));
     window.addEventListener('scroll', onScroll, { passive: true });
 
     // 非首页不需要 section 观测
@@ -159,6 +168,25 @@ export default function Navbar() {
     };
   }, []);
 
+  // 桌面端下拉：点击面板外部或按 Escape 收起
+  useEffect(() => {
+    if (!openGroup) return undefined;
+
+    const onPointerDown = (event) => {
+      if (!event.target.closest('.navbar__group')) setOpenGroup(null);
+    };
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') setOpenGroup(null);
+    };
+
+    document.addEventListener('pointerdown', onPointerDown);
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [openGroup]);
+
   useEffect(() => {
     if (!menuOpen) return undefined;
 
@@ -186,6 +214,7 @@ export default function Navbar() {
   // 点击菜单项时平滑滚动到对应区块（兼容 scroll-snap）
   const scrollToSection = (id) => {
     setMenuOpen(false);
+    setOpenGroup(null);
     if (!isHome) {
       // 不在首页时，先导航回首页并携带 hash
       window.location.href = `/#${id}`;
@@ -197,30 +226,84 @@ export default function Navbar() {
     }
   };
 
-  const renderLinks = () => (
+  // 渲染单个可点击菜单项（路由链接或首页锚点按钮），分组子项复用同一套样式
+  const renderLeaf = (link) => {
+    const className = (active) => `navbar__link ${active ? 'navbar__link--active' : ''}`.trim();
+
+    if (link.route) {
+      return (
+        <Link
+          key={link.id}
+          to={link.route}
+          className={className(!isHome && location.pathname === link.route)}
+          onClick={() => {
+            setMenuOpen(false);
+            setOpenGroup(null);
+          }}
+        >
+          {COPY.nav[lang][link.id]}
+        </Link>
+      );
+    }
+
+    return (
+      <button
+        key={link.id}
+        type="button"
+        className={className(isHome && activeSection === link.id)}
+        onClick={() => scrollToSection(link.id)}
+      >
+        {COPY.nav[lang][link.id]}
+      </button>
+    );
+  };
+
+  // 分组标题的高亮跟随其任一子区块 —— 滚到 Ω 或 Σ 时 Projects 亮起
+  const isGroupActive = (link) =>
+    isHome && link.children.some(child => activeSection === child.id);
+
+  const renderLinks = (variant) => (
     NAV_LINKS.map(link => {
-      if (link.route) {
+      if (!link.children) return renderLeaf(link);
+
+      // 移动端不做二级折叠，分组标题 + 缩进子项直接铺开，少一次点击
+      if (variant === 'mobile') {
         return (
-          <Link
-            key={link.id}
-            to={link.route}
-            className={`navbar__link ${!isHome && location.pathname === link.route ? 'navbar__link--active' : ''}`}
-            onClick={() => setMenuOpen(false)}
-          >
-            {COPY.nav[lang][link.id]}
-          </Link>
+          <div key={link.id} className="navbar__group navbar__group--mobile">
+            <span className="navbar__group-label">{COPY.nav[lang][link.id]}</span>
+            {link.children.map(child => renderLeaf(child))}
+          </div>
         );
       }
 
+      const open = openGroup === link.id;
       return (
-        <button
+        <div
           key={link.id}
-          type="button"
-          className={`navbar__link ${isHome && activeSection === link.id ? 'navbar__link--active' : ''}`}
-          onClick={() => scrollToSection(link.id)}
+          className="navbar__group"
+          onMouseEnter={() => setOpenGroup(link.id)}
+          onMouseLeave={() => setOpenGroup(null)}
         >
-          {COPY.nav[lang][link.id]}
-        </button>
+          <button
+            type="button"
+            className={`navbar__link navbar__link--trigger ${isGroupActive(link) ? 'navbar__link--active' : ''}`}
+            aria-haspopup="true"
+            aria-expanded={open}
+            onClick={(event) => {
+              // 鼠标：hover 已经展开，click 只保持展开，不能 toggle 关闭（否则表现为点不动）
+              // 触屏：没有 hover，tap 需要既能开也能关
+              const isTouch = event.nativeEvent.pointerType === 'touch';
+              setOpenGroup(prev => (isTouch && prev === link.id ? null : link.id));
+            }}
+          >
+            {COPY.nav[lang][link.id]}
+            <span className="navbar__caret" aria-hidden="true" />
+          </button>
+
+          <div className={`navbar__dropdown ${open ? 'navbar__dropdown--open' : ''}`}>
+            {link.children.map(child => renderLeaf(child))}
+          </div>
+        </div>
       );
     })
   );
@@ -232,7 +315,7 @@ export default function Navbar() {
       </a>
 
       <div className="navbar__links desktop-links">
-        {renderLinks()}
+        {renderLinks('desktop')}
       </div>
 
       <div className="navbar__right">
@@ -290,7 +373,7 @@ export default function Navbar() {
           onClick={(event) => event.stopPropagation()}
         >
           <div className="navbar__links mobile-links">
-            {renderLinks()}
+            {renderLinks('mobile')}
           </div>
         </div>
       </div>

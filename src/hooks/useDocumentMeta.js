@@ -21,12 +21,22 @@ import { BLOG_POSTS } from '../pages/blog/registry';
 const ROUTE_META = {
   '/': {
     en: {
-      title: 'Venn Intelligence Foundation — AI Infrastructure & Intelligent Trading',
-      description: 'Venn Intelligence Foundation — Funding the first infrastructure protocols for human collective intelligence. Project Σ (decentralized intelligence protocol) and Project Ω (AI-native trading system).',
+      title: 'Venn Intelligence Foundation — AI Research: Autonomous Driving, Collective Intelligence, Trading',
+      description: 'Venn Intelligence Foundation funds and runs frontier AI research: closed-loop autonomous driving (sponsor and competing team in the NVIDIA AlpaSim E2E Closed-Loop Challenge 2026), a collective intelligence protocol, and an AI-native trading system.',
     },
     zh: {
-      title: '文氏智能基金会 — AI 基础设施与智能交易',
-      description: '文氏智能基金会 — 资助人类集体智慧的首批基础设施协议。Project Σ（去中心化智能协议）和 Project Ω（AI 原生交易系统）。',
+      title: '文氏智能基金会 — AI 研究：自动驾驶、集体智能、智能交易',
+      description: '文氏智能基金会资助并亲自开展前沿 AI 研究：闭环自动驾驶（赞助并参与 2026 年 NVIDIA AlpaSim 端到端闭环挑战赛）、集体智能协议、AI 原生交易系统。',
+    },
+  },
+  '/drive': {
+    en: {
+      title: 'Autonomous Driving — NVIDIA AlpaSim E2E Closed-Loop Challenge 2026 — Venn Intelligence Foundation',
+      description: 'Venn Intelligence Foundation sponsors and competes in the NVIDIA AlpaSim End-to-End Closed-Loop Challenge 2026. Closed-loop simulation, collision forensics, pre-registered experiments and rollout clips. Results at NeurIPS 2026.',
+    },
+    zh: {
+      title: '自动驾驶 — NVIDIA AlpaSim 端到端闭环挑战赛 2026 — 文氏智能基金会',
+      description: '文氏智能基金会赞助并参与 2026 年 NVIDIA AlpaSim 端到端闭环挑战赛：闭环仿真、碰撞取证、预登记实验与闭环回放片段。结果将于 NeurIPS 2026 公布。',
     },
   },
   '/blog': {

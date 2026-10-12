@@ -77,6 +77,7 @@ function buildSitemap(metas) {
   const today = new Date().toISOString().split('T')[0];
   const urls = [
     { loc: SITE_URL + '/', lastmod: today, priority: '1.0', changefreq: 'weekly' },
+    { loc: SITE_URL + '/drive', lastmod: today, priority: '0.8', changefreq: 'weekly' },
     { loc: SITE_URL + '/blog', lastmod: metas[0]?.date || today, priority: '0.8', changefreq: 'weekly' },
     ...metas.map(m => ({
       loc: `${SITE_URL}/blog/${m.slug}`,
@@ -104,6 +105,43 @@ ${entries}
 </urlset>`;
 }
 
+/* 需要导出的项目区块：i18n key + 双语标题 */
+const PROJECT_EXPORTS = [
+  { key: 'drive', en: '## Autonomous Driving — NVIDIA AlpaSim E2E Closed-Loop Challenge 2026', zh: '## 自动驾驶 — AlpaSim 端到端闭环挑战赛 2026（中文）' },
+  { key: 'sigma', en: '## Project Σ — Collective Intelligence Protocol', zh: '## Project Σ — 集体智慧协议（中文）' },
+  { key: 'omega', en: '## Project Ω — AI-Native Trading Infrastructure', zh: '## Project Ω — AI 原生交易基础设施（中文）' },
+];
+
+/**
+ * 把一个项目区块（标题行 / 副标题 / 宣言 / 支柱）写成 Markdown。
+ * headingLines 可能是数组或 { lg, sm } 断点对象；joiner 为语言的行连接符（英文空格、中文空串）。
+ */
+function pushProject(lines, proj, title, joiner) {
+  if (!proj) return;
+  lines.push(title);
+  lines.push('');
+  const heading = proj.headingLines;
+  const headingText = (Array.isArray(heading) ? heading : (heading?.lg || [])).join(joiner);
+  if (headingText) lines.push(headingText);
+  lines.push('');
+  if (proj.subtitle) {
+    lines.push(proj.subtitle);
+    lines.push('');
+  }
+  if (proj.manifesto) lines.push(proj.manifesto);
+  if (proj.manifestoHighlight) {
+    lines.push('');
+    lines.push(`**${proj.manifestoHighlight}**`);
+  }
+  lines.push('');
+  if (proj.pillars) {
+    lines.push(`### ${proj.pillarTitle || 'Pillars'}`);
+    lines.push('');
+    for (const p of proj.pillars) lines.push(`- **${p.title}**: ${p.desc}`);
+    lines.push('');
+  }
+}
+
 /**
  * 生成 llms-full.txt —— AI Agent 可直接消费的全站纯文本内容导出。
  * 包含组织描述、项目详情、博客文章元数据。
@@ -120,115 +158,41 @@ function buildLlmsFullTxt(metas, i18n) {
   // ── 组织描述 ──
   lines.push('## Organization');
   lines.push('');
-  lines.push('Venn Intelligence Foundation is a research organization funding the first');
-  lines.push('infrastructure protocols for human collective intelligence.');
+  lines.push('Venn Intelligence Foundation is a research foundation that funds and runs frontier AI research:');
+  lines.push('closed-loop autonomous driving (sponsor and competing team in the NVIDIA AlpaSim E2E Closed-Loop');
+  lines.push('Challenge 2026), a collective intelligence protocol, and an AI-native trading system.');
   lines.push('Founded by Taitan Pascal. Website: https://vennai.org');
   lines.push('Email: contact@vennai.org | Twitter: @venn_foundation | GitHub: VennIntelligence');
   lines.push('');
-  lines.push('文氏智能基金会是一个研究型组织，资助人类集体智慧的首批基础设施协议。');
-  lines.push('由 Taitan Pascal 创立。网站：https://vennai.org');
+  lines.push('文氏智能基金会资助并亲自开展前沿 AI 研究：闭环自动驾驶（赞助并参与 2026 年 NVIDIA AlpaSim 端到端闭环挑战赛）、');
+  lines.push('集体智能协议、AI 原生交易系统。由 Taitan Pascal 创立。网站：https://vennai.org');
   lines.push('');
 
-  // ── 从 i18n 提取项目内容（英文 + 中文） ──
+  // ── 从 i18n 提取项目内容（英文 + 中文）：三个项目区块共用同一套字段 ──
   if (i18n) {
-    // Project Σ — English
-    const sigma = i18n.sigma?.en;
-    if (sigma) {
-      lines.push('## Project Σ — Collective Intelligence Protocol');
-      lines.push('');
-      const heading = sigma.headingLines;
-      const headingText = Array.isArray(heading)
-        ? heading.join(' ')
-        : (heading?.lg || []).join(' ');
-      lines.push(headingText);
-      lines.push('');
-      if (sigma.manifesto) lines.push(sigma.manifesto);
-      if (sigma.manifestoHighlight) lines.push('');
-      if (sigma.manifestoHighlight) lines.push(`**${sigma.manifestoHighlight}**`);
-      lines.push('');
-      if (sigma.pillars) {
-        lines.push(`### ${sigma.pillarTitle || 'Pillars'}`);
-        lines.push('');
-        for (const p of sigma.pillars) {
-          lines.push(`- **${p.title}**: ${p.desc}`);
-        }
-        lines.push('');
-      }
+    for (const { key, en, zh } of PROJECT_EXPORTS) {
+      pushProject(lines, i18n[key]?.en, en, ' ');
+      pushProject(lines, i18n[key]?.zh, zh, '');
     }
 
-    // Project Σ — 中文
-    const sigmaZh = i18n.sigma?.zh;
-    if (sigmaZh) {
-      lines.push('## Project Σ — 集体智慧协议（中文）');
+    // 自动驾驶项目页专属内容（赛事信息 + 回放片段说明）
+    for (const lang of ['en', 'zh']) {
+      const page = i18n.drive?.[lang]?.page;
+      if (!page) continue;
+      lines.push(`### ${page.title}`);
       lines.push('');
-      const heading = sigmaZh.headingLines;
-      const headingText = Array.isArray(heading) ? heading.join('') : '';
-      if (headingText) lines.push(headingText);
+      lines.push(page.lead);
       lines.push('');
-      if (sigmaZh.manifesto) lines.push(sigmaZh.manifesto);
-      if (sigmaZh.manifestoHighlight) lines.push('');
-      if (sigmaZh.manifestoHighlight) lines.push(`**${sigmaZh.manifestoHighlight}**`);
+      for (const fact of (page.facts || [])) lines.push(`- ${fact.label}: ${fact.value}`);
       lines.push('');
-      if (sigmaZh.pillars) {
-        lines.push(`### ${sigmaZh.pillarTitle || '支柱'}`);
+      if (page.clips) {
+        lines.push(`#### ${page.wallTitle}`);
         lines.push('');
-        for (const p of sigmaZh.pillars) {
-          lines.push(`- **${p.title}**: ${p.desc}`);
-        }
+        for (const [id, caption] of Object.entries(page.clips)) lines.push(`- ${id}: ${caption}`);
         lines.push('');
       }
-    }
-
-    // Project Ω — English
-    const omega = i18n.omega?.en;
-    if (omega) {
-      lines.push('## Project Ω — AI-Native Trading Infrastructure');
+      if (page.disclosure) lines.push(`_${page.disclosure}_`);
       lines.push('');
-      const heading = omega.headingLines;
-      const headingText = Array.isArray(heading)
-        ? heading.join(' ')
-        : (heading?.lg || []).join(' ');
-      lines.push(headingText);
-      lines.push('');
-      if (omega.subtitle) lines.push(omega.subtitle);
-      lines.push('');
-      if (omega.manifesto) lines.push(omega.manifesto);
-      if (omega.manifestoHighlight) lines.push('');
-      if (omega.manifestoHighlight) lines.push(`**${omega.manifestoHighlight}**`);
-      lines.push('');
-      if (omega.pillars) {
-        lines.push(`### ${omega.pillarTitle || 'Architecture'}`);
-        lines.push('');
-        for (const p of omega.pillars) {
-          lines.push(`- **${p.title}**: ${p.desc}`);
-        }
-        lines.push('');
-      }
-    }
-
-    // Project Ω — 中文
-    const omegaZh = i18n.omega?.zh;
-    if (omegaZh) {
-      lines.push('## Project Ω — AI 原生交易基础设施（中文）');
-      lines.push('');
-      const heading = omegaZh.headingLines;
-      const headingText = Array.isArray(heading) ? heading.join('') : '';
-      if (headingText) lines.push(headingText);
-      lines.push('');
-      if (omegaZh.subtitle) lines.push(omegaZh.subtitle);
-      lines.push('');
-      if (omegaZh.manifesto) lines.push(omegaZh.manifesto);
-      if (omegaZh.manifestoHighlight) lines.push('');
-      if (omegaZh.manifestoHighlight) lines.push(`**${omegaZh.manifestoHighlight}**`);
-      lines.push('');
-      if (omegaZh.pillars) {
-        lines.push(`### ${omegaZh.pillarTitle || '架构'}`);
-        lines.push('');
-        for (const p of omegaZh.pillars) {
-          lines.push(`- **${p.title}**: ${p.desc}`);
-        }
-        lines.push('');
-      }
     }
 
     // Consulting — English

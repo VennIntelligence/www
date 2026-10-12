@@ -1,14 +1,25 @@
 # Venn Intelligence Foundation
 
-> Venn Intelligence Foundation is a research organization funding the first
-> infrastructure protocols for human collective intelligence. We operate two
-> core projects: Project Σ (decentralized collective intelligence protocol)
-> and Project Ω (AI-native trading system with full development transparency).
+> Venn Intelligence Foundation is a research foundation that funds and runs
+> frontier AI research. Three projects: autonomous driving (sponsor and
+> competing team in the NVIDIA AlpaSim E2E Closed-Loop Challenge 2026),
+> Project Σ (decentralized collective intelligence protocol) and Project Ω
+> (AI-native trading system with full development transparency).
 > Founded by Taitan Pascal. Based at vennai.org.
 
 ## About
 - [Homepage](https://vennai.org/): Landing page with full project overviews
+- [Autonomous Driving](https://vennai.org/drive): AlpaSim E2E Closed-Loop Challenge 2026 project page
 - [Blog](https://vennai.org/blog): Thoughts and announcements
+
+## Autonomous Driving — NVIDIA AlpaSim E2E Closed-Loop Challenge 2026
+- Role: the foundation sponsors and fields a competing team
+- Organisers: NVIDIA Autonomous Vehicle Research Group, KE:SAI, OpenDriveLab (HKU); results shared at NeurIPS 2026
+- Closed loop first: every candidate drives full-length simulated scenes before a number is believed
+- Collision forensics: each at-fault contact is traced back to the decision that planned it
+- Pre-registered reads: pass lines fixed before a run; misses are kept and labelled
+- Self-consequence labels: training rows built from what the policy caused in its own rollouts
+- Method names, scores and leaderboard entries are withheld until the challenge closes
 
 ## Project Σ — Collective Intelligence Protocol
 - Proof of Humanity: Zero-knowledge proof of unique personhood — without revealing identity

@@ -1,0 +1,453 @@
+/* ============================================================
+   Drive Page — /drive 自动驾驶项目页
+   深色工程图纸底 + 蓝色系；CTA 复用 sections/drive.css 的 .drive-cta（页面 JS 里一并引入）
+   ============================================================ */
+
+/* ---------- 页面容器 ---------- */
+.drive-page {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  /* 底色；默认标准值：#05070c */
+  background-color: #05070c;
+  /* 右上蓝色光晕；默认标准值 alpha 0.08。调大更亮。 */
+  background-image:
+    radial-gradient(ellipse 70% 48% at 92% 0%, rgb(var(--hue-blue) / 0.08) 0%, transparent 72%),
+    radial-gradient(ellipse 56% 40% at 6% 20%, rgb(var(--hue-gold) / 0.04) 0%, transparent 70%);
+  color: rgba(255, 255, 255, 0.9);
+  font-family: var(--font-sans);
+}
+
+/* 工程坐标纸网格：必须 position: fixed（mask 会让 absolute 整页纹理占用巨量内存）。
+   默认线色 alpha 0.06、格距 64px。 */
+.drive-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 64px 64px;
+  -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0.2) 100%);
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0.2) 100%);
+}
+
+.drive-page__inner {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  width: 100%;
+  /* 内容列宽；默认标准值：1152px */
+  max-width: 1152px;
+  margin: 0 auto;
+  padding: 120px 48px 96px;
+}
+
+@media (max-width: 768px) {
+  .drive-page__inner {
+    padding: 100px 20px 60px;
+  }
+}
+
+/* ---------- 头部 ---------- */
+.drive-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: 48px;
+  align-items: stretch;
+}
+
+@media (max-width: 1023px) {
+  .drive-hero {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+}
+
+.drive-hero__eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgb(var(--hue-blue-bright) / 0.7);
+  margin-bottom: 18px;
+}
+
+.drive-hero__title {
+  font-size: clamp(1.9rem, 4.2vw, 3.1rem);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: #fff;
+  margin-bottom: 20px;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+.drive-hero__lead {
+  font-size: clamp(0.95rem, 1.25vw, 1.08rem);
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.64);
+  margin-bottom: 28px;
+}
+
+/* 事实表：两栏 dt / dd */
+.drive-facts {
+  margin: 0 0 28px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.drive-facts__row {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: 16px;
+  padding: 11px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.drive-facts dt {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.42);
+  padding-top: 2px;
+}
+
+.drive-facts dd {
+  margin: 0;
+  font-size: 0.92rem;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+/* 状态胶囊 */
+.drive-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 10px 3px 8px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.drive-status::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.drive-status--live {
+  color: rgb(var(--hue-gold));
+  border-color: rgb(var(--hue-gold) / 0.4);
+}
+
+.drive-status--live::before {
+  animation: drive-status-pulse 1.8s ease-in-out infinite;
+}
+
+.drive-status--judging {
+  color: rgb(var(--hue-blue-bright));
+  border-color: rgb(var(--hue-blue) / 0.4);
+}
+
+.drive-status--final {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+@keyframes drive-status-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+/* 右侧画布卡片 */
+.drive-hero__stage {
+  position: relative;
+  min-height: 380px;
+  border-radius: 18px;
+  overflow: hidden;
+  /* 卡片底色；默认标准值：#03060d */
+  background: #03060d;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* 卡片内侧暗角，让画布边缘沉下去 */
+.drive-hero__stage::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 80% 80% at 50% 55%, transparent 55%, rgba(3, 6, 13, 0.7) 100%);
+}
+
+@media (max-width: 1023px) {
+  .drive-hero__stage {
+    aspect-ratio: 4 / 3;
+    min-height: 0;
+  }
+}
+
+/* ---------- 区块 ---------- */
+.drive-block {
+  margin-top: 88px;
+  padding-top: 36px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.drive-block__title {
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 28px;
+}
+
+.drive-block__intro {
+  max-width: 720px;
+  font-size: clamp(0.92rem, 1.2vw, 1.02rem);
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.62);
+  margin-bottom: 28px;
+}
+
+.drive-block__note {
+  margin-top: 18px;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* ---------- 时间线 ---------- */
+.drive-timeline {
+  --timeline-progress: 0;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 16px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* 轨道与进度填充：从第一个点中心到最后一个点中心 */
+.drive-timeline::before,
+.drive-timeline::after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  height: 2px;
+  left: calc(100% / 12);
+  right: calc(100% / 12);
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.drive-timeline::after {
+  right: auto;
+  width: calc((100% - 100% / 6) * var(--timeline-progress));
+  background: linear-gradient(90deg, rgb(var(--hue-blue) / 0.5), rgb(var(--hue-blue-bright)));
+  box-shadow: 0 0 12px rgb(var(--hue-blue) / 0.5);
+}
+
+.drive-timeline__item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-top: 24px;
+  z-index: 1;
+}
+
+.drive-timeline__dot {
+  position: absolute;
+  top: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: #05070c;
+}
+
+.drive-timeline__item--past .drive-timeline__dot {
+  border-color: rgb(var(--hue-blue-bright));
+  background: rgb(var(--hue-blue-bright));
+  box-shadow: 0 0 10px rgb(var(--hue-blue) / 0.6);
+}
+
+.drive-timeline__item--next .drive-timeline__dot {
+  border-color: rgb(var(--hue-gold));
+  background: rgb(var(--hue-gold));
+  box-shadow: 0 0 14px rgb(var(--hue-gold) / 0.8);
+  animation: drive-status-pulse 1.8s ease-in-out infinite;
+}
+
+.drive-timeline__date {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 6px;
+}
+
+.drive-timeline__item--next .drive-timeline__date {
+  color: rgb(var(--hue-gold));
+}
+
+.drive-timeline__label {
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.drive-timeline__item--future .drive-timeline__label {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+@media (max-width: 767px) {
+  .drive-timeline {
+    grid-template-columns: 1fr;
+    gap: 0;
+    padding-left: 26px;
+  }
+
+  .drive-timeline::before,
+  .drive-timeline::after {
+    top: 6px;
+    bottom: 6px;
+    left: 5px;
+    right: auto;
+    width: 2px;
+    height: auto;
+  }
+
+  .drive-timeline::after {
+    bottom: auto;
+    height: calc(100% * var(--timeline-progress));
+    background: linear-gradient(180deg, rgb(var(--hue-blue) / 0.5), rgb(var(--hue-blue-bright)));
+  }
+
+  .drive-timeline__item {
+    align-items: flex-start;
+    text-align: left;
+    padding: 0 0 22px;
+  }
+
+  .drive-timeline__dot {
+    left: -26px;
+    top: 2px;
+  }
+}
+
+/* ---------- 支柱卡片 ---------- */
+.drive-pillars {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 1023px) {
+  .drive-pillars {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .drive-pillars {
+    grid-template-columns: 1fr;
+  }
+}
+
+.drive-pillar {
+  min-width: 0;
+  padding: 20px;
+  border-radius: 12px;
+  /* 卡片底板；默认标准值：rgba(255,255,255,0.05) */
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.drive-pillar:hover {
+  background: rgb(var(--hue-blue) / 0.07);
+  border-color: rgb(var(--hue-blue) / 0.3);
+  box-shadow: 0 0 16px rgb(var(--hue-blue) / 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.drive-pillar__header {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.drive-pillar__icon {
+  font-size: clamp(0.85rem, 1.1vw, 1rem);
+  font-weight: 600;
+  color: rgb(var(--hue-blue-bright) / 0.75);
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+.drive-pillar__title {
+  font-size: clamp(0.9rem, 1.2vw, 1.05rem);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.92);
+  letter-spacing: 0.01em;
+  overflow-wrap: break-word;
+}
+
+.drive-pillar__desc {
+  font-size: clamp(0.82rem, 1.1vw, 0.95rem);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.68);
+  overflow-wrap: break-word;
+}
+
+/* ---------- 结果 ---------- */
+.drive-results {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 40px;
+  padding: 28px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgb(var(--hue-blue) / 0.08) 0%, rgba(255, 255, 255, 0.02) 60%);
+  border: 1px solid rgb(var(--hue-blue) / 0.2);
+}
+
+@media (max-width: 767px) {
+  .drive-results {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 20px;
+  }
+}
+
+.drive-results__lead {
+  font-size: clamp(0.95rem, 1.3vw, 1.1rem);
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.drive-facts--results {
+  margin: 0;
+}
+
+.drive-facts--results dd {
+  font-family: var(--font-mono);
+  font-size: 0.84rem;
+  color: rgb(var(--hue-blue-bright) / 0.9);
+}

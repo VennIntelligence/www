@@ -3,57 +3,13 @@ import { motion as Motion, useScroll, useTransform, useInView } from 'framer-mot
 import { Link } from 'react-router-dom';
 
 import MagnetText from '../../components/MagnetText';
+import PillarCard from '../../components/common/PillarCard';
+import { IconArrowRight } from '../../components/common/SocialIcons';
 import useCharMagnet from '../../hooks/useCharMagnet';
 import { COPY } from '../../config/i18n';
 import { useLanguage } from '../../context/useLanguage';
 import useBreakpoint, { resolveHeadingLines } from '../../hooks/useBreakpoint';
 import '../../styles/sections/sigma.css';
-
-/**
- * ArrowRight — 内联 SVG 箭头图标
- */
-function ArrowRight({ className = '' }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <polygon points="8,5 19,12 8,19" />
-    </svg>
-  );
-}
-
-/**
- * PillarCard — Project Σ 四大支柱卡片
- * 序号与标题同行显示，节省移动端垂直空间
- */
-function PillarCard({ pillar, index }) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: '-60px' });
-
-  return (
-    <Motion.div
-      ref={ref}
-      className="sigma-pillar"
-      initial={{ opacity: 0, y: 30 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-    >
-      {/* 序号 + 标题同一行 */}
-      <div className="sigma-pillar__header">
-        <span className="sigma-pillar__icon">{pillar.icon}</span>
-        <h3 className="sigma-pillar__title">{pillar.title}</h3>
-      </div>
-      <p className="sigma-pillar__desc">{pillar.desc}</p>
-    </Motion.div>
-  );
-}
 
 /**
  * SigmaSection — Project Σ 介绍
@@ -164,7 +120,7 @@ export default function SigmaSection() {
               <div className="sigma-cta-inline">
                 <Link to="/blog/project-sigma-manifesto" className="sigma-cta-inline__btn">
                   {copy.ctaReadMore}
-                  <ArrowRight className="sigma-cta-inline__arrow" />
+                  <IconArrowRight className="sigma-cta-inline__arrow" />
                 </Link>
               </div>
             </Motion.div>
@@ -186,7 +142,7 @@ export default function SigmaSection() {
             <span className="sigma-pillars__label">{copy.pillarTitle}</span>
             <div className="sigma-pillars__grid">
               {copy.pillars.map((pillar, i) => (
-                <PillarCard key={pillar.icon} pillar={pillar} index={i} />
+                <PillarCard key={pillar.icon} pillar={pillar} index={i} prefix="sigma" />
               ))}
             </div>
           </div>

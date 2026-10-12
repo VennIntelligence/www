@@ -1,17 +1,13 @@
-# Vennai Project — Codex Instructions
+# Vennai Project — Agent Instructions
 
 请使用英文做内部思考，任何做输出的地方都使用中文。
-
-> **⚠️ This file is kept in sync with `AGENT.md` and `AGENTS.md`.**
-> If you modify ANY of these three files, you MUST update the other two to match.
 
 ---
 
 ## 1. Meta Rules
 
-1. **Triple-file sync**: `AGENT.md`, `GEMINI.md`, `AGENTS.md` contain identical principles. Any edit to one MUST be propagated to the other two in the same operation.
-2. **No browser verification**: After making changes, run `npx vite build` to confirm compilation. Do NOT launch browsers, screenshot, or visually verify. The user will verify visually.
-3. **Compile-only validation**: If the build passes, stop. If it fails, fix the error. That's it.
+1. **No browser verification**: After making changes, run `npm run build` to confirm compilation. Do NOT launch browsers, screenshot, or visually verify. The user will verify visually.
+2. **Compile-only validation**: If the build passes, stop. If it fails, fix the error. That's it.
 
 ---
 
@@ -197,46 +193,63 @@ window.addEventListener('gpu-debug-rebuild', onDebugRebuild);
 
 ```
 src/
-├── components/          # Global shared components (Navbar, Footer, WaveCanvas)
-├── hooks/               # Shared React hooks (useSectionFreeze, useAdaptiveQuality)
+├── components/           # Global shared components (Navbar, Footer, UnifiedStage, GPUDebugPanel, TickerBand, ClosedLoopStage, RolloutWall)
+│   ├── common/            # Small shared primitives (BrandWordmark, I18nSwap, ScrollToTop, SocialIcons, PillarCard)
+│   └── seo/                # SEO-only components (ArticleSchema)
+├── hooks/                # Shared React hooks (useSectionFreeze, useAdaptiveQuality, useBreakpoint, useCharMagnet, useDocumentMeta)
 ├── pages/
-│   ├── HomePage.jsx     # Landing page assembler
-│   ├── NotFound.jsx     # 404
-│   ├── home/            # Landing page sections (HeroSection, AboutSection, etc.)
-│   └── product/         # Product sub-routes
-│       └── components/  # Product-page-specific components
+│   ├── HomePage.jsx       # Landing page assembler
+│   ├── NotFound.jsx       # 404
+│   ├── BlogPage.jsx       # Blog listing page
+│   ├── BlogArticlePage.jsx # Blog article shell (renders a post from the registry)
+│   ├── DrivePage.jsx       # Autonomous driving project page (/drive, AlpaSim challenge 2026, kept after the event)
+│   ├── home/               # Landing page sections (HeroSection, SigmaSection, OmegaSection, DriveSection, ConsultantsSection)
+│   ├── drive/              # /drive-only components (DriveTimeline)
+│   └── blog/
+│       ├── registry.js     # Maps post slugs → post modules
+│       ├── components/     # Blog-listing-specific components (CoverGrid, BlogCover, useCoverLoop)
+│       └── posts/<slug>/   # One directory per article: index.jsx, meta.js, content.js, cover.jsx, optional sim/stage subfolders
 ├── styles/
-│   ├── index.css        # Global reset & design tokens
-│   ├── components/      # Styles for global components
-│   ├── sections/        # Styles for landing page sections
-│   └── product/         # Styles for product pages
-├── utils/               # Pure utility functions (noise.js, rippleSimulation.js)
-├── config/              # Configuration objects (heroConfig.js)
-├── context/             # React Contexts (LanguageContext)
-├── shaders/             # GLSL shader modules
-├── App.jsx              # Pure router — NO page content here
-├── main.jsx             # Entry point
-└── index.css            # Global styles & CSS custom properties
+│   ├── index.css          # Global reset & design tokens
+│   ├── components/        # Styles for global components (navbar.css, footer.css, ticker-band.css, ...)
+│   ├── sections/          # Styles for landing page sections (hero.css, omega.css, sigma.css, ...)
+│   └── pages/              # Styles for full pages (blog.css, blog-time-machine.css, ...)
+├── utils/                # Pure utility functions (unifiedPhysics.js, unifiedShaderBuilder.js, glassUtils.js, cappedDPR.js, frameThrottle.js, gpuDebugBus.js, closedLoopSim.js)
+├── config/               # Configuration objects (i18n.js, dropletLook.js, consultantsLook.js, frostedWaveLook.js, sequinLook.js, closedLoopLook.js, driveClips.js)
+├── context/              # React Contexts (LanguageContext.jsx, useLanguage.js)
+├── shaders/              # GLSL shader modules (fullscreenVertex.js, unifiedFragment.js)
+├── App.jsx               # Pure router — NO page content here
+├── main.jsx              # Entry point
+└── index.css             # Global styles & CSS custom properties
 ```
+
+Outside `src/`, two files run server-side on Cloudflare Workers rather than in the browser bundle:
+
+- `scripts/drive-clips.sh` — converts selected jev-drive rollout GIFs into `public/video/drive/<id>.{mp4,webp}` (ids must match `config/driveClips.js`).
+- `worker.js` — Worker entry point. Serves the built `dist/` as a SPA, handles the Stripe checkout session + webhook endpoints (`/api/checkout/formal-consulting`, `/api/stripe/webhook`), and injects language-specific `<meta>` tags (see `ZH_META`) based on `Accept-Language` for SEO/crawlers.
+- `wrangler.toml` — Worker config (name, Stripe price/URL vars, `dist/` asset binding). Deploy with `npm run cf:deploy` (build + `wrangler deploy`); iterate locally with `npm run cf:dev`.
 
 ### 5.2 Placement Rules
 
-| What                       | Where                        | Why                              |
-| -------------------------- | ---------------------------- | -------------------------------- |
-| Used by ≥2 pages           | `components/`                | Shared globally                  |
-| Used only within one page  | `pages/<page>/components/`   | Co-located, not polluting global |
-| Pure computation, no React | `utils/`                     | Reusable, testable               |
-| Shared React hooks         | `hooks/`                     | Reusable lifecycle logic         |
-| Tunable parameters         | `config/`                    | Centralized, easy to adjust      |
-| Page-level assembler       | `pages/<Name>.jsx`           | Composes sections + layout       |
-| Section of a page          | `pages/<page>/<Section>.jsx` | Focused, single-responsibility   |
+| What                       | Where                          | Why                              |
+| -------------------------- | ------------------------------ | --------------------------------- |
+| Used by ≥2 pages           | `components/`                  | Shared globally                  |
+| Used only within one page  | `pages/<page>/components/`     | Co-located, not polluting global |
+| Pure computation, no React | `utils/`                       | Reusable, testable               |
+| Shared React hooks         | `hooks/`                       | Reusable lifecycle logic         |
+| Tunable parameters         | `config/`                      | Centralized, easy to adjust      |
+| Page-level assembler       | `pages/<Name>.jsx`             | Composes sections + layout       |
+| Section of a page          | `pages/<page>/<Section>.jsx`   | Focused, single-responsibility   |
+| One blog post's content    | `pages/blog/posts/<slug>/`     | Self-contained, registry-driven  |
+| Server-only logic (payments, SEO meta) | `worker.js`         | Runs on Cloudflare Workers, not in the client bundle |
 
 ### 5.3 Naming Conventions
 
 - Components: `PascalCase.jsx` (e.g., `HeroSection.jsx`)
-- Utilities: `camelCase.js` (e.g., `rippleSimulation.js`)
+- Utilities: `camelCase.js` (e.g., `unifiedPhysics.js`)
 - CSS: `kebab-case.css` only for `@keyframes`, pseudo-elements, and things Tailwind can't inline
-- Config files: `camelCase.js` (e.g., `heroConfig.js`)
+- Config files: `camelCase.js` (e.g., `dropletLook.js`)
+- Blog posts: `pages/blog/posts/<kebab-case-slug>/`, registered in `pages/blog/registry.js`
 
 ---
 
@@ -266,7 +279,7 @@ src/
 - [ ] Non-first-screen images use `loading="lazy"`, no `fetchPriority="high"`
 - [ ] Non-first-screen videos defer loading until first visible
 - [ ] New heavy components register quality params in `gpuDebugBus.js` and listen for `gpu-debug-rebuild`
-- [ ] Build passes: `npx vite build`
+- [ ] Build passes: `npm run build`
 
 ---
 

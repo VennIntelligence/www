@@ -4,6 +4,7 @@ import ScrollDownArrow from '../components/ScrollDownArrow';
 import HeroSection from './home/HeroSection';
 import SigmaSection from './home/SigmaSection';
 import OmegaSection from './home/OmegaSection';
+import DriveSection from './home/DriveSection';
 import ConsultantsSection from './home/ConsultantsSection';
 import Footer from '../components/Footer';
 
@@ -28,6 +29,7 @@ export default function HomePage() {
       <UnifiedStage />
       <ScrollDownArrow />
       <HeroSection />
+      <DriveSection />
       <SigmaSection />
       <OmegaSection />
       <ConsultantsSection>

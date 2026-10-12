@@ -14,6 +14,7 @@ import './index.css';
 const HomePage = lazy(() => import('./pages/HomePage'));
 const BlogPage = lazy(() => import('./pages/BlogPage'));
 const BlogArticlePage = lazy(() => import('./pages/BlogArticlePage'));
+const DrivePage = lazy(() => import('./pages/DrivePage'));
 
 // GPU 调参面板：仅在 dev:gpu 模式下加载（生产构建完全排除）
 const GPUDebugPanel = import.meta.env.VITE_GPU_DEBUG === 'true'
@@ -75,6 +76,13 @@ function App() {
           <Route path="/blog/:slug" element={
             <Suspense fallback={null}>
               <BlogArticlePage />
+            </Suspense>
+          } />
+
+          {/* 自动驾驶项目页 — AlpaSim 闭环挑战赛 2026，赛后长期保留 */}
+          <Route path="/drive" element={
+            <Suspense fallback={null}>
+              <DrivePage />
             </Suspense>
           } />
 

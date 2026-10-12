@@ -2,55 +2,13 @@ import { Fragment, useCallback, useRef } from 'react';
 import { motion as Motion, useScroll, useTransform, useInView } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import MagnetText from '../../components/MagnetText';
+import PillarCard from '../../components/common/PillarCard';
+import { IconArrowRight } from '../../components/common/SocialIcons';
 import useCharMagnet from '../../hooks/useCharMagnet';
 import { COPY } from '../../config/i18n';
 import { useLanguage } from '../../context/useLanguage';
 import useBreakpoint, { resolveHeadingLines } from '../../hooks/useBreakpoint';
 import '../../styles/sections/omega.css';
-
-/**
- * ArrowRight — 内联 SVG 箭头图标（与 Sigma 一致）
- */
-function ArrowRight({ className = '' }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <polygon points="8,5 19,12 8,19" />
-    </svg>
-  );
-}
-
-/**
- * PillarCard — Project Ω 四大支柱卡片
- */
-function PillarCard({ pillar, index }) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: '-60px' });
-
-  return (
-    <Motion.div
-      ref={ref}
-      className="omega-pillar"
-      initial={{ opacity: 0, y: 30 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-    >
-      <div className="omega-pillar__header">
-        <span className="omega-pillar__icon">{pillar.icon}</span>
-        <h3 className="omega-pillar__title">{pillar.title}</h3>
-      </div>
-      <p className="omega-pillar__desc">{pillar.desc}</p>
-    </Motion.div>
-  );
-}
 
 /**
  * OmegaSection — Project Ω
@@ -159,9 +117,9 @@ export default function OmegaSection() {
 
               {/* 单 CTA 按钮 */}
               <div className="omega-cta-inline">
-                <Link to="/blog/project-omega-manifesto" className="omega-cta omega-cta--ghost">
+                <Link to="/blog/five-backtest-traps" className="omega-cta omega-cta--ghost">
                   {copy.cta}
-                  <ArrowRight className="omega-cta__arrow" />
+                  <IconArrowRight className="omega-cta__arrow" />
                 </Link>
               </div>
             </Motion.div>
@@ -183,7 +141,7 @@ export default function OmegaSection() {
             <span className="omega-pillars__label">{copy.pillarTitle}</span>
             <div className="omega-pillars__grid">
               {copy.pillars.map((pillar, i) => (
-                <PillarCard key={pillar.icon} pillar={pillar} index={i} />
+                <PillarCard key={pillar.icon} pillar={pillar} index={i} prefix="omega" />
               ))}
             </div>
           </div>

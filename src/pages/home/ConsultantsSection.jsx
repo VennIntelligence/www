@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { COPY } from '../../config/i18n';
 import { useLanguage } from '../../context/useLanguage';
 import LiquidGoldBackground from '../../components/LiquidGoldBackground';
+import { IconArrowRight } from '../../components/common/SocialIcons';
 import '../../styles/sections/consultants.css';
 import {
   SECTION_OVERLAY_BG,
@@ -33,26 +34,6 @@ const PANEL_CSS_VARS = {
   '--panel-border-premium':     PANEL_BORDER_PREMIUM,
   '--panel-inset-premium-top':  PANEL_INSET_PREMIUM_TOP,
 };
-
-/**
- * ArrowRight — 内联箭头图标
- */
-function ArrowRight({ className = '' }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <polygon points="8,5 19,12 8,19" />
-    </svg>
-  );
-}
 
 /**
  * ConsultantsSection — 顾问信息 + 双层级咨询卡片
@@ -167,7 +148,7 @@ export default function ConsultantsSection({ children }) {
                       aria-busy={activeCheckout === rate}
                     >
                       {tier.button}
-                      <ArrowRight className="consultants-cta__arrow" />
+                      <IconArrowRight className="consultants-cta__arrow" />
                     </button>
 
                     <p className="consultants-tier__note">{note}</p>

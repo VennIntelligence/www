@@ -1,0 +1,189 @@
+/* ============================================================
+   RolloutWall — 闭环回放片段墙
+   wall：CSS 多栏瀑布流（各片段保持自身宽高比，像钉在墙上的照片）
+   mosaic：首页 Drive 区块的全幅背景，等宽格子铺满、压暗、无交互
+   ============================================================ */
+
+/* ---------- 瀑布流（/drive 页面） ---------- */
+.rollout-wall--wall {
+  /* 栏数；默认标准值：3。调大 → 每格更小、更密。 */
+  columns: 3;
+  /* 栏间距 / 格间距；默认标准值：14px。 */
+  column-gap: 14px;
+}
+
+.rollout-wall--wall .rollout-tile {
+  break-inside: avoid;
+  margin: 0 0 14px;
+}
+
+@media (max-width: 1023px) {
+  .rollout-wall--wall {
+    columns: 2;
+  }
+}
+
+@media (max-width: 640px) {
+  .rollout-wall--wall {
+    columns: 1;
+  }
+}
+
+/* ---------- 马赛克背景（首页 Drive 区块） ---------- */
+.rollout-wall--mosaic {
+  display: grid;
+  /* 桌面 3 列 × 4 行正好 12 格铺满区块；默认标准值：3 / 4。改列数要同步改 driveClips.js 的片段数。 */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(4, minmax(0, 1fr));
+  /* 格间距；默认标准值：6px。 */
+  gap: 6px;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.rollout-wall--mosaic .rollout-tile {
+  /* 不设比例：格子随区块高度拉伸，视频 object-fit: cover 居中裁切 */
+  aspect-ratio: auto;
+  min-height: 0;
+  border-radius: 4px;
+  border: none;
+  box-shadow: none;
+  transform: none;
+  transition: none;
+  /* 轻微压暗、降饱和，让前景文字可读；默认标准值：brightness 0.92 / saturate 0.9。调低 brightness → 背景更安静。 */
+  filter: brightness(0.92) saturate(0.9);
+}
+
+.rollout-wall--mosaic .rollout-tile:hover {
+  transform: none;
+  border: none;
+  box-shadow: none;
+}
+
+@media (max-width: 1023px) {
+  .rollout-wall--mosaic {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(5, minmax(0, 1fr));
+  }
+
+  /* 平板只播前 10 格 */
+  .rollout-wall--mosaic .rollout-tile:nth-child(n + 11) {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .rollout-wall--mosaic {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(6, minmax(0, 1fr));
+  }
+
+  /* 手机只播前 6 格 */
+  .rollout-wall--mosaic .rollout-tile:nth-child(n + 7) {
+    display: none;
+  }
+}
+
+/* ---------- 单格 ---------- */
+.rollout-tile {
+  position: relative;
+  display: block;
+  margin: 0;
+  aspect-ratio: var(--tile-ratio, 16 / 10);
+  overflow: hidden;
+  border-radius: 12px;
+  /* 瓦片底色（封面加载前可见）；默认标准值：#0b0d12 */
+  background: #0b0d12;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  transform: translateZ(0);
+  transition:
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+.rollout-tile:hover {
+  transform: translateY(-3px);
+  border-color: rgb(var(--hue-blue) / 0.45);
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.45),
+    0 0 24px rgb(var(--hue-blue) / 0.12);
+}
+
+.rollout-tile video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 仿真器标签：左上角胶囊 + 闪烁录制点 */
+.rollout-tile__sim {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.88);
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  pointer-events: none;
+}
+
+.rollout-tile__sim::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgb(var(--hue-gold));
+  box-shadow: 0 0 8px rgb(var(--hue-gold) / 0.8);
+  animation: rollout-rec 1.6s ease-in-out infinite;
+}
+
+@keyframes rollout-rec {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+/* 底部说明：默认隐藏，hover 时从下方浮现 */
+.rollout-tile__caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 30px 12px 10px;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.9);
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.82) 100%);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  pointer-events: none;
+}
+
+.rollout-tile:hover .rollout-tile__caption {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 触屏没有 hover：说明常显 */
+@media (hover: none) {
+  .rollout-tile__caption {
+    opacity: 1;
+    transform: none;
+  }
+}

@@ -1,0 +1,353 @@
+/* ============================================================
+   Drive Section — 自动驾驶项目（AlpaSim 闭环挑战赛 2026）
+   节奏同 Σ / Ω 区块；色相走蓝色系（index.css 的 --hue-blue*）
+   Desktop: 单屏底部对齐 / Mobile: 分两屏（标题屏 + 照片墙屏）
+   ============================================================ */
+
+/* ---------- 容器 ---------- */
+.drive-section {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  /* 区块底色（片段间缝隙与封面加载前）；默认标准值：#05080f。不透明，UnifiedStage 在其下方不可见。 */
+  background: #05080f;
+  color: #fff;
+  overflow: hidden;
+  font-family: var(--font-sans);
+  isolation: isolate;
+}
+
+/* 马赛克背景：CARLA 真实场景片段铺满整个区块（RolloutWall variant="mosaic"） */
+.drive-mosaic {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/*
+ * 遮罩：轻压暗 + 左侧渐暗保证标题可读 + 上下边缘渐隐。
+ * 默认标准值：整体 rgba(3,6,13,0.18)；左侧 0%→0.85，40%→0.3，75%→0；上下各 10% 渐入底色。
+ * 调大整体 alpha → 背景更暗更安静；调小 → 片段更抢眼。
+ */
+.drive-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(to bottom, #03060d 0%, rgba(3, 6, 13, 0) 10%, rgba(3, 6, 13, 0) 90%, #03060d 100%),
+    linear-gradient(to right, rgba(3, 6, 13, 0.85) 0%, rgba(3, 6, 13, 0.3) 40%, rgba(3, 6, 13, 0) 75%),
+    rgba(3, 6, 13, 0.18);
+}
+
+@media (max-width: 767px) {
+  .drive-vignette {
+    background:
+      linear-gradient(to bottom, #03060d 0%, rgba(3, 6, 13, 0) 10%, rgba(3, 6, 13, 0) 90%, #03060d 100%),
+      linear-gradient(to bottom, rgba(3, 6, 13, 0.2) 0%, rgba(3, 6, 13, 0.55) 45%, rgba(3, 6, 13, 0.7) 100%),
+      rgba(3, 6, 13, 0.12);
+  }
+}
+
+/* ---------- 主内容 ---------- */
+.drive-content {
+  position: relative;
+  z-index: 10;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 96px 40px 64px;
+}
+
+@media (max-width: 767px) {
+  .drive-content {
+    justify-content: flex-start;
+    padding: 0 24px 0;
+  }
+
+  .drive-screen-1 {
+    min-height: 100vh;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    /* 顶部留给 navbar 与背景片段；默认标准值：14vh。 */
+    padding-top: 14vh;
+    padding-bottom: calc(32px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* ---------- Project 标签行 ---------- */
+.drive-subheading {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  /* 字号；默认标准值：clamp(1.6rem, 4vw, 3.2rem)。与 Σ / Ω 对齐。 */
+  font-size: clamp(1.6rem, 4vw, 3.2rem);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+/* 发光呼吸竖线 — 蓝色系 */
+.drive-subheading__line {
+  width: 5px;
+  height: 1.1em;
+  border-radius: 4px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, rgb(var(--hue-blue-bright)) 0%, rgb(var(--hue-blue) / 0.9) 100%);
+  box-shadow:
+    0 0 12px rgb(var(--hue-blue) / 0.8),
+    0 0 24px rgb(var(--hue-blue) / 0.5),
+    inset 0 0 4px rgba(255, 255, 255, 0.8);
+  animation: drive-line-breathe 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes drive-line-breathe {
+  0% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+/* 徽章：白框 + 闭环箭头图标 + 蓝色旋转光晕 */
+.drive-badge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5em;
+  height: 1.5em;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.drive-badge__icon {
+  width: 0.9em;
+  height: 0.9em;
+  color: rgb(var(--hue-blue-bright));
+  animation: drive-badge-spin 6s linear infinite;
+}
+
+@keyframes drive-badge-spin {
+  to { transform: rotate(360deg); }
+}
+
+.drive-badge::after {
+  content: '';
+  position: absolute;
+  /* 外层柔光范围；默认标准值：-18px */
+  inset: -18px;
+  border-radius: 22px;
+  background: radial-gradient(circle, rgb(var(--hue-blue) / 0.16) 0%, rgb(var(--hue-blue) / 0.05) 45%, transparent 75%);
+  filter: blur(6px);
+  animation: drive-glow-pulse 3s ease-in-out infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes drive-glow-pulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.12); }
+}
+
+/* ---------- 两栏布局 ---------- */
+.drive-columns {
+  display: flex;
+  align-items: flex-start;
+  gap: 60px;
+}
+
+@media (max-width: 1023px) {
+  .drive-columns {
+    flex-direction: column;
+    gap: 24px;
+  }
+}
+
+/* ---------- 标题 ---------- */
+.drive-heading {
+  flex: 1;
+}
+
+.drive-heading__h2 {
+  font-size: clamp(1.8rem, 4.5vw, 3.5rem);
+  line-height: 1.0;
+  letter-spacing: -0.02em;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+.drive-heading__light {
+  font-weight: 300;
+}
+
+.drive-heading__display {
+  font-weight: 600;
+  color: rgb(var(--hue-blue-bright) / 0.96);
+}
+
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .drive-heading__display .magnet-char {
+    background: linear-gradient(135deg, rgb(var(--hue-blue-bright)), rgb(var(--hue-blue) / 0.8));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+/* ---------- 副标题 ---------- */
+.drive-subline {
+  margin-top: 18px;
+  /* 字号；默认标准值：clamp(1.0rem, 1.7vw, 1.45rem)。 */
+  font-size: clamp(1.0rem, 1.7vw, 1.45rem);
+  font-weight: 400;
+  line-height: 1.5;
+  /* 暖白，与蓝色标题形成冷暖对比；默认标准值：rgba(255,246,230,0.86) */
+  color: rgba(255, 246, 230, 0.86);
+  text-shadow: 0 0 18px rgb(var(--hue-gold) / 0.18);
+  max-width: 520px;
+  overflow-wrap: break-word;
+}
+
+/* ---------- CTA ---------- */
+.drive-cta-inline {
+  margin-top: 32px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.drive-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 32px;
+  border-radius: 100px;
+  font-size: clamp(0.8rem, 1vw, 0.95rem);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgb(var(--hue-blue-bright) / 0.95);
+  /* 蓝色玻璃底；默认标准值：rgb(blue / 0.12) → rgb(blue / 0.04)。调大 alpha → 更实。 */
+  background: linear-gradient(135deg, rgb(var(--hue-blue) / 0.12) 0%, rgb(var(--hue-blue) / 0.04) 100%);
+  border: 1px solid rgb(var(--hue-blue) / 0.35);
+  border-top-color: rgb(var(--hue-blue-bright) / 0.5);
+  backdrop-filter: blur(6px) saturate(1.1);
+  -webkit-backdrop-filter: blur(6px) saturate(1.1);
+  box-shadow: 0 0 14px rgb(var(--hue-blue) / 0.12);
+  transition:
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.45s ease,
+    background 0.45s ease,
+    border-color 0.45s ease;
+}
+
+.drive-cta:hover {
+  transform: translateY(-2px);
+  color: #fff;
+  background: linear-gradient(135deg, rgb(var(--hue-blue) / 0.2) 0%, rgb(var(--hue-blue) / 0.08) 100%);
+  border-color: rgb(var(--hue-blue-bright) / 0.6);
+  box-shadow:
+    0 0 24px rgb(var(--hue-blue) / 0.25),
+    0 0 48px rgb(var(--hue-blue) / 0.1);
+}
+
+.drive-cta__arrow {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.drive-cta:hover .drive-cta__arrow {
+  transform: translateX(4px);
+}
+
+/* 次级 CTA：更透的描边款 */
+.drive-cta--ghost {
+  color: rgba(255, 255, 255, 0.78);
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.18);
+  border-top-color: rgba(255, 255, 255, 0.3);
+  box-shadow: none;
+}
+
+.drive-cta--ghost:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.08);
+}
+
+[data-glass-tier="solid"] .drive-cta {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: rgb(var(--hue-blue) / 0.18);
+}
+
+/* ---------- 闭环示意卡片（右侧） ---------- */
+.drive-instrument {
+  /* 卡片宽度；默认标准值：min(680px, 48vw, 100%)。调大 → 示意图更大，但会挤压标题列。 */
+  width: min(680px, 48vw, 100%);
+  min-width: 0;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.drive-instrument__label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgb(var(--hue-blue-bright) / 0.7);
+}
+
+.drive-instrument__stage {
+  position: relative;
+  /* 示意图比例；默认标准值：16 / 10 */
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: 16px;
+  /* 卡片底色，半透明让马赛克隐约透出；默认标准值：rgba(3,6,13,0.72) + blur(10px) */
+  background: rgba(3, 6, 13, 0.72);
+  backdrop-filter: blur(10px) saturate(1.1);
+  -webkit-backdrop-filter: blur(10px) saturate(1.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-top-color: rgba(255, 255, 255, 0.18);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+[data-glass-tier="solid"] .drive-instrument__stage {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: rgba(3, 6, 13, 0.9);
+}
+
+@media (max-width: 1023px) {
+  .drive-instrument {
+    width: 100%;
+  }
+}
+
+/* ---------- 出场动画（纯 opacity + transform） ---------- */
+.drive-reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.drive-reveal.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
