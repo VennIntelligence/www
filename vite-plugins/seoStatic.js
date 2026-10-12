@@ -159,12 +159,12 @@ function buildLlmsFullTxt(metas, i18n) {
   lines.push('## Organization');
   lines.push('');
   lines.push('Venn Intelligence Foundation is a research foundation that funds and runs frontier AI research:');
-  lines.push('closed-loop autonomous driving (sponsor and competing team in the NVIDIA AlpaSim E2E Closed-Loop');
+  lines.push('closed-loop autonomous driving (funding the team competing in the NVIDIA AlpaSim E2E Closed-Loop');
   lines.push('Challenge 2026), a collective intelligence protocol, and an AI-native trading system.');
   lines.push('Founded by Taitan Pascal. Website: https://vennai.org');
   lines.push('Email: contact@vennai.org | Twitter: @venn_foundation | GitHub: VennIntelligence');
   lines.push('');
-  lines.push('文氏智能基金会资助并亲自开展前沿 AI 研究：闭环自动驾驶（赞助并参与 2026 年 NVIDIA AlpaSim 端到端闭环挑战赛）、');
+  lines.push('文氏智能基金会资助并亲自开展前沿 AI 研究：闭环自动驾驶（资助参赛团队出战 2026 年 NVIDIA AlpaSim 端到端闭环挑战赛）、');
   lines.push('集体智能协议、AI 原生交易系统。由 Taitan Pascal 创立。网站：https://vennai.org');
   lines.push('');
 

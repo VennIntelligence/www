@@ -31,7 +31,7 @@ export const COPY = {
       socialEmail: 'contact@vennai.org',
       // Hero 大标题下方的赛事署名行（跳转 /drive）：小字身份 + 衬线大字赛事名 + 年份 + CTA
       challenge: {
-        kicker: 'We sponsor & compete',
+        kicker: 'We fund the team competing in',
         title: 'NVIDIA AlpaSim E2E Closed-Loop Autonomous Driving Challenge',
         year: '2026',
         cta: 'See the project',
@@ -46,7 +46,7 @@ export const COPY = {
       socialTwitter: '@venn_foundation',
       socialEmail: 'contact@vennai.org',
       challenge: {
-        kicker: '我们赞助并参赛',
+        kicker: '我们资助的团队出战',
         title: 'NVIDIA AlpaSim 端到端闭环自动驾驶挑战赛',
         year: '2026',
         cta: '查看项目',
@@ -233,7 +233,7 @@ export const COPY = {
           'makes it drive it.',
         ],
       },
-      subtitle: 'Venn Intelligence Foundation sponsors and competes in the NVIDIA AlpaSim End-to-End Closed-Loop Challenge 2026. Results are announced at NeurIPS 2026.',
+      subtitle: 'Venn Intelligence Foundation funds the team competing in the NVIDIA AlpaSim End-to-End Closed-Loop Challenge 2026. Results are announced at NeurIPS 2026.',
       manifesto: 'In an open-loop benchmark a policy predicts a trajectory and is graded against the human log. It never has to live with its own output. In closed-loop simulation every decision reshapes the next scene: a late brake becomes a shorter gap, a lazy turn becomes a different road. Mistakes compound instead of averaging away.',
       manifestoHighlight: 'We run the whole loop ourselves: replay the decision, trace the plan that caused the contact, keep the failed rollouts next to the clean ones. That archive is the project.',
       pillarTitle: 'How we work',
@@ -282,9 +282,9 @@ export const COPY = {
       page: {
         eyebrow: 'Venn Intelligence Foundation · Autonomous Driving',
         title: 'NVIDIA AlpaSim E2E Closed-Loop Challenge 2026',
-        lead: 'The foundation sponsors and fields a team in the AlpaSim End-to-End Closed-Loop Challenge, organised by the NVIDIA Autonomous Vehicle Research Group with KE:SAI and OpenDriveLab (HKU). Policies are compared in closed-loop simulation, where each decision shapes the scene the policy must handle next. Results are shared at NeurIPS 2026.',
+        lead: 'The foundation funds and fields the team competing in the AlpaSim End-to-End Closed-Loop Challenge, organised by the NVIDIA Autonomous Vehicle Research Group with KE:SAI and OpenDriveLab (HKU). Policies are compared in closed-loop simulation, where each decision shapes the scene the policy must handle next. Results are shared at NeurIPS 2026.',
         facts: [
-          { label: 'Role', value: 'Sponsor and competing team' },
+          { label: 'Role', value: 'Funder of the competing team' },
           { label: 'Organisers', value: 'NVIDIA AV Research · KE:SAI · OpenDriveLab' },
           { label: 'Venue', value: 'NeurIPS 2026' },
           { label: 'Format', value: 'Closed-loop simulation · containerised policy' },
@@ -342,7 +342,7 @@ export const COPY = {
         '漂亮的轨迹。',
         '闭环让它自己开。',
       ],
-      subtitle: '文氏智能基金会赞助并参与 2026 年 NVIDIA AlpaSim 端到端闭环挑战赛，结果将于 NeurIPS 2026 公布。',
+      subtitle: '文氏智能基金会资助参赛团队出战 2026 年 NVIDIA AlpaSim 端到端闭环挑战赛，结果将于 NeurIPS 2026 公布。',
       manifesto: '开环基准里，策略只负责预测一条轨迹，再拿人类日志打分，它从来不用为自己的输出负责。闭环仿真里，每一个决策都会改写下一个场景：刹晚一点，车距就短一截；弯转懒一点，前面就是另一条路。错误会累积，不会被平均掉。',
       manifestoHighlight: '我们自己把整条闭环跑完：回放那个决策，追溯导致接触的那条计划，把失败的 rollout 和干净的放在一起保存。这份档案就是这个项目。',
       pillarTitle: '我们的做法',
@@ -388,9 +388,9 @@ export const COPY = {
       page: {
         eyebrow: '文氏智能基金会 · 自动驾驶',
         title: 'NVIDIA AlpaSim 端到端闭环挑战赛 2026',
-        lead: '基金会赞助并组队参加 AlpaSim 端到端闭环挑战赛。赛事由 NVIDIA 自动驾驶研究组联合 KE:SAI 与 OpenDriveLab（港大）主办，所有策略在闭环仿真中比较：每一个决策都会塑造策略接下来必须应对的场景。结果将于 NeurIPS 2026 公布。',
+        lead: '基金会资助并组建参赛团队，参加 AlpaSim 端到端闭环挑战赛。赛事由 NVIDIA 自动驾驶研究组联合 KE:SAI 与 OpenDriveLab（港大）主办，所有策略在闭环仿真中比较：每一个决策都会塑造策略接下来必须应对的场景。结果将于 NeurIPS 2026 公布。',
         facts: [
-          { label: '身份', value: '赞助方 · 参赛队伍' },
+          { label: '身份', value: '参赛团队的资助方' },
           { label: '主办', value: 'NVIDIA AV Research · KE:SAI · OpenDriveLab' },
           { label: '会议', value: 'NeurIPS 2026' },
           { label: '形式', value: '闭环仿真 · 容器化提交策略' },

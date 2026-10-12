@@ -9,11 +9,11 @@ const APP_SHELL_VERSION = '2026-04-19-checkout';
 // 让 Google 中文爬虫和中文用户首屏都能看到中文 title/description。
 const ZH_META = {
   title: '文氏智能基金会 — AI 研究：自动驾驶、集体智能、智能交易',
-  description: '文氏智能基金会资助并亲自开展前沿 AI 研究：闭环自动驾驶（赞助并参与 2026 年 NVIDIA AlpaSim 端到端闭环挑战赛）、集体智能协议、AI 原生交易系统。',
+  description: '文氏智能基金会资助并亲自开展前沿 AI 研究：闭环自动驾驶（资助参赛团队出战 2026 年 NVIDIA AlpaSim 端到端闭环挑战赛）、集体智能协议、AI 原生交易系统。',
   ogTitle: '文氏智能基金会 — AI 研究：自动驾驶、集体智能、智能交易',
-  ogDescription: '前沿 AI 研究基金会。赞助并参与 2026 年 NVIDIA AlpaSim 端到端闭环挑战赛；集体智能协议；AI 原生交易系统。',
+  ogDescription: '前沿 AI 研究基金会。资助参赛团队出战 2026 年 NVIDIA AlpaSim 端到端闭环挑战赛；集体智能协议；AI 原生交易系统。',
   twitterTitle: '文氏智能基金会',
-  twitterDescription: '前沿 AI 研究基金会。赞助并参与 2026 年 NVIDIA AlpaSim 端到端闭环挑战赛。',
+  twitterDescription: '前沿 AI 研究基金会。资助参赛团队出战 2026 年 NVIDIA AlpaSim 端到端闭环挑战赛。',
 };
 
 export default {

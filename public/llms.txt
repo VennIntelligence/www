@@ -1,8 +1,8 @@
 # Venn Intelligence Foundation
 
 > Venn Intelligence Foundation is a research foundation that funds and runs
-> frontier AI research. Three projects: autonomous driving (sponsor and
-> competing team in the NVIDIA AlpaSim E2E Closed-Loop Challenge 2026),
+> frontier AI research. Three projects: autonomous driving (the foundation
+> funds the team competing in the NVIDIA AlpaSim E2E Closed-Loop Challenge 2026),
 > Project Σ (decentralized collective intelligence protocol) and Project Ω
 > (AI-native trading system with full development transparency).
 > Founded by Taitan Pascal. Based at vennai.org.
@@ -13,7 +13,7 @@
 - [Blog](https://vennai.org/blog): Thoughts and announcements
 
 ## Autonomous Driving — NVIDIA AlpaSim E2E Closed-Loop Challenge 2026
-- Role: the foundation sponsors and fields a competing team
+- Role: the foundation funds and fields the competing team; it does not organise or sponsor the event itself
 - Organisers: NVIDIA Autonomous Vehicle Research Group, KE:SAI, OpenDriveLab (HKU); results shared at NeurIPS 2026
 - Closed loop first: every candidate drives full-length simulated scenes before a number is believed
 - Collision forensics: each at-fault contact is traced back to the decision that planned it

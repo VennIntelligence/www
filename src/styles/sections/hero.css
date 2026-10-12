@@ -503,7 +503,7 @@
   align-items: center;
   gap: 9px;
   font-family: var(--font-mono);
-  /* 字号；默认标准值：clamp(0.82rem, 1.05vw, 0.98rem)。调大 → "我们赞助并参赛"更醒目。 */
+  /* 字号；默认标准值：clamp(0.82rem, 1.05vw, 0.98rem)。调大 → "我们资助的团队出战"更醒目。 */
   font-size: clamp(0.82rem, 1.05vw, 0.98rem);
   font-weight: 500;
   letter-spacing: 0.2em;
