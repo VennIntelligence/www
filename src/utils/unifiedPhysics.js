@@ -367,7 +367,6 @@ function easeSoftBounce(t, damping) {
  * @param {number} scrollProgress 0=Hero完全可见, 1=About完全可见
  * @param {boolean} isMobile
  * @param {number} aboutExitProgress 0=About底部还在视口内, 1=About底部完全离开视口
- * @param {number} productScrollProgress 0=product section不可见, 1=product section完全可见
  * @param {number} productExitProgress 0=product section底部在视口内, 1=product section完全离开
  * @returns {{ phase, t, cubeScale, videoMix, aboutPos, omegaPos, cubeFade, morphFactor, bgAlpha }}
  */
@@ -375,7 +374,6 @@ export function computeTransition(
   scrollProgress,
   isMobile,
   aboutExitProgress = 0,
-  productScrollProgress = 0,
   productExitProgress = 0,
 ) {
   const aboutPos = isMobile ? ABOUT_CUBE_POS_MOBILE : ABOUT_CUBE_POS_DESKTOP;

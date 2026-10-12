@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="880" height="520" viewBox="0 0 880 520" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="axisArrow2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/>
+    </marker>
+    <marker id="gapArrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#C44E52"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="880" height="520" fill="white"/>
+
+  <!-- Title -->
+  <text x="440" y="30" text-anchor="middle" font-size="16" font-weight="bold" fill="#222222">A lagging risk price is a free option granted to informed takers</text>
+
+  <!-- Gap shading between true value and smoothed index -->
+  <polygon points="110,368 150,340 185,355 230,300 265,318 310,255 350,270 400,205 450,175 500,160 560,152 790,152 790,162 750,166 680,178 600,200 520,232 450,270 380,310 300,345 200,364 110,368"
+           fill="#DD8452" fill-opacity="0.13"/>
+
+  <!-- Reference gridlines -->
+  <line x1="110" y1="368" x2="810" y2="368" stroke="#cccccc" stroke-width="1" stroke-dasharray="2 4"/>
+  <line x1="110" y1="152" x2="810" y2="152" stroke="#cccccc" stroke-width="1" stroke-dasharray="2 4"/>
+
+  <!-- True fair value path -->
+  <polyline points="110,368 150,340 185,355 230,300 265,318 310,255 350,270 400,205 450,175 500,160 560,152 790,152"
+            fill="none" stroke="#2A5599" stroke-width="2.2" stroke-linejoin="round"/>
+
+  <!-- Smoothed index path -->
+  <polyline points="110,368 200,364 300,345 380,310 450,270 520,232 600,200 680,178 750,166 790,162"
+            fill="none" stroke="#DD8452" stroke-width="2.2" stroke-dasharray="8 5" stroke-linejoin="round"/>
+
+  <!-- Line labels -->
+  <text x="520" y="136" font-size="12" fill="#2A5599" font-weight="bold">true fair value (leading venue proxy)&#160;&#160;+3%</text>
+  <text x="430" y="315" font-size="12" fill="#b35f2e" font-weight="bold">smoothed index / mark (EMA &#183; EWMA)</text>
+  <text x="430" y="331" font-size="11" fill="#b35f2e">converges at a known, computable speed</text>
+
+  <!-- Gap arrow and annotation -->
+  <line x1="560" y1="158" x2="560" y2="212" stroke="#C44E52" stroke-width="1.5" marker-start="url(#gapArrow)" marker-end="url(#gapArrow)"/>
+  <rect x="454" y="358" width="318" height="52" fill="white" fill-opacity="0.85"/>
+  <text x="460" y="372" font-size="12" fill="#C44E52" font-weight="bold">gap = payoff of a free option:</text>
+  <text x="460" y="388" font-size="11.5" fill="#C44E52">underlying moves, strike (index/mark) is held back;</text>
+  <text x="460" y="403" font-size="11.5" fill="#C44E52">time value paid by makers and liquidated accounts</text>
+
+  <!-- Friday close marker -->
+  <circle cx="110" cy="368" r="4" fill="#2A5599"/>
+  <text x="118" y="392" font-size="11.5" fill="#444444">Friday close</text>
+
+  <!-- News event marker -->
+  <line x1="230" y1="440" x2="230" y2="70" stroke="#999999" stroke-width="1" stroke-dasharray="3 4"/>
+  <text x="238" y="144" font-size="11.5" fill="#666666">news breaks (Saturday)</text>
+
+  <!-- Legend -->
+  <rect x="104" y="64" width="242" height="62" fill="white" fill-opacity="0.92"/>
+  <g font-size="11.5" fill="#444444">
+    <line x1="112" y1="72" x2="132" y2="72" stroke="#2A5599" stroke-width="2.2"/>
+    <text x="138" y="76">true fair value</text>
+    <line x1="112" y1="92" x2="132" y2="92" stroke="#DD8452" stroke-width="2.2" stroke-dasharray="8 5"/>
+    <text x="138" y="96">filtered index / mark</text>
+    <rect x="112" y="106" width="20" height="11" fill="#DD8452" fill-opacity="0.13" stroke="#DD8452" stroke-opacity="0.4" stroke-width="0.8"/>
+    <text x="138" y="115">gap (adverse-selection payoff)</text>
+  </g>
+
+  <!-- Axes -->
+  <line x1="90" y1="440" x2="90" y2="55" stroke="#333333" stroke-width="1.5" marker-end="url(#axisArrow2)"/>
+  <line x1="90" y1="440" x2="822" y2="440" stroke="#333333" stroke-width="1.5" marker-end="url(#axisArrow2)"/>
+
+  <!-- Y ticks -->
+  <g font-size="11.5" fill="#333333" text-anchor="end">
+    <line x1="85" y1="368" x2="90" y2="368" stroke="#333333" stroke-width="1.2"/>
+    <text x="80" y="372">0%</text>
+    <line x1="85" y1="296" x2="90" y2="296" stroke="#333333" stroke-width="1.2"/>
+    <text x="80" y="300">+1%</text>
+    <line x1="85" y1="224" x2="90" y2="224" stroke="#333333" stroke-width="1.2"/>
+    <text x="80" y="228">+2%</text>
+    <line x1="85" y1="152" x2="90" y2="152" stroke="#333333" stroke-width="1.2"/>
+    <text x="80" y="156">+3%</text>
+  </g>
+
+  <!-- X ticks -->
+  <g font-size="11.5" fill="#333333" text-anchor="middle">
+    <line x1="110" y1="440" x2="110" y2="445" stroke="#333333" stroke-width="1.2"/>
+    <text x="110" y="460">Fri close</text>
+    <line x1="345" y1="440" x2="345" y2="445" stroke="#333333" stroke-width="1.2"/>
+    <text x="345" y="460">Saturday</text>
+    <line x1="580" y1="440" x2="580" y2="445" stroke="#333333" stroke-width="1.2"/>
+    <text x="580" y="460">Sunday</text>
+  </g>
+
+  <!-- Axis titles -->
+  <text x="30" y="248" font-size="13" fill="#222222" transform="rotate(-90 30 248)" text-anchor="middle">Return vs. Friday close</text>
+  <text x="455" y="486" font-size="13" fill="#222222" text-anchor="middle">Weekend time (underlying market closed)</text>
+
+  <!-- Footnote -->
+  <text x="90" y="508" font-size="10.5" fill="#888888">Illustrative: news reprices fair value +3% on Saturday; the filtered index converges at a publicly known rate.</text>
+</svg>

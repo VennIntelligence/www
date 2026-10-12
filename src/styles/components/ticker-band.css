@@ -1,0 +1,80 @@
+/* ============================================================
+   ticker-band.css — 全站公共「行情作战带」（components/TickerBand.jsx）
+   近黑底 + 真实 K 线；全出血横跨视口，可按住左右拖动。
+   颜色以组件内 P 常量为准（克制的金融印刷风色板）。
+   ============================================================ */
+
+.tkb {
+  /* ---- 带内调色板（深色默认，克制的金融印刷风；TickerBand.jsx 通过 var() 引用）----
+     paper 带底 #0F1217（需与下方 background 渐变末色一致）；ink 暖白墨；
+     涨跌为低饱和青玉 / 砖红；blue 钢蓝是全带唯一强调色（NOW 线 / 开仓线 / 开仓标记）；
+     blue-soft 加仓标记、gold 减仓标记。 */
+  --tkb-paper: #0f1217;
+  --tkb-inner: #161a21;
+  --tkb-ink: #e4e0d6;
+  --tkb-soft: #b8b3a6;
+  --tkb-faint: #7e7a70;
+  --tkb-line: #23272f;
+  --tkb-blue: #7c9cc9;
+  --tkb-blue-soft: #a3b8d6;
+  --tkb-gold: #c9a86a;
+  --tkb-red: #c25e52;
+  --tkb-green: #5f9c7d;
+  --tkb-gray: #6f7684;
+
+  /* 全出血：无论挂在多宽的列里都横跨整个视口，且居中对齐 */
+  position: relative;
+  left: 50%;
+  width: 100vw;
+  margin-left: -50vw;
+  margin-bottom: 36px;
+  display: block;
+  /* 从站点纯黑渐入带底（末色 = --tkb-paper）：顶部与页面/navbar 自然融合，带体只比页面亮一档。 */
+  background: linear-gradient(180deg, #0a0a0a 0%, #0c0e12 30%, var(--tkb-paper) 64%, var(--tkb-paper) 100%);
+  border-bottom: 1px solid var(--tkb-line);
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  overflow: hidden;
+}
+
+/* masthead 模式：顶进 navbar 下方（抵消 .blog-page__inner 的顶部内边距） */
+.tkb--masthead {
+  margin-top: -120px;
+}
+@media (max-width: 768px) {
+  .tkb--masthead {
+    margin-top: -100px;
+  }
+}
+
+.tkb.is-scrubbing {
+  cursor: grabbing;
+}
+
+.tkb svg {
+  display: block;
+}
+
+.tkb-mono {
+  font-family: var(--font-mono);
+}
+
+/* ---- paper 浅色主题（文章 meta.theme = 'paper'）：纸面底 + 墨色 K 线，
+   蓝红绿与文章图表（matplotlib）同一套色值 ---- */
+html[data-theme="paper"] .tkb {
+  --tkb-paper: #f6f5f1;
+  --tkb-inner: #ffffff;
+  --tkb-ink: #16181d;
+  --tkb-soft: #454851;
+  --tkb-faint: #878a92;
+  --tkb-line: #dddbd4;
+  --tkb-blue: #1f4e9c;
+  --tkb-blue-soft: #5d7fbf;
+  --tkb-gold: #a8842e;
+  --tkb-red: #b2382a;
+  --tkb-green: #2e7d4f;
+  --tkb-gray: #9a9ca3;
+  background: linear-gradient(180deg, #edece7 0%, #f2f1ec 30%, var(--tkb-paper) 64%, var(--tkb-paper) 100%);
+}

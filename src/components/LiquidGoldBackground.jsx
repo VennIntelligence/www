@@ -3,6 +3,7 @@ import '../styles/components/liquid-gold-bg.css';
 import useSectionFreeze from '../hooks/useSectionFreeze';
 import useAdaptiveQuality from '../hooks/useAdaptiveQuality';
 import { createFrameThrottle } from '../utils/frameThrottle';
+import { getCappedDPR } from '../utils/cappedDPR';
 
 /* ================================================================
    ★ 可调参数 — 直接在这里改，无需动 shader 代码
@@ -206,7 +207,7 @@ export default function LiquidGoldBackground() {
     const r = canvas.getBoundingClientRect();
     const isOver = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
     if (isOver) {
-      const dpr = (window.devicePixelRatio || 1) * qualityRef.current.scale;
+      const dpr = getCappedDPR() * qualityRef.current.scale;
       mouseRef.current = {
         x: (e.clientX - r.left) * dpr,
         y: (r.height - (e.clientY - r.top)) * dpr
@@ -246,7 +247,8 @@ export default function LiquidGoldBackground() {
     let lastCssH = 0;
 
     function applySize(scale) {
-      const dpr = (window.devicePixelRatio || 1) * scale;
+      // DPR 封顶（桌面 2 / 移动 1.5），与 UnifiedStage 一致
+      const dpr = getCappedDPR() * scale;
       const cw = canvas.clientWidth;
       const ch = canvas.clientHeight;
       if (cw === 0 || ch === 0) return false;

@@ -1,0 +1,363 @@
+/* ============================================================
+   blog-paper-theme.css —— 'paper' 浅色整站主题（博客默认）
+   由 BlogPage / BlogArticlePage 引入并通过 usePageTheme 把 data-theme="paper"
+   写到 <html>：列表页与所有文章默认浅色纸面（Navbar / 页壳 / 卡片 / 正文 /
+   Footer / 作战带一并切换），离开博客时自动恢复全站暗色。
+   只覆盖 blog.css 等文件里的颜色 token 与少数硬编码色值，不改布局。
+   文章可在 meta.theme 里指定其它主题名退出本主题。
+   ============================================================ */
+
+html[data-theme="paper"] {
+  color-scheme: light;
+
+  /* ---- 纸面调色板：改这里即可整体换色 ---- */
+  /* 页面底色（默认 #f6f5f1，微暖米白）。调冷用 #f4f5f7，纯白 #ffffff 会显得刺眼 */
+  --paper-bg: #f6f5f1;
+  /* 一级墨色：标题、强调、墨条（默认 #16181d） */
+  --paper-ink: #16181d;
+  /* 二级墨色：正文（默认 #454851）。调深可读性更强，调浅更轻盈 */
+  --paper-ink-2: #454851;
+  /* 三级墨色：标签、编号、暂不公开章节的目录项（默认 #878a92） */
+  --paper-ink-3: #878a92;
+  /* 分割线（默认 #dddbd4） */
+  --paper-rule: #dddbd4;
+  /* 坐标纸网格线（默认 rgba(22,24,29,0.06)）。调大网格更明显，0 为关闭 */
+  --paper-grid: rgba(22, 24, 29, 0.06);
+  /* 强调色：PUBLIC 标签、章节编号、链接（默认 #0f6f8f，站点青色在浅底上的可读版本） */
+  --paper-accent: #0f6f8f;
+
+  /* ---- Footer token（覆盖 footer.css 的 :root 默认） ---- */
+  --footer-bg-top: rgba(255, 255, 255, 0.35);
+  --footer-bg-bottom: rgba(236, 234, 228, 0.75);
+  --footer-border: rgba(0, 0, 0, 0.08);
+  --footer-shadow: rgba(0, 0, 0, 0.05);
+
+  /* ---- 玻璃降级 token（覆盖 glass-fallback.css 的 :root 默认） ---- */
+  --gf-frost-bg: rgba(246, 245, 241, 0.55);
+  --gf-frost-border: rgba(0, 0, 0, 0.08);
+  --gf-solid-bg: rgba(246, 245, 241, 0.94);
+  --gf-solid-bg-highlight: rgba(255, 255, 255, 0.5);
+  --gf-solid-border: rgba(0, 0, 0, 0.08);
+  --gf-solid-shadow: rgba(0, 0, 0, 0.08);
+}
+
+/* ---------- Navbar ---------- */
+html[data-theme="paper"] .navbar {
+  --navbar-border-idle: rgba(0, 0, 0, 0.06);
+  --navbar-border-scrolled: rgba(0, 0, 0, 0.1);
+  --navbar-logo-color: rgba(22, 24, 29, 0.85);
+  --navbar-logo-mark-color: #16181d;
+  --navbar-mobile-panel-bg: rgba(246, 245, 241, 0.85);
+  --navbar-mobile-panel-border: rgba(0, 0, 0, 0.08);
+}
+
+html[data-theme="paper"] .navbar__logo:hover {
+  color: var(--paper-ink);
+}
+
+html[data-theme="paper"] .navbar__glass-fallback--frost,
+html[data-theme="paper"] .navbar__glass-fallback--frost.navbar__glass-fallback--scrolled,
+html[data-theme="paper"] .navbar__glass-fallback--solid,
+html[data-theme="paper"] .navbar__glass-fallback--solid.navbar__glass-fallback--scrolled {
+  background: rgba(246, 245, 241, 0.72);
+  box-shadow: none;
+}
+
+html[data-theme="paper"] .navbar__link {
+  color: rgba(22, 24, 29, 0.7);
+}
+
+html[data-theme="paper"] .navbar__link:hover,
+html[data-theme="paper"] .navbar__link--active {
+  color: var(--paper-ink);
+  text-shadow: none;
+}
+
+html[data-theme="paper"] .navbar__hamburger span {
+  background: rgba(22, 24, 29, 0.75);
+}
+
+html[data-theme="paper"] [data-glass-tier="solid"] .navbar__mobile-panel,
+html[data-theme="paper"][data-glass-tier="solid"] .navbar__mobile-panel {
+  background: rgba(246, 245, 241, 0.97);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
+}
+
+/* 语言开关：浅底上轨道改浅灰、药丸改墨色、激活项文字反白 */
+html[data-theme="paper"] .lang-switch__track {
+  border-color: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+html[data-theme="paper"] .lang-switch__pill {
+  background: var(--paper-ink);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+}
+
+html[data-theme="paper"] .lang-switch__option {
+  color: rgba(22, 24, 29, 0.55);
+}
+
+html[data-theme="paper"] .lang-switch__option--active {
+  color: #ffffff;
+}
+
+/* ---------- 博客页壳 ---------- */
+html[data-theme="paper"] .blog-page {
+  background-color: var(--paper-bg);
+  background-image: none;
+  color: var(--paper-ink);
+}
+
+html[data-theme="paper"] .blog-page::before {
+  background-image:
+    linear-gradient(var(--paper-grid) 1.5px, transparent 1.5px),
+    linear-gradient(90deg, var(--paper-grid) 1.5px, transparent 1.5px);
+}
+
+/* 胶片颗粒在浅底上减半（默认 0.03，0 为关闭） */
+html[data-theme="paper"] .blog-page::after {
+  opacity: 0.03;
+}
+
+/* ---------- 列表页：标题、卡片 ---------- */
+html[data-theme="paper"] .blog-page__title {
+  color: var(--paper-ink);
+}
+
+html[data-theme="paper"] .blog-page__subtitle {
+  color: var(--paper-ink-3);
+}
+
+/* 卡片：白底细边，hover 边线转强调色，投影减弱 */
+html[data-theme="paper"] .blog-card {
+  background: rgba(255, 255, 255, 0.6);
+  border-color: rgba(22, 24, 29, 0.1);
+}
+
+html[data-theme="paper"] .blog-card:hover {
+  background: #ffffff;
+  border-color: rgba(15, 111, 143, 0.35);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(15, 111, 143, 0.08);
+}
+
+html[data-theme="paper"] .blog-card__date {
+  color: var(--paper-ink-3);
+}
+
+html[data-theme="paper"] .blog-card__tag {
+  background: rgba(22, 24, 29, 0.05);
+  border-color: rgba(22, 24, 29, 0.1);
+  color: var(--paper-ink-2);
+}
+
+html[data-theme="paper"] .blog-card__title {
+  color: var(--paper-ink);
+}
+
+html[data-theme="paper"] .blog-card__excerpt,
+html[data-theme="paper"] .blog-card--featured .blog-card__excerpt {
+  color: var(--paper-ink-2);
+}
+
+html[data-theme="paper"] .blog-card__cta {
+  color: var(--paper-ink-3);
+}
+
+html[data-theme="paper"] .blog-card:hover .blog-card__cta {
+  color: var(--paper-accent);
+}
+
+/* 浅底上不叠封面晕影：亮色封面（如沙漏）不能被压暗，深色蚀刻封面本身也不需要 */
+html[data-theme="paper"] .blog-card__cover-vignette {
+  background: none;
+}
+
+/* ---------- 通用文章正文（blog.css 的 .blog-h2 / .blog-p 等，Ω 宣言在用） ---------- */
+html[data-theme="paper"] .blog-h2,
+html[data-theme="paper"] .blog-h3,
+html[data-theme="paper"] .blog-p strong,
+html[data-theme="paper"] .blog-blockquote strong,
+html[data-theme="paper"] .blog-ol li strong {
+  color: var(--paper-ink);
+}
+
+html[data-theme="paper"] .blog-p,
+html[data-theme="paper"] .blog-ol li {
+  color: var(--paper-ink-2);
+}
+
+html[data-theme="paper"] .blog-blockquote {
+  color: var(--paper-ink-2);
+  background: rgba(22, 24, 29, 0.035);
+  border-left-color: var(--paper-accent);
+}
+
+html[data-theme="paper"] .blog-hr {
+  background: var(--paper-rule);
+}
+
+/* 文章列宽收窄到阅读宽度（默认 780px），标题区与正文对齐 */
+html[data-theme="paper"] .blog-detail {
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+html[data-theme="paper"] .blog-detail__back {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.14);
+  color: rgba(22, 24, 29, 0.65);
+}
+
+html[data-theme="paper"] .blog-detail__back:hover {
+  color: var(--paper-ink);
+  border-color: var(--paper-accent);
+  background: rgba(15, 111, 143, 0.06);
+}
+
+html[data-theme="paper"] .blog-detail__header {
+  border-bottom-color: var(--paper-rule);
+}
+
+html[data-theme="paper"] .blog-detail__title {
+  color: var(--paper-ink);
+}
+
+html[data-theme="paper"] .blog-detail__date {
+  color: var(--paper-ink-3);
+}
+
+html[data-theme="paper"] .blog-detail__hero-quote {
+  color: var(--paper-ink-2);
+  border-left-color: var(--paper-rule);
+}
+
+/* ---------- Footer ---------- */
+html[data-theme="paper"] .footer__company,
+html[data-theme="paper"] .footer__link,
+html[data-theme="paper"] .footer__link--icon,
+html[data-theme="paper"] .footer__link--featured,
+html[data-theme="paper"] .footer__link-icon {
+  color: rgba(22, 24, 29, 0.8);
+}
+
+html[data-theme="paper"] .footer__meta,
+html[data-theme="paper"] .footer__desc,
+html[data-theme="paper"] .footer__copy {
+  color: rgba(22, 24, 29, 0.55);
+}
+
+html[data-theme="paper"] .footer__link:hover {
+  color: var(--paper-accent);
+}
+
+html[data-theme="paper"] [data-glass-tier="solid"] .footer,
+html[data-theme="paper"][data-glass-tier="solid"] .footer {
+  background: rgba(240, 239, 234, 0.96);
+  box-shadow: 0 -1px 0 rgba(0, 0, 0, 0.06);
+}
+
+
+/* ---------- 通用文章正文：编号段落 / 行内 code / 配图（五种回测陷阱在用） ---------- */
+html[data-theme="paper"] .blog-p__num,
+html[data-theme="paper"] .blog-figure figcaption strong {
+  color: var(--paper-ink);
+}
+
+html[data-theme="paper"] .blog-p code,
+html[data-theme="paper"] .blog-figure figcaption code {
+  background: rgba(22, 24, 29, 0.06);
+  color: var(--paper-ink);
+}
+
+html[data-theme="paper"] .blog-figure img {
+  border-color: var(--paper-rule);
+}
+
+html[data-theme="paper"] .blog-figure figcaption {
+  color: var(--paper-ink-3);
+}
+
+/* ---------- 通用文章正文：链接 / 列表 / 公式 / 表格 / 时序图（股票永续一文在用） ---------- */
+html[data-theme="paper"] .blog-p a,
+html[data-theme="paper"] .blog-ul a,
+html[data-theme="paper"] .blog-note a,
+html[data-theme="paper"] .blog-table a {
+  color: var(--paper-accent);
+  border-bottom-color: rgba(15, 111, 143, 0.32);
+}
+
+html[data-theme="paper"] .blog-p a:hover,
+html[data-theme="paper"] .blog-ul a:hover,
+html[data-theme="paper"] .blog-note a:hover,
+html[data-theme="paper"] .blog-table a:hover {
+  border-bottom-color: var(--paper-accent);
+}
+
+html[data-theme="paper"] .blog-ul li {
+  color: var(--paper-ink-2);
+}
+
+html[data-theme="paper"] .blog-note {
+  color: var(--paper-ink-3);
+}
+
+html[data-theme="paper"] .blog-eq {
+  background: rgba(22, 24, 29, 0.035);
+  border-left-color: var(--paper-accent);
+}
+
+html[data-theme="paper"] .blog-eq__main {
+  color: var(--paper-ink);
+}
+
+html[data-theme="paper"] .blog-eq__terms li {
+  color: var(--paper-ink-2);
+}
+
+html[data-theme="paper"] .blog-eq__tag {
+  color: var(--paper-accent);
+}
+
+html[data-theme="paper"] .blog-eq__where {
+  color: var(--paper-ink-3);
+}
+
+html[data-theme="paper"] .blog-flow__node {
+  background: rgba(22, 24, 29, 0.035);
+  border-color: var(--paper-rule);
+  color: var(--paper-ink-2);
+}
+
+html[data-theme="paper"] .blog-flow__node + .blog-flow__node::before {
+  color: var(--paper-accent);
+}
+
+html[data-theme="paper"] .blog-table th {
+  color: var(--paper-ink);
+  border-bottom-color: var(--paper-ink-3);
+}
+
+html[data-theme="paper"] .blog-table td {
+  color: var(--paper-ink-2);
+  border-bottom-color: var(--paper-rule);
+}
+
+html[data-theme="paper"] .blog-table td strong {
+  color: var(--paper-ink);
+}
+
+html[data-theme="paper"] .blog-seq {
+  --seq-ink: var(--paper-ink);
+  --seq-ink-2: var(--paper-ink-2);
+  --seq-rule: var(--paper-rule);
+  --seq-accent: var(--paper-accent);
+  --seq-box: rgba(22, 24, 29, 0.04);
+}
+
+html[data-theme="paper"] .blog-seq figcaption {
+  color: var(--paper-ink-3);
+}

@@ -58,6 +58,11 @@ const LOOK_MAP = [
   ['BG_SWEEP_SCALE_X',      bg.sweepScale[0]],
   ['BG_SWEEP_SCALE_Y',      bg.sweepScale[1]],
   ['BG_SWEEP_COLOR',        bg.sweepColor,  'v3'],
+  ['GRAIN_AMOUNT',          bg.grainAmount],
+  ['HALO_COLOR',            bg.haloColor,   'v3'],
+  ['HALO_GAIN',             bg.haloGain],
+  ['HALO_FALLOFF',          bg.haloFalloff],
+  ['HALO_VEL_BOOST',        bg.haloVelocityBoost],
 
   // ── studio (ENV) ──
   ['ENV_DRIFT_SPEED',         st.driftSpeed],

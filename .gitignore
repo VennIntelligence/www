@@ -17,6 +17,9 @@ dist-ssr
 .dev.vars
 .wrangler/
 
+# Local per-directory env overrides (direnv) — not shared with other collaborators
+.envrc
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -27,3 +30,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# matplotlib 图表脚本的本地虚拟环境（scripts/figures/）
+.venv-fig/

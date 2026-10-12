@@ -327,9 +327,14 @@
 }
 .sigma-heading__light + br + .sigma-heading__light + br + .sigma-heading__display,
 .sigma-heading__display {
-  font-weight: 600;
+  /* 展示衬线（Gilda Display）+ 渐变裁切：末行与前两行无衬线细体形成编辑感对比。
+     Gilda 仅有 400 字重（font-synthesis: none 下 600 不会伪加粗），故显式用 400；
+     衬线字形偏宽，字距放宽到 0 平衡视觉密度。 */
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0;
   /* 兜底色：即使渐变裁剪不生效也保持可见 */
-  color: rgba(200, 230, 255, 0.96);
+  color: rgb(var(--hue-blue-bright) / 0.96);
   animation: about-title-reveal 320ms cubic-bezier(0.22, 1, 0.36, 1) 100ms both;
 }
 
@@ -339,7 +344,7 @@
  */
 @supports ((-webkit-background-clip: text) or (background-clip: text)) {
   .sigma-heading__display .magnet-char {
-    background: linear-gradient(135deg, rgba(200, 230, 255, 1), rgba(120, 180, 255, 0.8));
+    background: linear-gradient(135deg, rgb(var(--hue-blue-bright)), rgb(var(--hue-blue) / 0.8));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;

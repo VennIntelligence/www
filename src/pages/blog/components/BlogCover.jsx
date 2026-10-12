@@ -335,7 +335,27 @@ function applyVec3(gl, location, cssColor) {
   gl.uniform3f(location, r, g, b);
 }
 
-export default function BlogCover({ cover, featured }) {
+/**
+ * BlogCover — 文章卡片封面分发器
+ *
+ * 文章在 registry 里注册了专属封面组件(posts/<slug>/cover.jsx,静态 SVG 蚀刻图)
+ * 时优先渲染它;没有注册的文章回退到默认丝绸 shader(SilkCover)。
+ */
+export default function BlogCover({ cover, art: Art, featured }) {
+  if (Art) {
+    return (
+      <div
+        className={`blog-card__cover blog-card__cover--art${featured ? ' blog-card__cover--featured' : ''}`}
+        aria-hidden="true"
+      >
+        <Art />
+      </div>
+    );
+  }
+  return <SilkCover cover={cover} featured={featured} />;
+}
+
+function SilkCover({ cover, featured }) {
   const cardRef = useRef(null);
   const canvasRef = useRef(null);
   const mouseRef = useRef({ x: -1, y: -1 });
@@ -352,7 +372,6 @@ export default function BlogCover({ cover, featured }) {
     const gl = canvas.getContext('webgl', {
       alpha: false,
       antialias: false,
-      preserveDrawingBuffer: true,
     });
 
     if (!gl) return undefined;

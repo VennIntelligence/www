@@ -13,6 +13,20 @@
     --color-accent: #4fc3f7;
     --color-accent-dim: rgba(79, 195, 247, 0.3);
 
+    /* ── Section 主色系统（RGB 三元组，用 rgb(var(--x) / alpha) 派生任意透明度）──
+       蓝色系（Hero/Sigma）与金色系（Omega/Consultants）是全站仅有的两个色相。
+       section 级用色一律从这里派生，禁止在各 CSS 文件里再硬编码色值。 */
+    /* 蓝色系亮部（渐变文字起点）；默认标准值：200 230 255（浅冰蓝）。调低 G/B → 更暗更冷。 */
+    --hue-blue-bright: 200 230 255;
+    /* 蓝色系主体（渐变文字终点、发光）；默认标准值：120 180 255。 */
+    --hue-blue: 120 180 255;
+    /* 金色系亮部（渐变文字起点）；默认标准值：255 230 160（浅金）。 */
+    --hue-gold-bright: 255 230 160;
+    /* 金色系主体（呼吸线、发光、时间线节点）；默认标准值：255 200 80。 */
+    --hue-gold: 255 200 80;
+    /* 金色系深部（渐变文字终点）；默认标准值：210 150 60（琥珀）。调低 → 更偏棕。 */
+    --hue-gold-deep: 210 150 60;
+
     /* 控制局部文案换字动画时长，默认标准值 260ms。调大后更柔和，调小后更利落。 */
     --i18n-swap-duration: 260ms;
     /* 控制局部文案换字时的纵向位移，默认标准值 0.32em。调大后层次更明显，调小后更克制。 */
@@ -22,7 +36,14 @@
     /* 控制局部文案换字时旧文案保留的透明度，默认标准值 0.18。调大后拖影更明显，调小后更干净。 */
     --i18n-swap-outgoing-opacity: 0.18;
 
-    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    /* 全站唯一无衬线字栈（标题 + 正文共用）。默认标准值：Inter 起头，
+       显式中文回退 PingFang SC(macOS/iOS) → Microsoft YaHei(Windows) → Noto Sans SC(Android/Linux)，
+       保证中英混排字重灰度跨平台一致。组件内禁止再写独立 font-family，统一改这里。 */
+    --font-sans: 'Inter', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+    /* 展示衬线栈：仅用于 Sigma/Omega 标题的渐变裁切末行，制造编辑感对比。
+       默认标准值：Gilda Display（index.html 已加载，仅 400 字重）→ 系统宋体回退。
+       若停用 Gilda Display，需同步删除 index.html 中的加载。 */
+    --font-display: 'Gilda Display', 'Songti SC', 'STSong', 'Noto Serif SC', 'SimSun', Georgia, serif;
     --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
 
     font-synthesis: none;

@@ -1,0 +1,253 @@
+/* ============================================================
+   blog-paper.css — 技术报告 / 论文排版的博客正文（前缀 .paper-）。
+   当前使用者：/blog/time-manager-part-2（meta.theme = 'paper'）。
+   颜色 token（--paper-bg / --paper-ink / --paper-ink-2 / --paper-ink-3 /
+   --paper-rule / --paper-accent）来自 blog-paper-theme.css 的整站浅色主题；
+   本文件只定义正文自身：摘要、编号章节、matplotlib 静态图、booktabs 三线表、
+   编号代码清单。无衬线，沿用全站 --font-sans，与 Sigma 白皮书同一口径。
+   ============================================================ */
+
+.paper {
+  /* 正文列宽。默认 780px，与 blog-paper-theme.css 的 .blog-detail 一致。 */
+  --paper-w: 780px;
+  /* 正文字号 / 行高。默认 16px / 1.72（与 .wp-p 一致）。 */
+  --paper-fs: 16px;
+  --paper-lh: 1.72;
+  /* 行内代码底色 / 代码清单与原则框底色。默认 rgba(22,24,29,0.06) / rgba(22,24,29,0.035)。 */
+  --paper-code-bg: rgba(22, 24, 29, 0.06);
+  --paper-block-bg: rgba(22, 24, 29, 0.035);
+
+  max-width: var(--paper-w);
+  margin: 0 auto;
+  color: var(--paper-ink);
+  font-family: var(--font-sans);
+  font-size: var(--paper-fs);
+  line-height: var(--paper-lh);
+}
+
+/* ---------- 报告标签 / 摘要 ---------- */
+.paper-report {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--paper-ink-3);
+  padding-bottom: 12px;
+  margin-bottom: 28px;
+  border-bottom: 1px solid var(--paper-ink);
+}
+
+.paper-abstract {
+  margin: 0 0 40px;
+  padding: 18px 22px;
+  background: var(--paper-block-bg);
+  border-left: 3px solid var(--paper-ink);
+  font-size: calc(var(--paper-fs) - 1px);
+  line-height: 1.68;
+  color: var(--paper-ink-2);
+}
+.paper-abstract p {
+  margin: 0 0 12px;
+}
+.paper-abstract p:last-child {
+  margin-bottom: 0;
+}
+.paper-abstract strong {
+  color: var(--paper-ink);
+  font-weight: 600;
+}
+.paper-keywords {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+}
+
+/* ---------- 章节 ---------- */
+.paper-section {
+  margin-top: 48px;
+  scroll-margin-top: 96px;
+}
+
+.paper-h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  font-weight: 600;
+  font-size: 22px;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  color: var(--paper-ink);
+  margin: 0 0 18px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--paper-rule);
+}
+.paper-h2__no {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--paper-accent);
+}
+
+.paper-h3 {
+  font-weight: 600;
+  font-size: 15.5px;
+  color: var(--paper-ink);
+  margin: 26px 0 6px;
+}
+
+.paper-section p {
+  margin: 0 0 16px;
+  color: var(--paper-ink-2);
+}
+
+.paper-section strong {
+  color: var(--paper-ink);
+  font-weight: 600;
+}
+
+.paper-section code,
+.paper-abstract code {
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  background: var(--paper-code-bg);
+  padding: 0.08em 0.32em;
+  border-radius: 3px;
+  color: var(--paper-ink);
+}
+
+.paper-list {
+  margin: 0 0 16px;
+  padding-left: 1.5em;
+  color: var(--paper-ink-2);
+}
+.paper-list li {
+  margin-bottom: 8px;
+}
+
+/* 定义 / 原则框 */
+.paper-def {
+  margin: 18px 0 22px;
+  padding: 14px 18px;
+  border-left: 3px solid var(--paper-accent);
+  background: var(--paper-block-bg);
+  color: var(--paper-ink-2);
+}
+
+/* ---------- 图（matplotlib SVG，白底） ---------- */
+.paper-figure {
+  margin: 26px 0 30px;
+}
+.paper-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #ffffff;
+  border: 1px solid var(--paper-rule);
+  padding: 8px;
+  box-sizing: border-box;
+}
+.paper-figure figcaption,
+.paper-listing figcaption {
+  margin-top: 10px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--paper-ink-2);
+}
+.paper-figure figcaption strong,
+.paper-listing figcaption strong {
+  color: var(--paper-ink);
+}
+
+/* ---------- 表（booktabs 三线表） ---------- */
+.paper-table {
+  margin: 26px 0 30px;
+}
+.paper-table__caption {
+  text-align: center;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--paper-ink-2);
+  margin-bottom: 8px;
+}
+.paper-table__no {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: var(--paper-accent);
+  margin-bottom: 2px;
+}
+.paper-table__scroll {
+  overflow-x: auto;
+}
+.paper-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--paper-ink-2);
+  border-top: 1.5px solid var(--paper-ink);
+  border-bottom: 1.5px solid var(--paper-ink);
+}
+.paper-table th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--paper-ink);
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--paper-ink);
+  vertical-align: bottom;
+  white-space: nowrap;
+}
+.paper-table td {
+  padding: 7px 10px;
+  vertical-align: top;
+  border-bottom: 1px solid var(--paper-rule);
+}
+.paper-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.paper-table td:first-child {
+  white-space: nowrap;
+  color: var(--paper-ink);
+}
+
+/* ---------- 代码清单 ---------- */
+.paper-listing {
+  margin: 22px 0 28px;
+}
+.paper-listing figcaption {
+  margin: 0 0 8px;
+}
+.paper-listing__note {
+  color: var(--paper-ink-3);
+}
+.paper-listing pre {
+  margin: 0;
+  padding: 14px 16px;
+  background: var(--paper-block-bg);
+  border-top: 1px solid var(--paper-ink);
+  border-bottom: 1px solid var(--paper-ink);
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--paper-ink);
+  tab-size: 4;
+}
+.paper-listing pre code {
+  background: none;
+  padding: 0;
+  font-size: inherit;
+}
+
+@media (max-width: 640px) {
+  .paper {
+    --paper-fs: 15.5px;
+  }
+  .paper-abstract {
+    padding: 14px 16px;
+  }
+  .paper-table td:first-child {
+    white-space: normal;
+  }
+}

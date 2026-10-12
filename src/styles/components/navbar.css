@@ -39,9 +39,13 @@
 }
 
 /* LiquidGlass applies its own container — override its internal layout */
+/* overflow 必须覆盖：LiquidGlass 给容器写死了内联 overflow:hidden，
+   会把溢出导航栏 60px 高度的 Projects 下拉面板整块裁掉。
+   navbar 的 borderRadius 为 0，放开裁剪不影响玻璃折射外观。 */
 .navbar__glass {
   width: 100% !important;
   height: 100% !important;
+  overflow: visible !important;
 }
 
 /* ---- CSS 玻璃降级（移动端 + 不支持 Liquid 的环境）---- */
@@ -149,7 +153,7 @@
   /* 未激活链接颜色；默认标准值：rgba(255,255,255,0.82)。调大更显眼，调小更灰暗。 */
   color: rgba(255, 255, 255, 0.866);
   text-decoration: none;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 14px; /* Adjusted slightly for uppercase aesthetic */
   font-weight: 300;
   letter-spacing: 0.1em; /* Increased spacing for uppercase */
@@ -201,6 +205,125 @@
 }
 
 
+
+/* ---- Projects Dropdown（桌面端二级菜单）---- */
+.navbar__group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.navbar__link--trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* 分组标题右侧的下拉箭头；默认标准值：边长 4px 的实心下三角，透明度 0.62。
+   调大三角更醒目但会挤压文字间距，调小更含蓄。展开时旋转 180°。 */
+.navbar__caret {
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid currentColor;
+  opacity: 0.62;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.28s ease;
+}
+
+.navbar__link--trigger[aria-expanded="true"] .navbar__caret,
+.navbar__group:hover .navbar__caret {
+  opacity: 1;
+}
+
+.navbar__link--trigger[aria-expanded="true"] .navbar__caret {
+  transform: rotate(180deg);
+}
+
+/* 下拉面板：默认磨砂半透明，跟随导航栏的玻璃语言。
+   --dropdown-gap 默认标准值 10px —— 面板顶部与分组标题的垂直间距，
+   调大更松弛但需同步调大下方 ::before 的补偿高度，否则鼠标穿过空隙时面板会收起。 */
+.navbar__dropdown {
+  --dropdown-gap: 10px;
+  position: absolute;
+  top: calc(100% + var(--dropdown-gap));
+  left: 0;
+  z-index: 102;
+  display: flex;
+  flex-direction: column;
+  min-width: 230px;
+  padding: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  background: rgba(10, 16, 28, 0.72);
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(26px) saturate(1.45);
+  -webkit-backdrop-filter: blur(26px) saturate(1.45);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-8px);
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0.22s ease;
+}
+
+/* 悬停桥：补足标题与面板之间的空隙，鼠标下移时不会因为离开元素盒而误收起 */
+.navbar__dropdown::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--dropdown-gap) * -1);
+  height: var(--dropdown-gap);
+}
+
+.navbar__dropdown--open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* Android / 低能力设备实底降级，与移动面板保持同一套 tier 逻辑 */
+[data-glass-tier="solid"] .navbar__dropdown {
+  background: rgba(4, 8, 18, 0.96);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 18px 46px rgba(0, 0, 0, 0.52);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* 下拉子项：左对齐整行，不参与顶栏「有激活项就压暗其余项」的联动 */
+.navbar__dropdown .navbar__link {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 9px;
+  font-size: 13px; /* 默认标准值：13px；比顶栏略小以拉开层级 */
+  letter-spacing: 0.08em;
+  text-align: left;
+  filter: none;
+  opacity: 0.86;
+}
+
+.navbar[data-lang="zh"] .navbar__dropdown .navbar__link {
+  font-size: 14px; /* 中文视觉补偿；默认标准值：14px */
+  letter-spacing: 0.12em;
+}
+
+.navbar__dropdown .navbar__link:hover {
+  background: rgba(255, 255, 255, 0.08);
+  opacity: 1;
+}
+
+.navbar__dropdown .navbar__link--active {
+  opacity: 1;
+}
 
 /* ---- Right Section ---- */
 .navbar__right {
@@ -334,7 +457,7 @@
   justify-content: center;
   padding: 0;
   border-radius: inherit;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.08em;
@@ -343,7 +466,7 @@
 }
 
 .lang-switch__option--active {
-  color: rgba(10, 12, 18, 0.88);
+  color: #000000;
 }
 
 .lang-switch__option-label {
@@ -497,6 +620,30 @@
   }
 
   .mobile-links .navbar__link + .navbar__link {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  /* 移动端分组：不做二级折叠，标题作为分区小标，子项缩进直接铺开 */
+  .navbar__group--mobile {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .navbar__group-label {
+    padding: 14px var(--navbar-padding-inline-mobile) 6px;
+    font-family: var(--font-sans);
+    font-size: 10px; /* 默认标准值：10px；分区小标刻意小于菜单项以区分层级 */
+    font-weight: 400;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.4); /* 默认标准值：0.4；调大更醒目，调小更像背景标注 */
+  }
+
+  /* 分组与相邻顶层菜单项之间补分隔线（组内相邻子项已由通用相邻规则处理） */
+  .mobile-links .navbar__group + .navbar__link,
+  .mobile-links .navbar__link + .navbar__group,
+  .mobile-links .navbar__group + .navbar__group {
     border-top: 1px solid rgba(255, 255, 255, 0.08);
   }
 

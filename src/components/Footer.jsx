@@ -1,6 +1,6 @@
 import { COPY } from '../config/i18n';
 import { useLanguage } from '../context/useLanguage';
-import { IconEmail, IconX, IconGitHub } from './common/SocialIcons';
+import { IconEmail, IconX } from './common/SocialIcons';
 import '../styles/components/footer.css';
 
 /**
@@ -42,10 +42,6 @@ export default function Footer() {
             <a href="https://x.com/venn_foundation" target="_blank" rel="noopener noreferrer" className="footer__link footer__link--icon">
               <IconX className="footer__link-icon" />
               {copy.twitter}
-            </a>
-            <a href="https://github.com/VennIntelligence/" target="_blank" rel="noopener noreferrer" className="footer__link footer__link--icon">
-              <IconGitHub className="footer__link-icon" />
-              {copy.github}
             </a>
           </div>
         </div>

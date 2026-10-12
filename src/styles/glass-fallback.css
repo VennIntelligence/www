@@ -157,7 +157,7 @@
     -webkit-backdrop-filter: none !important;
   }
 
-  .omega-pillar,
+  .omega-engine__artifact,
   .sigma-pillar {
     background: rgba(16, 20, 28, 0.80) !important;
     backdrop-filter: none !important;

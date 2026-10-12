@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="880" height="560" viewBox="0 0 880 560" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="axisArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="880" height="560" fill="white"/>
+
+  <!-- Title -->
+  <text x="440" y="30" text-anchor="middle" font-size="16" font-weight="bold" fill="#222222">Discovery bounds: layered &#177;5% ratchet while the underlying market is closed</text>
+
+  <!-- Discovery bound bands -->
+  <rect x="110" y="279.6" width="230" height="146.5" fill="#4C72B0" fill-opacity="0.10" stroke="#4C72B0" stroke-opacity="0.5" stroke-width="1"/>
+  <rect x="340" y="202.7" width="230" height="153.8" fill="#4C72B0" fill-opacity="0.10" stroke="#4C72B0" stroke-opacity="0.5" stroke-width="1"/>
+  <rect x="570" y="122.0" width="225" height="161.4" fill="#4C72B0" fill-opacity="0.10" stroke="#4C72B0" stroke-opacity="0.5" stroke-width="1"/>
+
+  <!-- Band labels -->
+  <text x="122" y="302" font-size="12.5" fill="#3d5a8a" font-weight="bold">L0&#160;&#160;[95.00, 105.00]</text>
+  <text x="352" y="224" font-size="12.5" fill="#3d5a8a" font-weight="bold">L1&#160;&#160;[99.75, 110.25]</text>
+  <text x="582" y="143" font-size="12.5" fill="#3d5a8a" font-weight="bold">L2&#160;&#160;[104.74, 115.76]</text>
+
+  <!-- Hard cap -->
+  <line x1="110" y1="122.0" x2="795" y2="122.0" stroke="#C44E52" stroke-width="1.5" stroke-dasharray="7 4"/>
+  <text x="575" y="112" font-size="12" fill="#C44E52">hard cap 115.76&#160;&#160;(+15.76% = 1.05&#179;)</text>
+
+  <!-- Reference price step line -->
+  <line x1="110" y1="352.9" x2="340" y2="352.9" stroke="#666666" stroke-width="1.6"/>
+  <line x1="340" y1="352.9" x2="340" y2="279.6" stroke="#666666" stroke-width="1.2" stroke-dasharray="3 3"/>
+  <line x1="340" y1="279.6" x2="570" y2="279.6" stroke="#666666" stroke-width="1.6"/>
+  <line x1="570" y1="279.6" x2="570" y2="202.7" stroke="#666666" stroke-width="1.2" stroke-dasharray="3 3"/>
+  <line x1="570" y1="202.7" x2="795" y2="202.7" stroke="#666666" stroke-width="1.6"/>
+  <text x="200" y="368" font-size="11" fill="#666666">reference = 100.00</text>
+  <text x="430" y="295" font-size="11" fill="#666666">reference = 105.00</text>
+  <text x="660" y="218" font-size="11" fill="#666666">reference = 110.25</text>
+
+  <!-- Oracle path (illustrative) -->
+  <polyline points="110,352.9 145,340 175,352 215,325 250,314 285,300 315,293 340,287.0 365,278 395,290 430,262 470,268 515,240 545,228 570,210.4 600,200 630,208 665,185 700,192 740,172 775,166 795,168"
+            fill="none" stroke="#2A5599" stroke-width="2.2" stroke-linejoin="round"/>
+
+  <!-- Friday close marker -->
+  <circle cx="110" cy="352.9" r="4" fill="#2A5599"/>
+  <text x="118" y="388" font-size="11.5" fill="#444444">Friday close = 100.00 (initial reference)</text>
+
+  <!-- Re-anchor events -->
+  <circle cx="340" cy="287.0" r="4.5" fill="#C44E52"/>
+  <circle cx="570" cy="210.4" r="4.5" fill="#C44E52"/>
+
+  <line x1="333" y1="281" x2="258" y2="252" stroke="#999999" stroke-width="1"/>
+  <text x="118" y="238" font-size="11.5" fill="#444444">oracle reaches 90% of the L0 band (104.50):</text>
+  <text x="118" y="253" font-size="11.5" fill="#444444">reference re-anchors to 105.00, level L1 opens</text>
+
+  <line x1="563" y1="205" x2="505" y2="172" stroke="#999999" stroke-width="1"/>
+  <text x="352" y="158" font-size="11.5" fill="#444444">reaches 90% of the L1 band (109.73):</text>
+  <text x="352" y="173" font-size="11.5" fill="#444444">re-anchors to 110.25, level L2 opens</text>
+
+  <!-- Legend -->
+  <rect x="104" y="62" width="282" height="88" fill="white" fill-opacity="0.92"/>
+  <g font-size="11.5" fill="#444444">
+    <rect x="112" y="72" width="18" height="11" fill="#4C72B0" fill-opacity="0.10" stroke="#4C72B0" stroke-opacity="0.5" stroke-width="1"/>
+    <text x="136" y="81.5">allowed oracle range (discovery bound level)</text>
+    <line x1="112" y1="98" x2="130" y2="98" stroke="#2A5599" stroke-width="2.2"/>
+    <text x="136" y="102">internal oracle path (illustrative)</text>
+    <line x1="112" y1="118" x2="130" y2="118" stroke="#666666" stroke-width="1.6"/>
+    <text x="136" y="122">reference price (re-anchors at 90% of band)</text>
+    <line x1="112" y1="138" x2="130" y2="138" stroke="#C44E52" stroke-width="1.5" stroke-dasharray="7 4"/>
+    <text x="136" y="142">cumulative hard cap (3 levels max)</text>
+  </g>
+
+  <!-- Axes -->
+  <line x1="90" y1="470" x2="90" y2="55" stroke="#333333" stroke-width="1.5" marker-end="url(#axisArrow)"/>
+  <line x1="90" y1="470" x2="822" y2="470" stroke="#333333" stroke-width="1.5" marker-end="url(#axisArrow)"/>
+
+  <!-- Y ticks -->
+  <g font-size="11.5" fill="#333333" text-anchor="end">
+    <line x1="85" y1="426.1" x2="90" y2="426.1" stroke="#333333" stroke-width="1.2"/>
+    <text x="80" y="430">95</text>
+    <line x1="85" y1="352.9" x2="90" y2="352.9" stroke="#333333" stroke-width="1.2"/>
+    <text x="80" y="357">100</text>
+    <line x1="85" y1="279.6" x2="90" y2="279.6" stroke="#333333" stroke-width="1.2"/>
+    <text x="80" y="284">105</text>
+    <line x1="85" y1="206.4" x2="90" y2="206.4" stroke="#333333" stroke-width="1.2"/>
+    <text x="80" y="211">110</text>
+    <line x1="85" y1="133.2" x2="90" y2="133.2" stroke="#333333" stroke-width="1.2"/>
+    <text x="80" y="138">115</text>
+  </g>
+
+  <!-- X ticks -->
+  <g font-size="11.5" fill="#333333" text-anchor="middle">
+    <line x1="110" y1="470" x2="110" y2="475" stroke="#333333" stroke-width="1.2"/>
+    <text x="110" y="490">t&#8320;</text>
+    <line x1="340" y1="470" x2="340" y2="475" stroke="#333333" stroke-width="1.2"/>
+    <text x="340" y="490">t&#8321; (1st re-anchor)</text>
+    <line x1="570" y1="470" x2="570" y2="475" stroke="#333333" stroke-width="1.2"/>
+    <text x="570" y="490">t&#8322; (2nd re-anchor)</text>
+  </g>
+
+  <!-- Axis titles -->
+  <text x="30" y="265" font-size="13" fill="#222222" transform="rotate(-90 30 265)" text-anchor="middle">Oracle price</text>
+  <text x="455" y="516" font-size="13" fill="#222222" text-anchor="middle">Weekend time (underlying market closed)</text>
+
+  <!-- Footnote -->
+  <text x="90" y="544" font-size="10.5" fill="#888888">Up to three levels per direction; symmetric on the downside (hard floor &#8776; 85.74 = 100 &#215; 0.95&#179;). Oracle path illustrative.</text>
+</svg>

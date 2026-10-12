@@ -1,12 +1,15 @@
 import { Suspense } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useLanguage } from '../context/useLanguage';
+import usePageTheme from '../hooks/usePageTheme';
 import { COPY } from '../config/i18n';
 import Footer from '../components/Footer';
+import TickerBand from '../components/TickerBand';
 import ArticleSchema from '../components/seo/ArticleSchema';
 import { BLOG_POSTS } from './blog/registry';
 import NotFound from './NotFound';
 import '../styles/pages/blog.css';
+import '../styles/pages/blog-paper-theme.css';
 
 /**
  * BlogArticlePage — 博客文章独立路由页面
@@ -25,6 +28,10 @@ export default function BlogArticlePage() {
 
   const post = BLOG_POSTS.find(p => p.slug === slug);
 
+  // meta.theme 声明的文章把整站切到该主题（如白皮书的 'paper' 浅色），离开时自动恢复
+  // 博客默认浅色纸面；文章 meta.theme 可覆盖（未定义主题名 = 全站暗色）
+  usePageTheme(post ? post.meta.theme ?? 'paper' : undefined);
+
   if (!post) return <NotFound />;
 
   const localMeta = post.meta[lang];
@@ -41,13 +48,17 @@ export default function BlogArticlePage() {
             excerpt={localMeta.excerpt}
             tags={post.meta.tags}
           />
+          {/* 主题行情作战带：meta.tickerBand 声明的文章在大标题上方展示，
+              masthead 模式顶进 navbar 下方、带内自留渐变头区 */}
+          {post.meta.tickerBand && <TickerBand masthead />}
+
           <Link to="/blog" className="blog-detail__back">
             {copy.backToList}
           </Link>
 
           <header className="blog-detail__header">
-            <time className="blog-detail__date">{post.meta.date}</time>
             <h1 className="blog-detail__title">{localMeta.title}</h1>
+            <time className="blog-detail__date">{post.meta.date}</time>
             <p className="blog-detail__hero-quote">{localMeta.heroQuote}</p>
           </header>
 

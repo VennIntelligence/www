@@ -62,7 +62,7 @@
 
 /* 公司名称 — 主标题级，字号 14px，亮度最高一档（默认 0.78） */
 .footer__company {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 14px;
   font-weight: 600;
   color: rgba(236, 240, 246, 0.78);
@@ -80,7 +80,7 @@
 
 /* 描述文案 — 字号 15px，次亮档（默认 0.62） */
 .footer__desc {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 15px;
   color: rgba(230, 236, 245, 0.62);
   line-height: 1.68;
@@ -103,7 +103,7 @@
 
 /* 链接基础样式 — 14px，锚定亮度（默认 0.76） */
 .footer__link {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 14px;
   color: rgba(234, 240, 248, 0.76);
   text-decoration: none;
@@ -189,7 +189,7 @@
 
 /* 版权信息 — 最低优先级，字号 13px（默认 0.52） */
 .footer__copy {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   font-size: 13px;
   color: rgba(226, 233, 244, 0.52);
 }

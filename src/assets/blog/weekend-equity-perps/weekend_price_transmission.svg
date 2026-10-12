@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="810" height="670" viewBox="0 0 810 670" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="wtArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333"/>
+    </marker>
+    <marker id="wtArrowGray" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#888888"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="810" height="670" fill="white"/>
+
+  <!-- Nodes -->
+  <rect x="230" y="14" width="300" height="48" rx="8" fill="none" stroke="#333333" stroke-width="1.2"/>
+  <text x="380" y="33" text-anchor="middle" font-size="13.5" font-weight="bold" fill="#222222">Weekend news</text>
+  <text x="380" y="51" text-anchor="middle" font-size="11.5" fill="#444444">corporate &#183; macro &#183; geopolitical events</text>
+
+  <rect x="200" y="100" width="360" height="62" rx="8" fill="#4C72B0" fill-opacity="0.08" stroke="#333333" stroke-width="1.2"/>
+  <text x="380" y="119" text-anchor="middle" font-size="13.5" font-weight="bold" fill="#222222">Leading order book</text>
+  <text x="380" y="136" text-anchor="middle" font-size="11.5" fill="#444444">Trade.xyz / Hyperliquid, or another deep venue</text>
+  <text x="380" y="152" text-anchor="middle" font-size="11.5" fill="#444444">BBO &#183; impact price &#183; last</text>
+
+  <rect x="40" y="212" width="300" height="48" rx="8" fill="none" stroke="#333333" stroke-width="1.2"/>
+  <text x="190" y="231" text-anchor="middle" font-size="13.5" font-weight="bold" fill="#222222">Oracle / mark update</text>
+  <text x="190" y="249" text-anchor="middle" font-size="11.5" fill="#444444">internal discovery + EMA + medians</text>
+
+  <rect x="420" y="212" width="290" height="48" rx="8" fill="none" stroke="#333333" stroke-width="1.2"/>
+  <text x="565" y="231" text-anchor="middle" font-size="13.5" font-weight="bold" fill="#222222">Cross-venue MMs &#38; arbitrageurs</text>
+  <text x="565" y="249" text-anchor="middle" font-size="11.5" fill="#444444">recompute a unified fair value</text>
+
+  <rect x="400" y="312" width="330" height="48" rx="8" fill="none" stroke="#333333" stroke-width="1.2"/>
+  <text x="565" y="331" text-anchor="middle" font-size="13.5" font-weight="bold" fill="#222222">Binance / OKX / Gate local books</text>
+  <text x="565" y="349" text-anchor="middle" font-size="11.5" fill="#444444">cancel stale quotes &#183; requote &#183; get hit</text>
+
+  <rect x="140" y="412" width="320" height="48" rx="8" fill="none" stroke="#333333" stroke-width="1.2"/>
+  <text x="300" y="431" text-anchor="middle" font-size="13.5" font-weight="bold" fill="#222222">Local index / mark</text>
+  <text x="300" y="449" text-anchor="middle" font-size="11.5" fill="#444444">orderbook EWMA or composite external index</text>
+
+  <rect x="150" y="500" width="300" height="48" rx="8" fill="#C44E52" fill-opacity="0.07" stroke="#333333" stroke-width="1.2"/>
+  <text x="300" y="519" text-anchor="middle" font-size="13.5" font-weight="bold" fill="#222222">Risk engine</text>
+  <text x="300" y="537" text-anchor="middle" font-size="11.5" fill="#444444">margin &#183; liquidation &#183; trigger orders</text>
+
+  <rect x="280" y="588" width="310" height="48" rx="8" fill="none" stroke="#333333" stroke-width="1.2"/>
+  <text x="435" y="607" text-anchor="middle" font-size="13.5" font-weight="bold" fill="#222222">Local last price follows</text>
+  <text x="435" y="625" text-anchor="middle" font-size="11.5" fill="#444444">arbitrage fills + liquidation flow</text>
+
+  <!-- Edges -->
+  <line x1="380" y1="62" x2="380" y2="96" stroke="#333333" stroke-width="1.2" marker-end="url(#wtArrow)"/>
+  <text x="390" y="84" font-size="10.5" font-style="italic" fill="#777777">informed capital trades first</text>
+
+  <line x1="280" y1="162" x2="208" y2="208" stroke="#333333" stroke-width="1.2" marker-end="url(#wtArrow)"/>
+  <text x="48" y="188" font-size="10.5" font-style="italic" fill="#777777">book feeds the pricing formula</text>
+
+  <line x1="470" y1="162" x2="540" y2="208" stroke="#333333" stroke-width="1.2" marker-end="url(#wtArrow)"/>
+  <text x="520" y="186" font-size="10.5" font-style="italic" fill="#777777">executable reference price</text>
+
+  <line x1="185" y1="260" x2="268" y2="408" stroke="#333333" stroke-width="1.2" marker-end="url(#wtArrow)"/>
+  <text x="42" y="330" font-size="10.5" font-style="italic" fill="#777777">directly referenced by</text>
+  <text x="42" y="344" font-size="10.5" font-style="italic" fill="#777777">OKX-style composite indices</text>
+
+  <line x1="565" y1="260" x2="565" y2="308" stroke="#333333" stroke-width="1.2" marker-end="url(#wtArrow)"/>
+  <text x="575" y="288" font-size="10.5" font-style="italic" fill="#777777">cancels &#38; cross-venue fills</text>
+
+  <line x1="445" y1="360" x2="335" y2="408" stroke="#333333" stroke-width="1.2" marker-end="url(#wtArrow)"/>
+  <text x="470" y="398" font-size="10.5" font-style="italic" fill="#777777">BBO / impact / trade inputs</text>
+
+  <line x1="300" y1="460" x2="300" y2="496" stroke="#333333" stroke-width="1.2" marker-end="url(#wtArrow)"/>
+
+  <line x1="350" y1="548" x2="402" y2="584" stroke="#333333" stroke-width="1.2" marker-end="url(#wtArrow)"/>
+  <text x="345" y="574" text-anchor="end" font-size="10.5" font-style="italic" fill="#777777">liquidations &#38; deleveraging</text>
+
+  <path d="M 660 360 C 700 440, 700 520, 570 584" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#wtArrow)"/>
+  <text x="608" y="470" font-size="10.5" font-style="italic" fill="#777777">regular fills</text>
+
+  <path d="M 592 624 L 748 624 Q 764 624 764 608 L 764 356 Q 764 340 748 340 L 740 340" fill="none" stroke="#888888" stroke-width="1.1" stroke-dasharray="5 4" marker-end="url(#wtArrowGray)"/>
+
+  <line x1="48" y1="592" x2="68" y2="592" stroke="#888888" stroke-width="1.1" stroke-dasharray="5 4"/>
+  <text x="74" y="596" font-size="10.5" font-style="italic" fill="#888888">inventory &#38; price feedback</text>
+</svg>

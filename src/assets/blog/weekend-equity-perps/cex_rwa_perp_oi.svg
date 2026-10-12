@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="576pt" height="302.4pt" viewBox="0 0 576 302.4" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-08-21T17:48:32.313277</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.10.8, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 302.4 
+L 576 302.4 
+L 576 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 61.54 243.88 
+L 565.2 243.88 
+L 565.2 32.88 
+L 61.54 32.88 
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 61.54 234.289091 
+L 71.284726 234.289091 
+L 71.284726 208.547257 
+L 61.54 208.547257 
+z
+" clip-path="url(#p8a9198b354)" style="fill: #999999"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 61.54 192.770004 
+L 154.169643 192.770004 
+L 154.169643 167.02817 
+L 61.54 167.02817 
+z
+" clip-path="url(#p8a9198b354)" style="fill: #999999"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 61.54 151.250917 
+L 188.878387 151.250917 
+L 188.878387 125.509083 
+L 61.54 125.509083 
+z
+" clip-path="url(#p8a9198b354)" style="fill: #999999"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 61.54 109.73183 
+L 252.492835 109.73183 
+L 252.492835 83.989996 
+L 61.54 83.989996 
+z
+" clip-path="url(#p8a9198b354)" style="fill: #999999"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 61.54 68.212743 
+L 476.293061 68.212743 
+L 476.293061 42.470909 
+L 61.54 42.470909 
+z
+" clip-path="url(#p8a9198b354)" style="fill: #4c72b0"/>
+   </g>
+   <g id="matplotlib.axis_1">
+    <g id="xtick_1">
+     <g id="line2d_1">
+      <defs>
+       <path id="m5db1aaf2ab" d="M 0 0 
+L 0 3.5 
+" style="stroke: #333333; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#m5db1aaf2ab" x="61.54" y="243.88" style="fill: #333333; stroke: #333333; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_1">
+      <text style="font-size: 12px; font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'DejaVu Sans'; text-anchor: middle; fill: #333333" x="61.54" y="259.44875" transform="rotate(-0 61.54 259.44875)">0</text>
+     </g>
+    </g>
+    <g id="xtick_2">
+     <g id="line2d_2">
+      <g>
+       <use xlink:href="#m5db1aaf2ab" x="171.031304" y="243.88" style="fill: #333333; stroke: #333333; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_2">
+      <text style="font-size: 12px; font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'DejaVu Sans'; text-anchor: middle; fill: #333333" x="171.031304" y="259.44875" transform="rotate(-0 171.031304 259.44875)">100</text>
+     </g>
+    </g>
+    <g id="xtick_3">
+     <g id="line2d_3">
+      <g>
+       <use xlink:href="#m5db1aaf2ab" x="280.522609" y="243.88" style="fill: #333333; stroke: #333333; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_3">
+      <text style="font-size: 12px; font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'DejaVu Sans'; text-anchor: middle; fill: #333333" x="280.522609" y="259.44875" transform="rotate(-0 280.522609 259.44875)">200</text>
+     </g>
+    </g>
+    <g id="xtick_4">
+     <g id="line2d_4">
+      <g>
+       <use xlink:href="#m5db1aaf2ab" x="390.013913" y="243.88" style="fill: #333333; stroke: #333333; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_4">
+      <text style="font-size: 12px; font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'DejaVu Sans'; text-anchor: middle; fill: #333333" x="390.013913" y="259.44875" transform="rotate(-0 390.013913 259.44875)">300</text>
+     </g>
+    </g>
+    <g id="xtick_5">
+     <g id="line2d_5">
+      <g>
+       <use xlink:href="#m5db1aaf2ab" x="499.505217" y="243.88" style="fill: #333333; stroke: #333333; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_5">
+      <text style="font-size: 12px; font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'DejaVu Sans'; text-anchor: middle; fill: #333333" x="499.505217" y="259.44875" transform="rotate(-0 499.505217 259.44875)">400</text>
+     </g>
+    </g>
+    <g id="text_6">
+     <text style="font-size: 12px; font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'DejaVu Sans'; text-anchor: middle; fill: #222222" x="313.37" y="274.584375" transform="rotate(-0 313.37 274.584375)">Open interest (USD millions)</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_2">
+    <g id="ytick_1">
+     <g id="line2d_6">
+      <defs>
+       <path id="mf290035cc2" d="M 0 0 
+L -3.5 0 
+" style="stroke: #333333; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#mf290035cc2" x="61.54" y="221.418174" style="fill: #333333; stroke: #333333; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_7">
+      <text style="font-size: 12px; font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'DejaVu Sans'; text-anchor: end; fill: #333333" x="54.54" y="225.702549" transform="rotate(-0 54.54 225.702549)">Others</text>
+     </g>
+    </g>
+    <g id="ytick_2">
+     <g id="line2d_7">
+      <g>
+       <use xlink:href="#mf290035cc2" x="61.54" y="179.899087" style="fill: #333333; stroke: #333333; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_8">
+      <text style="font-size: 12px; font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'DejaVu Sans'; text-anchor: end; fill: #333333" x="54.54" y="184.183462" transform="rotate(-0 54.54 184.183462)">Bitget</text>
+     </g>
+    </g>
+    <g id="ytick_3">
+     <g id="line2d_8">
+      <g>
+       <use xlink:href="#mf290035cc2" x="61.54" y="138.38" style="fill: #333333; stroke: #333333; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_9">
+      <text style="font-size: 12px; font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'DejaVu Sans'; text-anchor: end; fill: #333333" x="54.54" y="142.664375" transform="rotate(-0 54.54 142.664375)">Binance</text>
+     </g>
+    </g>
+    <g id="ytick_4">
+     <g id="line2d_9">
+      <g>
+       <use xlink:href="#mf290035cc2" x="61.54" y="96.860913" style="fill: #333333; stroke: #333333; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_10">
+      <text style="font-size: 12px; font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'DejaVu Sans'; text-anchor: end; fill: #333333" x="54.54" y="101.145288" transform="rotate(-0 54.54 101.145288)">Bybit</text>
+     </g>
+    </g>
+    <g id="ytick_5">
+     <g id="line2d_10">
+      <g>
+       <use xlink:href="#mf290035cc2" x="61.54" y="55.341826" style="fill: #333333; stroke: #333333; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_11">
+      <text style="font-size: 12px; font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'DejaVu Sans'; text-anchor: end; fill: #333333" x="54.54" y="59.626201" transform="rotate(-0 54.54 59.626201)">Gate</text>
+     </g>
+    </g>
+   </g>
+   <g id="patch_8">
+    <path d="M 61.54 243.88 
+L 61.54 32.88 
+" style="fill: none; stroke: #333333; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_9">
+    <path d="M 61.54 243.88 
+L 565.2 243.88 
+" style="fill: none; stroke: #333333; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="text_12">
+    <text style="font-size: 11px; font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'DejaVu Sans'; text-anchor: start; fill: #222222" x="77.854204" y="224.261846" transform="rotate(-0 77.854204 224.261846)">$8.9M</text>
+   </g>
+   <g id="text_13">
+    <text style="font-size: 11px; font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'DejaVu Sans'; text-anchor: start; fill: #222222" x="160.739122" y="182.742759" transform="rotate(-0 160.739122 182.742759)">$84.6M</text>
+   </g>
+   <g id="text_14">
+    <text style="font-size: 11px; font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'DejaVu Sans'; text-anchor: start; fill: #222222" x="195.447865" y="141.223672" transform="rotate(-0 195.447865 141.223672)">$116.3M</text>
+   </g>
+   <g id="text_15">
+    <text style="font-size: 11px; font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'DejaVu Sans'; text-anchor: start; fill: #222222" x="259.062313" y="99.704585" transform="rotate(-0 259.062313 99.704585)">$174.4M</text>
+   </g>
+   <g id="text_16">
+    <text style="font-size: 11px; font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'DejaVu Sans'; text-anchor: start; fill: #222222" x="482.862539" y="58.185498" transform="rotate(-0 482.862539 58.185498)">$378.8M</text>
+   </g>
+   <g id="text_17">
+    <text style="font-weight: 700; font-size: 11px; font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'DejaVu Sans'; text-anchor: end; fill: #ffffff" x="467.533757" y="58.27831" transform="rotate(-0 467.533757 58.27831)">49.6% of all CEX RWA perp OI</text>
+   </g>
+   <g id="text_18">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'DejaVu Sans'; text-anchor: middle; fill: #222222" x="313.37" y="20.88" transform="rotate(-0 313.37 20.88)">CEX RWA perpetual open interest, late July 2026</text>
+   </g>
+  </g>
+  <g id="text_19">
+   <text style="font-size: 9px; font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'DejaVu Sans'; text-anchor: start; fill: #888888" x="5.76" y="297.864" transform="rotate(-0 5.76 297.864)">Data: CryptoRank, July 2026 Crypto Exchange Recap. Total CEX RWA perp OI ≈ $763M.</text>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p8a9198b354">
+   <rect x="61.54" y="32.88" width="503.66" height="211"/>
+  </clipPath>
+ </defs>
+</svg>

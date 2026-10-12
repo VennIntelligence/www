@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from 'react';
+import { createContext, useEffect, useMemo, useState } from 'react';
 
 export const LanguageContext = createContext(null);
 
@@ -38,8 +38,11 @@ export function LanguageProvider({ children }) {
     setLangState(nextLanguage);
   };
 
+  // value 引用稳定：Provider 因窗口 resize 等原因重渲染时，消费者不再全体跟渲
+  const ctxValue = useMemo(() => ({ lang, setLang }), [lang]);
+
   return (
-    <LanguageContext.Provider value={{ lang, setLang }}>
+    <LanguageContext.Provider value={ctxValue}>
       {children}
     </LanguageContext.Provider>
   );

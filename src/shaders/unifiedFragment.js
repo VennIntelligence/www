@@ -424,6 +424,38 @@ vec3 backgroundGlow(vec3 rd) {
 }
 
 /* ════════════════════════════════════════════════════
+   物体环境辉光 — Hero 阶段
+   液滴/立方体向背景投出一圈贴着轮廓的微光，把物体和
+   背景在光学上连接起来；拖拽移动时辉光跟随，甩动时增亮。
+   参数（HALO_*）配置在 dropletLook.js → WAVE_LOOK.background。
+   ════════════════════════════════════════════════════ */
+
+/* 视线 (ro, rd) 到点 center 的最短距离 */
+float rayPointDist(vec3 ro, vec3 rd, vec3 center) {
+  vec3 toC = center - ro;
+  return length(toC - rd * max(dot(toC, rd), 0.0));
+}
+
+/* 单个球形物体的辉光贡献：从半径 r 的轮廓向外按高斯衰减 */
+float haloTerm(vec3 ro, vec3 rd, vec3 center, float r) {
+  float e = max(rayPointDist(ro, rd, center) - r, 0.0);
+  return exp(-e * e * HALO_FALLOFF);
+}
+
+vec3 objectHalo(vec3 ro, vec3 rd) {
+  /* 液滴半径与 mapDrops 保持一致；速度越快辉光越亮（拖拽甩动的动感） */
+  float halo = haloTerm(ro, rd, gDropA, 0.85) * (1.0 + min(length(gVelA), 3.0) * HALO_VEL_BOOST);
+  halo += haloTerm(ro, rd, gDropB, 0.58) * (1.0 + min(length(gVelB), 3.0) * HALO_VEL_BOOST) * 0.8;
+  halo += haloTerm(ro, rd, gDropC, 0.40) * (1.0 + min(length(gVelC), 3.0) * HALO_VEL_BOOST) * 0.65;
+  #ifdef SPIKE_ENABLED
+  /* 立方体用外接球近似（半边长 × 1.7），随 uCubeFade 一起淡出 */
+  halo += haloTerm(ro, rd, gSpikePos, gCubeScale * 1.7) * uCubeFade;
+  #endif
+  /* 进入 About 过渡时辉光整体淡出，避免与液态金背景叠加 */
+  return HALO_COLOR * halo * HALO_GAIN * (1.0 - smoothstep(0.0, 0.5, uPhase));
+}
+
+/* ════════════════════════════════════════════════════
    液态金背景 — About 阶段原生渲染
    移植自 LiquidGoldBackground.jsx shader
    ════════════════════════════════════════════════════ */
@@ -1031,7 +1063,7 @@ void main() {
       }
       hitAlpha = 1.0;
     } else {
-      color    = envMap(rd) * BG_ENV_BASE_MIX + backgroundGlow(rd);
+      color    = envMap(rd) * BG_ENV_BASE_MIX + backgroundGlow(rd) + objectHalo(ro, rd);
       hitAlpha = 0.0;
     }
   }
@@ -1078,7 +1110,7 @@ void main() {
       }
       hitAlpha = 1.0;
     } else {
-      color    = envMap(rd) * BG_ENV_BASE_MIX + backgroundGlow(rd);
+      color    = envMap(rd) * BG_ENV_BASE_MIX + backgroundGlow(rd) + objectHalo(ro, rd);
       hitAlpha = 0.0;
     }
   }
@@ -1110,6 +1142,14 @@ void main() {
 
   vec2 vig = vUv - 0.5;
   color *= 1.0 - dot(vig, vig) * 0.35;
+
+  /* ── 胶片颗粒：每帧动画的细抖动，打碎深色渐变的色带（banding）──
+   * 必须在 tone mapping + gamma 之后叠加，才能作用于最终量化色阶。
+   * 暗部权重更高（亮部按 1-luma×0.75 衰减），避免高光被颗粒弄脏。
+   * 强度 GRAIN_AMOUNT 配置在 dropletLook.js → WAVE_LOOK.background.grainAmount。 */
+  float grain = fract(sin(dot(gl_FragCoord.xy + fract(uTime) * 61.7, vec2(12.9898, 78.233))) * 43758.5453);
+  float grainLuma = dot(color, vec3(0.299, 0.587, 0.114));
+  color = max(color + (grain - 0.5) * GRAIN_AMOUNT * (1.0 - grainLuma * 0.75), 0.0);
 
   /* About 阶段：液态金背景原生渲染，输出完全不透明。
    * Omega 阶段：亮片海背景原生渲染，同样完全不透明（hitAlpha=1.0）。

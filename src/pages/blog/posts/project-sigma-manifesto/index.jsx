@@ -1,261 +1,358 @@
 import { useLanguage } from '../../../../context/useLanguage';
+import { generateRedacted, generateLine } from './redacted';
+import '../../../../styles/pages/blog-sigma-whitepaper.css';
 
 /**
- * Project Σ Manifesto — 文章渲染组件
+ * Project Σ Whitepaper — 公开草案站位页
  *
  * 文件位置: src/pages/blog/posts/project-sigma-manifesto/index.jsx
  *
- * 设计理念：
- *   每篇文章就是一个完整的 React 组件，可以包含：
- *   - 静态文本内容（HTML/JSX）
- *   - 动画效果（CSS/Canvas/WebGL）
- *   - 交互式图表或可视化
- *   - 嵌入视频或音频
+ * 结构参照 2017 年 ICO 白皮书的标准骨架：
+ *   Abstract → Background → Design Principles → Architecture → Engine →
+ *   Sybil Resistance → Governance → Roadmap → Team → Disclaimer → References
  *
- *   这比 Markdown 字符串更灵活——你获得了 React 的全部能力。
- *   文章内容直接作为 JSX 编写，用 CSS 类名匹配 blog.css 中的样式。
+ * 当前状态：融资前站位。只公开摘要、问题陈述、设计原则、
+ * 免责声明和参考文献；架构 / 引擎 / 抗女巫 / 治理 / 路线图 / 团队标为 WITHHELD，
+ * 用 redacted.js 生成的加密技术文本 + 公式占位并模糊，融资后再填充。
+ * 查阅说明只在文末出现一次。
+ *
+ * 视觉：meta.theme = 'paper' 让整站在本文内切成浅色纸面（Navbar / Footer 一并变浅），
+ * 正文无衬线；样式见 blog-sigma-whitepaper.css。
+ * 所有文案集中在下方 COPY 对象里，中英共用同一套渲染逻辑。
  */
 
-/** 英文正文 */
-function EnglishContent() {
+const CONTACT = 'contact@vennai.org';
+
+/* 各暂不公开章节的密文块数（默认 4–5）。调大章节更长，看起来"藏了更多" */
+const REDACTED_BLOCKS = { architecture: 5, engine: 5, sybil: 4, governance: 4, team: 3 };
+
+/* 路线图阶段标签：只露阶段名，每行内容为密文 + 可见省略号 */
+const PHASES = ['Phase 0', 'Phase 1', 'Phase 2', 'Phase 3'];
+
+const REFERENCES = (
+  <ol className="wp-refs">
+    <li>Shannon, C. E. (1948). <em>A Mathematical Theory of Communication.</em> Bell System Technical Journal, 27.</li>
+    <li>Vygotsky, L. S. (1978). <em>Mind in Society: The Development of Higher Psychological Processes.</em> Harvard University Press.</li>
+    <li>Vosoughi, S., Roy, D., Aral, S. (2018). <em>The spread of true and false news online.</em> Science, 359(6380).</li>
+    <li>Raymond, E. S. (1999). <em>The Cathedral and the Bazaar.</em> O'Reilly Media.</li>
+    <li>Douceur, J. R. (2002). <em>The Sybil Attack.</em> IPTPS.</li>
+  </ol>
+);
+
+const COPY = {
+  en: {
+    masthead: [
+      ['Document', 'Project Σ · Whitepaper'],
+      ['Version', 'v0.1 · Public draft'],
+      ['Date', 'September 2026'],
+      ['Status', 'Pre-seed · Partial disclosure'],
+    ],
+    tocTitle: 'Contents',
+    status: { public: 'Public', withheld: 'Withheld' },
+    colophon: (
+      <>
+        Sections marked withheld are available in full to participants in the private round.
+        Request access:{' '}
+        <a href={`mailto:${CONTACT}?subject=${encodeURIComponent('Project Σ whitepaper access')}`}>
+          {CONTACT}
+        </a>
+      </>
+    ),
+    sections: [
+      {
+        id: 'abstract',
+        title: 'Abstract',
+        status: 'public',
+        body: (
+          <>
+            <p className="wp-p">
+              Project Σ is a protocol for the exchange of human intelligence. Where today's
+              networks rank content by the attention it captures, Σ settles it by the information
+              it adds. Each message is priced against what its receiver already knows. Each
+              participant is provably one human, without being identifiable. Each community may
+              issue its own unit of account for contribution to collective knowledge.
+            </p>
+            <p className="wp-p">
+              This is a public draft. It sets out the problem and the design principles. The
+              protocol architecture, the scoring function, Sybil resistance, governance, the
+              roadmap and the team are withheld until the private round closes.
+            </p>
+          </>
+        ),
+      },
+      {
+        id: 'background',
+        title: 'Background and Problem Statement',
+        status: 'public',
+        body: (
+          <>
+            <p className="wp-p">
+              In thirty years the internet delivered half of its promise. It connected five
+              billion people. The other half, that connection would make humanity collectively
+              smarter, never arrived. Platforms funded by advertising optimise for time on screen,
+              not for what a reader knows afterwards. On those platforms false news travels
+              roughly six times faster than true news.<sup>[3]</sup>
+            </p>
+            <p className="wp-p">
+              Bots, coordinated campaigns and paid opinion are not defects of this model. They
+              are its equilibrium. Producing noise costs nothing. Verifying it costs every reader
+              something. <strong>Gresham's law follows: bad information drives out good.</strong>
+            </p>
+            <p className="wp-p">
+              We hold that this is a failure of infrastructure, not of people. Readers want work
+              that is deeper, rarer and more honest. No system has yet paid for it.{' '}
+              <strong>Change what the network rewards, and you change what emerges from it.</strong>
+            </p>
+          </>
+        ),
+      },
+      {
+        id: 'principles',
+        title: 'Design Principles',
+        status: 'public',
+        body: (
+          <>
+            <p className="wp-p">
+              Σ is not a better social network. It is a rebuild, at the protocol layer, of how
+              information moves between people: how it flows, how it is valued, how it settles
+              and how it compounds. Four principles fix the design. The mechanisms behind them
+              are specified in the withheld sections.
+            </p>
+            <h4 className="wp-h3"><span>3.1</span>Personhood without identity</h4>
+            <p className="wp-p">
+              The protocol must know that you are one human, and must never learn which one.
+              Resistance to Sybil attacks is the foundation, not a feature.<sup>[5]</sup>
+            </p>
+            <h4 className="wp-h3"><span>3.2</span>Information gain, not engagement</h4>
+            <p className="wp-p">
+              A message is worth what it adds to the receiver's existing knowledge, not how long
+              it holds their attention. The measure is computable and verifiable. Its lineage
+              runs from Shannon<sup>[1]</sup> to Vygotsky.<sup>[2]</sup>
+            </p>
+            <h4 className="wp-h3"><span>3.3</span>Cognitive topology, not social graph</h4>
+            <p className="wp-p">
+              Participants are placed by what they know, not by whom they follow. Content moves
+              down gradients of knowledge, and each transfer reshapes the terrain.
+            </p>
+            <h4 className="wp-h3"><span>3.4</span>Protocol, not platform</h4>
+            <p className="wp-p">
+              Any community may fork its own tribe, issue its own unit of account and define what
+              counts as contribution. A thousand bazaars, not one cathedral.<sup>[4]</sup>
+            </p>
+          </>
+        ),
+      },
+      { id: 'architecture', title: 'Protocol Architecture', status: 'withheld' },
+      { id: 'engine', title: 'The Σ Engine: Information-Gain Scoring', status: 'withheld' },
+      { id: 'sybil', title: 'Sybil and Collusion Resistance', status: 'withheld' },
+      { id: 'governance', title: 'Governance', status: 'withheld' },
+      { id: 'roadmap', title: 'Roadmap', status: 'withheld', phases: PHASES },
+      { id: 'team', title: 'Team and Advisors', status: 'withheld' },
+      {
+        id: 'disclaimer',
+        title: 'Disclaimer',
+        status: 'public',
+        body: (
+          <>
+            <p className="wp-p">
+              This document is a public draft for discussion. It is not an offer to sell, or a
+              solicitation of an offer to buy, any token, security or other instrument in any
+              jurisdiction. No token is on sale at the time of publication.
+            </p>
+            <p className="wp-p">
+              It contains forward-looking statements about a system that does not yet exist in
+              the form described. Every part of it, including the withheld sections, may change
+              materially before any public release. Nothing here is investment, legal or tax
+              advice.
+            </p>
+          </>
+        ),
+      },
+      { id: 'references', title: 'References', status: 'public', body: REFERENCES },
+    ],
+  },
+
+  zh: {
+    masthead: [
+      ['文档', 'Project Σ · 白皮书'],
+      ['版本', 'v0.1 · 公开草案'],
+      ['日期', '2026 年 9 月'],
+      ['状态', '融资前 · 部分公开'],
+    ],
+    tocTitle: '目录',
+    status: { public: '公开', withheld: '暂不公开' },
+    colophon: (
+      <>
+        标注"暂不公开"的章节，完整内容仅向私募轮参与方开放。申请查阅：{' '}
+        <a href={`mailto:${CONTACT}?subject=${encodeURIComponent('Project Σ 白皮书查阅申请')}`}>
+          {CONTACT}
+        </a>
+      </>
+    ),
+    sections: [
+      {
+        id: 'abstract',
+        title: '摘要',
+        status: 'public',
+        body: (
+          <>
+            <p className="wp-p">
+              Project Σ 是一个人类智慧交换协议。今天的网络按内容抓住了多少注意力来排序，Σ 按内容带来了多少信息来结算：每一条消息以接收者已有的认知为基准计价；每一个参与者可被证明是一个真人，却无法被识别是谁；每一个社区都可以为集体认知的贡献发行自己的记账单位。
+            </p>
+            <p className="wp-p">
+              本文是公开草案，只陈述问题与设计原则。协议架构、评分函数、抗女巫机制、治理、路线图与团队在私募轮结束前暂不公开。
+            </p>
+          </>
+        ),
+      },
+      {
+        id: 'background',
+        title: '背景与问题陈述',
+        status: 'public',
+        body: (
+          <>
+            <p className="wp-p">
+              三十年间，互联网兑现了一半承诺：连接了 50 亿人。另一半承诺，连接会让人类集体变得更聪明，始终没有到来。靠广告养活的平台优化的是屏幕停留时间，而不是读者看完之后多知道了什么。在这些平台上，假消息的传播速度约为真消息的六倍。<sup>[3]</sup>
+            </p>
+            <p className="wp-p">
+              水军、机器人、协同操纵、付费舆论，都不是这个模式的缺陷，而是它的均衡态。制造噪音不花钱，鉴别噪音却要每个读者付出成本。<strong>格雷欣法则随之生效：劣质信息驱逐优质信息。</strong>
+            </p>
+            <p className="wp-p">
+              我们认为这是基础设施的失败，不是人的失败。读者想要更深、更稀缺、更诚实的内容，只是从未有一个系统为此付费。<strong>改变网络奖励什么，就改变了网络涌现出什么。</strong>
+            </p>
+          </>
+        ),
+      },
+      {
+        id: 'principles',
+        title: '设计原则',
+        status: 'public',
+        body: (
+          <>
+            <p className="wp-p">
+              Σ 不是一个更好的社交网络，而是在协议层重建信息在人与人之间的运动方式：如何流动、如何定价、如何结算、如何累积。四条原则定下设计，背后的机制见暂不公开章节。
+            </p>
+            <h4 className="wp-h3"><span>3.1</span>真人，而非身份</h4>
+            <p className="wp-p">
+              协议必须知道你是一个真人，却永远不能知道你是哪一个。抗女巫攻击是地基，不是功能。<sup>[5]</sup>
+            </p>
+            <h4 className="wp-h3"><span>3.2</span>信息增量，而非停留时长</h4>
+            <p className="wp-p">
+              一条消息的价值等于它给接收者已有认知增加了多少，而不是它占用了多久的注意力。这个度量可计算、可验证，思想脉络从 Shannon<sup>[1]</sup> 延续到 Vygotsky。<sup>[2]</sup>
+            </p>
+            <h4 className="wp-h3"><span>3.3</span>认知拓扑，而非社交图谱</h4>
+            <p className="wp-p">
+              参与者按"知道什么"定位，而不是按"关注了谁"。内容顺着认知梯度流动，每一次传递都在重塑地形。
+            </p>
+            <h4 className="wp-h3"><span>3.4</span>协议，而非平台</h4>
+            <p className="wp-p">
+              任何社区都可以 fork 自己的部落、发行自己的记账单位、定义什么算贡献。一千个集市，而不是一座大教堂。<sup>[4]</sup>
+            </p>
+          </>
+        ),
+      },
+      { id: 'architecture', title: '协议架构', status: 'withheld' },
+      { id: 'engine', title: 'Σ 引擎：信息增量评分', status: 'withheld' },
+      { id: 'sybil', title: '抗女巫与抗共谋', status: 'withheld' },
+      { id: 'governance', title: '治理', status: 'withheld' },
+      { id: 'roadmap', title: '路线图', status: 'withheld', phases: PHASES },
+      { id: 'team', title: '团队与顾问', status: 'withheld' },
+      {
+        id: 'disclaimer',
+        title: '免责声明',
+        status: 'public',
+        body: (
+          <>
+            <p className="wp-p">
+              本文为供讨论的公开草案，不构成在任何司法辖区出售或邀约购买任何代币、证券或其他金融工具的要约。发布时没有任何代币在售。
+            </p>
+            <p className="wp-p">
+              本文包含关于一个尚未以所述形态存在的系统的前瞻性陈述。全部内容，包括暂不公开的章节，在任何公开发布前都可能发生重大变化。本文不构成投资、法律或税务建议。
+            </p>
+          </>
+        ),
+      },
+      { id: 'references', title: '参考文献', status: 'public', body: REFERENCES },
+    ],
+  },
+};
+
+/** 暂不公开章节：加密技术散文 + 公式，CSS 负责模糊 */
+function Redacted({ id }) {
+  const blocks = generateRedacted(id, REDACTED_BLOCKS[id] ?? 4);
   return (
-    <>
-      <h2 className="blog-h2">Manifesto</h2>
-      <p className="blog-p">
-        Over the past thirty years, the internet delivered half its promise — connecting 5 billion people. But the other half — <strong>making humanity collectively smarter through connection</strong> — was never delivered. In fact, it went in the opposite direction.
-      </p>
-      <p className="blog-p">
-        Gen Z is the first generation with lower average IQ than their parents. Today's social platforms are not infrastructure for wisdom — they are <strong>attention extraction machines</strong>. Algorithms don't optimize your cognitive growth; they optimize your dwell time. They don't care if you're smarter than yesterday; they only care if you scrolled longer.
-      </p>
-      <p className="blog-p">
-        The result: misinformation spreads 6x faster than truth. For the first time in history, humanity has species-wide connectivity — and used it to create species-wide cognitive regression.
-      </p>
-      <p className="blog-p">
-        <strong>Bots, algorithm manipulation, bribe-style opinion campaigns</strong> — these are not bugs of the internet. They are features of the current paradigm. When platforms are ad-revenue-driven, the cost of producing junk content is zero, and the cost of verification falls on every user — <strong>Gresham's Law kicks in: bad money drives out good, noise drowns signal</strong>.
-      </p>
-      <p className="blog-p">
-        <strong>Project Σ believes this is not a failure of human nature, but a failure of infrastructure.</strong>
-      </p>
-      <p className="blog-p">Our core hypothesis is extremely simple and extremely bold:</p>
-      <blockquote className="blog-blockquote">
-        <strong>Humans naturally desire higher quality, more unique, deeper, more authentic content. The current system's collapse isn't because people don't want progress — it's because the system never rewarded progress.</strong>
-      </blockquote>
-      <p className="blog-p">If you change the incentive structure, you change the direction of emergence.</p>
-      <p className="blog-p"><strong>Project Σ is that change.</strong></p>
-
-      <h2 className="blog-h2">What We're Building</h2>
-      <p className="blog-p">
-        <strong>Project Σ is building the next-generation infrastructure protocol for human intellectual exchange.</strong>
-      </p>
-      <p className="blog-p">
-        It is not "a better social media." It is a <strong>protocol-layer reconstruction</strong> of the fundamental question of how information flows, is evaluated, settles, and evolves between humans.
-      </p>
-
-      <h3 className="blog-h3">The Four Pillars</h3>
-      <hr className="blog-hr" />
-
-      <h3 className="blog-h3">Ⅰ. Proof of Humanity Without Identity</h3>
-      <p className="blog-p"><strong>Problem</strong>: The current internet cannot distinguish one real person from ten thousand bots.</p>
-      <p className="blog-p">
-        <strong>Our Solution</strong>: Zero-knowledge proof of unique personhood — the system can confirm <strong>you are a unique real person</strong> without knowing <strong>who you are</strong>. No identity exposure, no biometric data hosting, no centralized identity database.
-      </p>
-      <p className="blog-p">
-        The system is designed to be <strong>anti-Sybil + anti-bribery</strong> — one entity cannot create multiple identities to manipulate consensus, and bribery is designed to be unprofitable at the game-theory level.
-      </p>
-      <p className="blog-p"><strong>This is not a feature. This is the foundation.</strong> Without this layer, everything else is a castle built on sand.</p>
-
-      <hr className="blog-hr" />
-
-      <h3 className="blog-h3">Ⅱ. The Σ Engine</h3>
-      <p className="blog-p">This is the core heart of Project Σ.</p>
-      <p className="blog-p">
-        We use <strong>math and code</strong> — not subjective review, not upvote/downvote — to evaluate every piece of content's information-theoretic contribution to collective intelligence.
-      </p>
-      <blockquote className="blog-blockquote">
-        Every message is evaluated not by whether it's "good," but by <strong>how much genuine information increment it provides relative to the receiver's existing cognitive map</strong>.
-      </blockquote>
-      <p className="blog-p">
-        This comes from the intersection of information theory and educational psychology: <strong>Shannon's information entropy × Vygotsky's Zone of Proximal Development</strong>. We are the first to implement this as a <strong>computable, verifiable protocol</strong> at the engineering level.
-      </p>
-
-      <hr className="blog-hr" />
-
-      <h3 className="blog-h3">Ⅲ. Cognitive Topology Network</h3>
-      <p className="blog-p">Project Σ doesn't use flat "follow/follower" social graphs.</p>
-      <p className="blog-p">
-        We build a <strong>multi-dimensional cognitive topology space</strong> — each user is a point, positioned by their cognitive state, not their social relationships.
-      </p>
-      <p className="blog-p">
-        Content flows like water — naturally from high potential to low potential — but <strong>the flow itself reshapes the terrain</strong>. Built-in <strong>cross-domain collision mechanisms</strong> periodically introduce high-quality content from remote cognitive clusters as perturbation, preventing closed cognitive islands.
-      </p>
-
-      <hr className="blog-hr" />
-
-      <h3 className="blog-h3">Ⅳ. The Bazaar of Currencies</h3>
-      <p className="blog-p">
-        Project Σ is not a platform. It is a <strong>protocol</strong>. On this protocol, anyone can fork their own Tribe, issue their own token, define their own rules for evaluating wisdom.
-      </p>
-      <p className="blog-p">This is Eric Raymond's <em>The Cathedral and the Bazaar</em> realized in the domain of collective intelligence:</p>
-      <blockquote className="blog-blockquote">
-        <strong>Don't try to define wisdom in one cathedral. Let a thousand bazaars compete.</strong>
-      </blockquote>
-      <p className="blog-p">
-        Tokens are not speculative instruments — they are <strong>quantified certificates of wisdom contribution</strong>. For the first time, humanity has created a system where <strong>wisdom has a price, discovered in real-time by a free market</strong>.
-      </p>
-
-      <h2 className="blog-h2">Why Now</h2>
-      <p className="blog-p">Three forces are simultaneously maturing in 2024-2026:</p>
-      <ol className="blog-ol">
-        <li><strong>Zero-knowledge proof technology</strong> has gone from academic papers to engineering-ready</li>
-        <li><strong>Large language models</strong> have driven the cost of producing fake content to near-zero — making our system more necessary than ever</li>
-        <li><strong>Global trust in existing social platforms has hit historic lows</strong></li>
-      </ol>
-      <p className="blog-p"><strong>The window is open. The question is not "should we build this," but "who builds it first."</strong></p>
-
-      <h2 className="blog-h2">Core Belief</h2>
-      <blockquote className="blog-blockquote">
-        <em>"We don't believe humans got dumber in the information age.</em><br />
-        <em>We believe the information age's infrastructure was never designed to make humans smarter.</em><br />
-        <em>Σ is that overdue correction.</em><br /><br />
-        <em>Not another platform. Another paradigm.</em><br />
-        <em>Not a better algorithm. Better incentives.</em><br />
-        <em>Not managing users. Liberating humanity.</em><br /><br />
-        <em>Σ is the summation symbol.</em><br />
-        <em>We're summing all of human wisdom.</em><br />
-        <em>And we believe that sum can be greater than the sum of its parts.</em><br /><br />
-        <em>Far greater."</em>
-      </blockquote>
-    </>
+    <div className="wp-redacted" aria-hidden="true">
+      {blocks.map((b, i) =>
+        b.type === 'eq'
+          ? <div key={i} className="wp-redacted__eq">{b.text}</div>
+          : <p key={i} className="wp-redacted__p">{b.text}</p>,
+      )}
+    </div>
   );
 }
 
-/** 中文正文 */
-function ChineseContent() {
-  return (
-    <>
-      <h2 className="blog-h2">宣言</h2>
-      <p className="blog-p">
-        过去三十年，互联网兑现了它一半的承诺——连接了 50 亿人。但另一半承诺——<strong>让人类因连接而变得更聪明</strong>——不仅没有兑现，反而走向了它的反面。
-      </p>
-      <p className="blog-p">
-        Z世代是第一代比他们父母平均智商下降的一代，今天的社交平台不是智慧的基础设施，而是<strong>注意力的榨取机器</strong>。算法不优化你的认知成长，它优化的是你的停留时长。它不在乎你是否比昨天更聪明，它只在乎你是否比昨天刷得更久。
-      </p>
-      <p className="blog-p">
-        结果是：虚假信息的传播速度是真实信息的 6 倍。人类有史以来第一次拥有了全物种互联的能力，却用它制造了全物种规模的认知倒退。
-      </p>
-      <p className="blog-p">
-        <strong>水军、机器人、算法操纵、贿选式舆论干预</strong>——它们不是互联网的 bug，它们是当前范式的 feature。当平台靠广告收入驱动，劣质内容的生产成本为零，而鉴别成本由每一个用户承担——<strong>格雷欣法则必然生效：劣币驱逐良币，噪音淹没信号</strong>。
-      </p>
-      <p className="blog-p">
-        <strong>Project Σ 认为，这不是人性的失败，而是基础设施的失败。</strong>
-      </p>
-      <p className="blog-p">我们的核心假设极其简单，也极其大胆：</p>
-      <blockquote className="blog-blockquote">
-        <strong>人类天生渴望更高质量、更独特、更有深度的真实内容。当前系统的崩坏不是因为人不想进步，而是因为系统从未奖励过进步。</strong>
-      </blockquote>
-      <p className="blog-p">如果你改变激励结构，你就改变了涌现的方向。</p>
-      <p className="blog-p"><strong>Project Σ 就是这个改变。</strong></p>
-
-      <h2 className="blog-h2">我们在构建什么</h2>
-      <p className="blog-p">
-        <strong>Project Σ 正在打造下一代人类智慧交流的基础设施协议。</strong>
-      </p>
-      <p className="blog-p">
-        它不是一个"更好的社交媒体"。它是对信息如何在人类之间流动、评估、沉淀、进化这一根本问题的<strong>协议层重构</strong>。
-      </p>
-
-      <h3 className="blog-h3">四大支柱</h3>
-      <hr className="blog-hr" />
-
-      <h3 className="blog-h3">Ⅰ. 真人屏障 —— Proof of Humanity Without Identity</h3>
-      <p className="blog-p">
-        <strong>问题</strong>：当前互联网无法区分一个真人和一万个机器人。一切民主机制、声誉系统、投票治理，都建立在"一个账号 = 一个人"的假设上。这个假设在今天已经彻底破产。
-      </p>
-      <p className="blog-p"><strong>我们的方案</strong>：</p>
-      <p className="blog-p">
-        Project Σ 在协议层实现<strong>零知识证明级别的真人验证</strong>——系统可以确认：<strong>你是一个独一无二的真人</strong>，但系统无法知道：<strong>你是谁</strong>。
-      </p>
-      <p className="blog-p">
-        该系统被设计为<strong>抗 Sybil（女巫攻击）+ 抗贿选</strong>——一个实体无法创建多个身份来操纵共识，经济激励的贿赂行为在博弈论层面被设计为不可获利。
-      </p>
-      <p className="blog-p"><strong>这不是功能，这是地基。</strong>没有这一层，后面的一切都是沙上城堡。</p>
-
-      <hr className="blog-hr" />
-
-      <h3 className="blog-h3">Ⅱ. 智慧熵引擎 —— The Σ Engine</h3>
-      <p className="blog-p">这是 Project Σ 的核心心脏。</p>
-      <p className="blog-p">
-        我们用<strong>数学和代码</strong>——不是主观评审、不是点赞投票——来评估每一条内容对集体智慧的信息论贡献。
-      </p>
-      <blockquote className="blog-blockquote">
-        每一条消息被评估的不是"好不好"，而是它<strong>相对于接收者已有认知图谱，提供了多少真正的信息增量</strong>。
-      </blockquote>
-      <p className="blog-p">
-        这来自信息论与教育心理学的交叉：<strong>Shannon 的信息熵 × Vygotsky 的最近发展区</strong>。我们第一次在工程层面将它实现为一个<strong>可计算、可验证的协议</strong>。
-      </p>
-
-      <hr className="blog-hr" />
-
-      <h3 className="blog-h3">Ⅲ. 认知拓扑网络 —— Cognitive Topology</h3>
-      <p className="blog-p">Project Σ 不使用"关注/粉丝"这种扁平的社交图谱。</p>
-      <p className="blog-p">
-        我们构建的是一个<strong>多维认知拓扑空间</strong>——每个用户在其中是一个点，位置由其认知状态决定，而不是由社交关系决定。
-      </p>
-      <p className="blog-p">
-        内容像水一样，自然地从高势能流向低势能，但流动本身改变了地形。内置<strong>跨域碰撞机制</strong>——周期性引入来自远距离认知簇的高质量内容作为扰动，防止形成封闭的认知孤岛。
-      </p>
-
-      <hr className="blog-hr" />
-
-      <h3 className="blog-h3">Ⅳ. 多部落代币经济 —— The Bazaar of Currencies</h3>
-      <p className="blog-p">
-        Project Σ 不是一个平台，而是一个<strong>协议</strong>。在这个协议上，任何人可以 fork 自己的部落（Tribe），发行自己的代币，定义自己的智慧评估规则。
-      </p>
-      <p className="blog-p">这是 Eric Raymond 的《大教堂与集市》在集体智慧领域的实现：</p>
-      <blockquote className="blog-blockquote">
-        <strong>不要试图在一座大教堂里定义什么是智慧。让一千个集市去竞争。</strong>
-      </blockquote>
-      <p className="blog-p">
-        代币不是投机工具，它是<strong>智慧贡献的量化凭证</strong>——你让社区变聪明了多少，你就获得多少。第一次，人类创造了一个<strong>智慧有价、且价格由自由市场实时发现</strong>的系统。
-      </p>
-
-      <h2 className="blog-h2">为什么是现在</h2>
-      <p className="blog-p">三股力量在 2024-2026 年同时成熟：</p>
-      <ol className="blog-ol">
-        <li><strong>零知识证明技术</strong>已从学术论文走向工程可用</li>
-        <li><strong>大语言模型的崛起</strong>使得虚假内容的生产成本趋近于零——人类比任何时候都更需要能区分真人智慧与机器噪音的基础设施</li>
-        <li><strong>全球对现有社交平台的信任已经跌至历史低点</strong></li>
-      </ol>
-      <p className="blog-p"><strong>窗口已经打开。问题不是"要不要做"，而是"谁先做出来"。</strong></p>
-
-      <h2 className="blog-h2">核心信念</h2>
-      <blockquote className="blog-blockquote">
-        <em>"我们不相信人类在信息时代变蠢了。</em><br />
-        <em>我们相信信息时代的基础设施从未被设计来让人类变聪明。</em><br />
-        <em>Σ 是那个迟到的修正。</em><br /><br />
-        <em>不是另一个平台。是另一个范式。</em><br />
-        <em>不是更好的算法。是更好的激励。</em><br />
-        <em>不是管理用户。是释放人类。</em><br /><br />
-        <em>Σ 是求和符号。</em><br />
-        <em>我们求的是全人类智慧的总和。</em><br />
-        <em>而我们相信那个总和可以大于部分之和。</em><br /><br />
-        <em>远大于。"</em>
-      </blockquote>
-    </>
-  );
+/** 路线图：每个阶段一行密文，末尾三个可见省略号 */
+function RoadmapBody({ id, phases }) {
+  return phases.map(tag => (
+    <div key={tag} className="wp-phase">
+      <div className="wp-phase__tag">{tag}</div>
+      <div className="wp-phase__body">
+        <span className="wp-redacted wp-redacted--line" aria-hidden="true">
+          {generateLine(`${id}-${tag}`)}
+        </span>
+        <span className="wp-phase__more">...</span>
+      </div>
+    </div>
+  ));
 }
 
-/**
- * ProjectSigmaArticle — 文章主体组件
- *
- * 这是一个完整的 React 组件，接收 { lang } 属性。
- * 未来可以在这里添加：
- *   - 交互式图表
- *   - Canvas/WebGL 动画
- *   - 视频嵌入
- *   - 任何 JSX 可表达的内容
- */
+function StatusTag({ status, labels }) {
+  return <span className={`wp-status wp-status--${status}`}>{labels[status]}</span>;
+}
+
 export default function ProjectSigmaArticle() {
   const { lang } = useLanguage();
-  return lang === 'zh' ? <ChineseContent /> : <EnglishContent />;
+  const copy = COPY[lang] ?? COPY.en;
+  const sections = copy.sections.map((s, i) => ({ ...s, num: i + 1 }));
+
+  return (
+    <div className="wp-doc">
+      <div className="wp-masthead">
+        {copy.masthead.map(([label, value]) => (
+          <div key={label}>
+            <span className="wp-label">{label}</span>
+            <span className="wp-masthead__value">{value}</span>
+          </div>
+        ))}
+      </div>
+
+      <p className="wp-label wp-label--toc">{copy.tocTitle}</p>
+      <ol className="wp-toc">
+        {sections.map(s => (
+          <li key={s.id} data-status={s.status}>
+            <span className="wp-toc__num">{s.num}</span>
+            <a className="wp-toc__title" href={`#${s.id}`}>{s.title}</a>
+            <span className="wp-toc__leader" />
+            <StatusTag status={s.status} labels={copy.status} />
+          </li>
+        ))}
+      </ol>
+
+      {sections.map(s => (
+        <section key={s.id} id={s.id} className="wp-section">
+          <div className="wp-section__head">
+            <span className="wp-section__num">{`§${s.num}`}</span>
+            <h2 className="wp-h2">{s.title}</h2>
+            <StatusTag status={s.status} labels={copy.status} />
+          </div>
+          {s.status === 'public' && s.body}
+          {s.status === 'withheld' && (s.phases
+            ? <RoadmapBody id={s.id} phases={s.phases} />
+            : <Redacted id={s.id} />)}
+        </section>
+      ))}
+
+      <p className="wp-colophon">{copy.colophon}</p>
+    </div>
+  );
 }
