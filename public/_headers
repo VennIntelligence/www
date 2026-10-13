@@ -1,0 +1,10 @@
+# Cloudflare Workers static-asset headers (copied verbatim from public/ into dist/).
+# Hashed build output never changes under the same name: cache it for a year.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Unhashed media and replay logs: cache a day, revalidate after.
+/video/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/data/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
