@@ -4,6 +4,7 @@
  * - 赛事常量：官网地址、赛程里程碑、阶段判断
  * - 闭环回放片段库：视频在 public/video/drive/<id>.mp4，封面为同名 .webp（由 scripts/drive-clips.sh 生成）
  *   页面照片墙的片段文案在 i18n.js → drive.page.clips 里按 id 查找；首页马赛克背景不配文案
+ * - 真实场景回放列表：数据在 public/data/drive/<id>.json（格式见同目录 README.md）
  */
 
 /* 赛事官网 */
@@ -64,6 +65,13 @@ const LIBRARY = [
   // 两段白底取证仪表板，只进页面照片墙
   { id: 'nuplan-turn-neighbour', sim: 'nuPlan', w: 640, h: 400 },
   { id: 'pai-pedestrian', sim: 'PAI', w: 640, h: 396 },
+  // AlpaSim（Physical AI AV 赛道）真实道路回放：真实采集路段的神经重建，我们的驾驶模型闭环开车，前向 120° 相机画面
+  { id: 'real-pai-night-roundabout', sim: 'AlpaSim', w: 640, h: 360 },
+  { id: 'real-pai-underpass-cyclist', sim: 'AlpaSim', w: 640, h: 360 },
+  { id: 'real-pai-crosswalk', sim: 'AlpaSim', w: 640, h: 360 },
+  { id: 'real-pai-city-pedestrians', sim: 'AlpaSim', w: 640, h: 360 },
+  { id: 'real-pai-dusk-traffic', sim: 'AlpaSim', w: 640, h: 360 },
+  { id: 'real-pai-boulevard-truck', sim: 'AlpaSim', w: 640, h: 360 },
 ];
 
 const byId = (ids) => ids.map((id) => LIBRARY.find((clip) => clip.id === id)).filter(Boolean);
@@ -85,21 +93,39 @@ export const DRIVE_WALL_CLIPS = byId([
   'navhard-wrong-direction',
   'carla-blocked-merge',
   'carla-bypass-merge',
+  'real-pai-night-roundabout',
+  'real-pai-underpass-cyclist',
+  'real-pai-crosswalk',
+  'real-pai-city-pedestrians',
+  'real-pai-dusk-traffic',
+  'real-pai-boulevard-truck',
 ]);
 
-/* 首页 Drive 区块的马赛克背景：12 段宽幅 CARLA 暗色场景，无文案；
-   桌面 3 列 × 4 行铺满区块，平板 2 列 × 5 行、手机 1 列 × 6 行只播前几格（见 rollout-wall.css） */
+/* 首页 Drive 区块的马赛克背景：12 段暗色场景，无文案；真实道路回放（AlpaSim）与 CARLA 交替排列，各 6 段。
+   默认标准值：下列顺序（真实、CARLA、真实、CARLA……），这样任意相邻格子都是一真一仿；
+   桌面 3 列 × 4 行铺满区块，平板 2 列 × 5 行、手机 1 列 × 6 行只播前几格（见 rollout-wall.css），所以排在前面的格子最常被看到。 */
 export const DRIVE_MOSAIC_CLIPS = byId([
+  'real-pai-night-roundabout',
   'carla-night-blocked',
+  'real-pai-underpass-cyclist',
   'carla-bypass',
+  'real-pai-crosswalk',
   'carla-red-light-b',
-  'carla-blocked-drive',
+  'real-pai-city-pedestrians',
   'carla-tight-curve',
+  'real-pai-dusk-traffic',
   'carla-collision',
-  'carla-bypass-b',
+  'real-pai-boulevard-truck',
   'carla-stop-merge',
-  'carla-blocked-merge',
-  'carla-sharp-turn',
-  'carla-collision-merge',
-  'carla-bypass-merge',
 ]);
+
+/* 首页 Drive 区块居中画布的真实场景回放顺序（components/SceneReplayStage.jsx，按此顺序无限循环）。
+   id 对应 public/data/drive/<id>.json；默认标准值：下列 5 段。
+   不放 navhard-stopped-slow：该段没有其他交通参与者，画面太空。增删顺序即改变播放内容，单段约 16 s + 切换约 3 s。 */
+export const DRIVE_REPLAY_SCENES = [
+  'navtest-boston-turn',
+  'navhard-wrong-direction',
+  'navtest-vegas-turn',
+  'navhard-road-edge',
+  'navhard-collision',
+];

@@ -7,7 +7,7 @@ import '../styles/components/rollout-wall.css';
  *
  * 每格是一段静音循环的 mp4（由 jev-drive 的 GIF 转码而来），封面为同名 webp。
  * 加载约定（非首屏视频）：
- *   - preload="none"，src 直到瓦片首次进入视口才设置并 load()
+ *   - preload="none"，封面 poster 与 src 都直到瓦片首次进入视口才设置（首屏零请求）
  *   - 离开视口即 pause()，回到视口再 play()
  *   - 页面切到后台时全部 pause()，切回时只恢复仍在视口内的
  *   - display:none 的瓦片（马赛克在小屏隐藏的格子）永远不会相交，也就不会加载
@@ -28,6 +28,7 @@ export default function RolloutWall({ clips, captions = null, variant = 'wall' }
 
     const play = (video) => {
       if (!video.getAttribute('src')) {
+        video.poster = video.dataset.poster;
         video.src = video.dataset.src;
         video.load();
       }
@@ -74,7 +75,7 @@ export default function RolloutWall({ clips, captions = null, variant = 'wall' }
             loop
             playsInline
             preload="none"
-            poster={`${DRIVE_CLIP_BASE}${clip.id}.webp`}
+            data-poster={`${DRIVE_CLIP_BASE}${clip.id}.webp`}
             data-src={`${DRIVE_CLIP_BASE}${clip.id}.mp4`}
           />
           {captions && (

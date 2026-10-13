@@ -221,21 +221,21 @@ export const COPY = {
       headingLines: {
         /* 桌面端（≥768px）：3 行 */
         lg: [
-          'Every planner draws',
-          'a beautiful path.',
-          'Closed loop makes it drive it.',
+          'World models teach it to see.',
+          'Only the road',
+          'teaches it to drive.',
         ],
         /* 手机端（<768px）：4 行，每行更短避免单词截断 */
         sm: [
-          'Every planner',
-          'draws a beautiful path.',
-          'Closed loop',
-          'makes it drive it.',
+          'World models',
+          'teach it to see.',
+          'Only the road',
+          'teaches it to drive.',
         ],
       },
-      subtitle: 'Venn Intelligence Foundation funds the team competing in the NVIDIA AlpaSim End-to-End Closed-Loop Challenge 2026. Results are announced at NeurIPS 2026.',
-      manifesto: 'In an open-loop benchmark a policy predicts a trajectory and is graded against the human log. It never has to live with its own output. In closed-loop simulation every decision reshapes the next scene: a late brake becomes a shorter gap, a lazy turn becomes a different road. Mistakes compound instead of averaging away.',
-      manifestoHighlight: 'We run the whole loop ourselves: replay the decision, trace the plan that caused the contact, keep the failed rollouts next to the clean ones. That archive is the project.',
+      subtitle: 'Predicting how the world moves teaches a driving model to see, not to act. Venn Intelligence Foundation funds the team competing in the NVIDIA AlpaSim End-to-End Closed-Loop Challenge 2026. Results are announced at NeurIPS 2026.',
+      manifesto: 'A world model learns to predict the future of the scene around the car. That is a way of seeing, and it never has to live with what the car itself does. In closed-loop simulation every decision reshapes the next scene: a late brake becomes a shorter gap, a lazy turn becomes a different road. Mistakes compound instead of averaging away.',
+      manifestoHighlight: 'So we train on the states our own policy drives into, and label them with what its own plan would have caused: the swept footprint touching a neighbour, the road edge it crosses. Imitating the human log from those same states did worse; the consequence is the lesson.',
       pillarTitle: 'How we work',
       pillars: [
         {
@@ -259,10 +259,8 @@ export const COPY = {
           desc: 'Training rows are built from what the policy actually caused in its rollouts, not only from what a human did. The simulator becomes the teacher of its own failures.',
         },
       ],
-      cta: 'Project page',
-      wallMore: 'Rollout clips',
+      cta: 'Project details',
       /* 首页右侧闭环示意卡片的标签 */
-      instrumentLabel: 'Closed-loop replanning · 2 Hz · live',
       /* 闭环 canvas 的 HUD 文案 */
       hud: {
         scene: 'scene',
@@ -307,7 +305,7 @@ export const COPY = {
         ],
         approachTitle: 'How we work',
         wallTitle: 'From the rollouts',
-        wallIntro: 'Working clips from our closed-loop runs: CARLA routes with the model\'s own camera inputs, nuPlan camera scenes with reactive agents, and two forensic dashboards. These are research intermediates, kept exactly as recorded: the failures stay next to the passes.',
+        wallIntro: 'Working clips from our closed-loop runs: CARLA routes with the model\'s own camera inputs, nuPlan camera scenes with reactive agents, AlpaSim replays of real recorded drives, and two forensic dashboards. These are research intermediates, kept exactly as recorded: the failures stay next to the passes.',
         clips: {
           'carla-night-blocked': 'Night and fog, blocked by a stopped vehicle. Third-person view with the model\'s road and wide inputs.',
           'carla-blocked-merge': 'A blocked lane, waiting for a gap to merge.',
@@ -324,6 +322,12 @@ export const COPY = {
           'navhard-wrong-direction': 'A plan that leaves in the wrong direction at a junction.',
           'nuplan-turn-neighbour': 'Forensic dashboard: a turn past a standing neighbour, the plan\'s swept footprint already touches it three seconds out.',
           'pai-pedestrian': 'Forensic dashboard: a pedestrian steps into the lane.',
+          'real-pai-night-roundabout': 'Real recorded drive, reconstructed in AlpaSim: at night, past two yield signs into a roundabout.',
+          'real-pai-underpass-cyclist': 'Behind a truck and a cyclist through an underpass, out into a city street.',
+          'real-pai-crosswalk': 'Through a signalised intersection with a painted crosswalk.',
+          'real-pai-city-pedestrians': 'A narrow city street lined with parked cars and pedestrians on both sidewalks.',
+          'real-pai-dusk-traffic': 'At dusk, from a queue of braking cars at the lights to an open avenue.',
+          'real-pai-boulevard-truck': 'Following a delivery truck along a tree-lined boulevard.',
         },
         disclosure: 'Method names, scores and leaderboard entries are withheld until the challenge closes.',
         resultsTitle: 'Results',
@@ -338,13 +342,13 @@ export const COPY = {
     zh: {
       subheading: 'Project',
       headingLines: [
-        '每个规划器都画得出',
-        '漂亮的轨迹。',
-        '闭环让它自己开。',
+        '世界模型教它看，',
+        '只有真实的路',
+        '才教它开。',
       ],
-      subtitle: '文氏智能基金会资助参赛团队出战 2026 年 NVIDIA AlpaSim 端到端闭环挑战赛，结果将于 NeurIPS 2026 公布。',
-      manifesto: '开环基准里，策略只负责预测一条轨迹，再拿人类日志打分，它从来不用为自己的输出负责。闭环仿真里，每一个决策都会改写下一个场景：刹晚一点，车距就短一截；弯转懒一点，前面就是另一条路。错误会累积，不会被平均掉。',
-      manifestoHighlight: '我们自己把整条闭环跑完：回放那个决策，追溯导致接触的那条计划，把失败的 rollout 和干净的放在一起保存。这份档案就是这个项目。',
+      subtitle: '预测世界如何运动，只能教会驾驶模型看，教不会它行动。文氏智能基金会资助参赛团队出战 2026 年 NVIDIA AlpaSim 端到端闭环挑战赛，结果将于 NeurIPS 2026 公布。',
+      manifesto: '世界模型学的是预测车周围场景的未来，这是一种看的能力，它从来不用为车自己的动作负责。闭环仿真里，每个决策都会改写下一个场景：刹晚一点，车距就短一截；弯转懒一点，前面就是另一条路。错误会累积，不会被平均掉。',
+      manifestoHighlight: '所以我们在策略自己开进去的状态上训练，并用它自己的计划会造成的后果来打标签：扫掠足迹碰到邻车，或越过路沿。在同样的状态上改为模仿人类日志，结果反而更差。后果本身才是教材。',
       pillarTitle: '我们的做法',
       pillars: [
         {
@@ -368,9 +372,7 @@ export const COPY = {
           desc: '训练样本来自策略在 rollout 里真正造成的后果，而不只是人类当时怎么开。仿真器成了它自己失败的老师。',
         },
       ],
-      cta: '项目主页',
-      wallMore: '闭环回放',
-      instrumentLabel: '闭环重规划 · 2 Hz · 实时',
+      cta: '详情介绍',
       hud: {
         scene: '场景',
         decision: '决策',
@@ -413,7 +415,7 @@ export const COPY = {
         ],
         approachTitle: '我们的做法',
         wallTitle: '闭环回放',
-        wallIntro: '来自我们闭环实验的工作片段：CARLA 路线与模型自己的相机输入、带反应式交通的 nuPlan 真实相机场景，以及两段取证仪表板。这些都是研究中间产物，按记录原样保留：失败的片段和通过的片段放在一起。',
+        wallIntro: '来自我们闭环实验的工作片段：CARLA 路线与模型自己的相机输入、带反应式交通的 nuPlan 真实相机场景、AlpaSim 重建的真实道路回放，以及两段取证仪表板。这些都是研究中间产物，按记录原样保留：失败的片段和通过的片段放在一起。',
         clips: {
           'carla-night-blocked': '夜间雾天，被一辆停住的车挡住。第三人称视角，右侧是模型的 road / wide 输入。',
           'carla-blocked-merge': '车道被堵，等一个空隙并入。',
@@ -430,6 +432,12 @@ export const COPY = {
           'navhard-wrong-direction': '路口处计划朝错误方向驶离。',
           'nuplan-turn-neighbour': '取证仪表板：转弯擦过一辆静止的邻车，计划的扫掠足迹提前三秒就已经碰到它。',
           'pai-pedestrian': '取证仪表板：行人走进车道。',
+          'real-pai-night-roundabout': '真实采集的路段，在 AlpaSim 中重建：夜间经过两块让行标志，驶入环岛。',
+          'real-pai-underpass-cyclist': '跟在卡车和骑车人后面穿过桥洞，驶上城市街道。',
+          'real-pai-crosswalk': '穿过一个有信号灯和斑马线的路口。',
+          'real-pai-city-pedestrians': '狭窄的城市街道，两侧停满车，人行道上都有行人。',
+          'real-pai-dusk-traffic': '黄昏时分，从路口刹停的车队里起步，开上空旷的大道。',
+          'real-pai-boulevard-truck': '在林荫大道上跟着一辆货车行驶。',
         },
         disclosure: '具体方法名称、分数与榜单条目在比赛结束前不公开。',
         resultsTitle: '结果',

@@ -33,3 +33,7 @@ dist-ssr
 
 # matplotlib 图表脚本的本地虚拟环境（scripts/figures/）
 .venv-fig/
+
+# Local scratch output and personal Claude Code settings
+tmp/
+.claude/

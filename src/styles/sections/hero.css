@@ -497,33 +497,64 @@
   box-shadow: 0 0 8px rgb(var(--hue-gold) / 0.35);
 }
 
-/* 身份行：等宽小字 + 金色呼吸点 */
+/* 身份行："我们资助的团队出战"。整行文字呼吸（透明度 + 光晕），下方一条自左向右扫光的细条。 */
 .hero__challenge-kicker {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
+  position: relative;
+  display: inline-block;
+  /* 为下方扫光条预留的高度；默认标准值：10px */
+  padding-bottom: 10px;
   font-family: var(--font-mono);
-  /* 字号；默认标准值：clamp(0.82rem, 1.05vw, 0.98rem)。调大 → "我们资助的团队出战"更醒目。 */
-  font-size: clamp(0.82rem, 1.05vw, 0.98rem);
+  /* 字号；默认标准值：clamp(1.05rem, 1.45vw, 1.35rem)。调大 → "我们资助的团队出战"更醒目。 */
+  font-size: clamp(1.05rem, 1.45vw, 1.35rem);
   font-weight: 500;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgb(var(--hue-gold-bright) / 0.9);
+  /* 文字颜色：偏暖的象牙白，比纯金色收敛；默认标准值：rgb(255 240 205 / 0.92) */
+  color: rgb(255 240 205 / 0.92);
+  /* 呼吸周期；默认标准值：3.6s。调小 → 呼吸更急促。 */
+  animation: hero-kicker-breathe 3.6s ease-in-out infinite;
 }
 
-.hero__challenge-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  background: rgb(var(--hue-gold));
-  box-shadow: 0 0 10px rgb(var(--hue-gold) / 0.85);
-  animation: hero-challenge-pulse 1.8s ease-in-out infinite;
+/* 文字呼吸：透明度与金色光晕一起起伏 */
+@keyframes hero-kicker-breathe {
+  0%, 100% {
+    opacity: 0.72;
+    text-shadow: 0 0 0 rgb(var(--hue-gold) / 0);
+  }
+  50% {
+    opacity: 1;
+    text-shadow: 0 0 18px rgb(var(--hue-gold) / 0.55);
+  }
 }
 
-@keyframes hero-challenge-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(0.8); }
+/* 扫光条：底部一条细线，金色高光从左往右不停扫过 */
+.hero__challenge-kicker::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* 扫光条高度；默认标准值：1px */
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgb(var(--hue-gold) / 0.25) 30%,
+    rgb(var(--hue-gold-bright) / 1) 50%,
+    rgb(var(--hue-gold) / 0.25) 70%,
+    transparent 100%
+  );
+  /* 高光宽度相对条长的倍数；默认标准值：200%（高光占可见长度约一半） */
+  background-size: 200% 100%;
+  /* 扫光周期；默认标准值：2.8s。调小 → 扫得更快。 */
+  animation: hero-kicker-sweep 2.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes hero-kicker-sweep {
+  0% { background-position: 100% 0; opacity: 0; }
+  12% { opacity: 1; }
+  88% { opacity: 1; }
+  100% { background-position: -100% 0; opacity: 0; }
 }
 
 /* 赛事名：全站同一无衬线字栈，中等字重 */
@@ -560,46 +591,28 @@
   }
 }
 
-/* CTA：小字 + 生长下划线 */
+/* CTA：无下划线，悬停提亮 */
 .hero__challenge-cta {
-  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 8px;
   margin-top: 2px;
-  padding-bottom: 3px;
-  font-size: clamp(0.72rem, 0.85vw, 0.8rem);
+  /* 字号；默认标准值：clamp(0.9rem, 1.1vw, 1.05rem)。调大 → "查看项目"更醒目。 */
+  font-size: clamp(0.9rem, 1.1vw, 1.05rem);
   font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(220, 235, 255, 0.7);
+  color: rgba(220, 235, 255, 0.78);
   transition: color 0.35s ease;
-}
-
-.hero__challenge-cta::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  height: 1px;
-  width: 100%;
-  transform-origin: left;
-  transform: scaleX(0.28);
-  background: linear-gradient(90deg, rgb(var(--hue-gold)), rgb(var(--hue-gold) / 0));
-  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .hero__challenge:hover .hero__challenge-cta {
   color: #fff;
 }
 
-.hero__challenge:hover .hero__challenge-cta::after {
-  transform: scaleX(1);
-}
-
 .hero__challenge-arrow {
-  width: 11px;
-  height: 11px;
+  width: 13px;
+  height: 13px;
   color: rgb(var(--hue-gold));
   transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
@@ -621,7 +634,11 @@
   }
 
   .hero__challenge-kicker {
-    font-size: 0.78rem;
+    font-size: 0.95rem;
+  }
+
+  .hero__challenge-cta {
+    font-size: 0.82rem;
   }
 }
 

@@ -226,6 +226,7 @@ src/
 Outside `src/`, two files run server-side on Cloudflare Workers rather than in the browser bundle:
 
 - `scripts/drive-clips.sh` — converts selected jev-drive rollout GIFs into `public/video/drive/<id>.{mp4,webp}` (ids must match `config/driveClips.js`).
+- `vite-plugins/preloadHome.js` — injects `<link rel="modulepreload" data-route="/">` for the lazy HomePage chunk (+ three.js chunk, CSS) into index.html; `worker.js` strips those tags on every path other than `/`.
 - `worker.js` — Worker entry point. Serves the built `dist/` as a SPA, handles the Stripe checkout session + webhook endpoints (`/api/checkout/formal-consulting`, `/api/stripe/webhook`), and injects language-specific `<meta>` tags (see `ZH_META`) based on `Accept-Language` for SEO/crawlers.
 - `wrangler.toml` — Worker config (name, Stripe price/URL vars, `dist/` asset binding). Deploy with `npm run cf:deploy` (build + `wrangler deploy`); iterate locally with `npm run cf:dev`.
 

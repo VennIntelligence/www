@@ -43,12 +43,17 @@
     rgba(3, 6, 13, 0.18);
 }
 
+/*
+ * 手机端：区块只有一屏高、马赛克是 1 列 × 6 行，每格仅一百多像素，
+ * 所以上下收口与压暗都必须比桌面轻，否则最下面一格会被遮罩吞成纯黑。
+ * 默认标准值：上下收口各 4%；纵向压暗 0.15 → 0.4 → 0.45；整体 0.1。调大 → 文字更清晰但底格更暗。
+ */
 @media (max-width: 767px) {
   .drive-vignette {
     background:
-      linear-gradient(to bottom, #03060d 0%, rgba(3, 6, 13, 0) 10%, rgba(3, 6, 13, 0) 90%, #03060d 100%),
-      linear-gradient(to bottom, rgba(3, 6, 13, 0.2) 0%, rgba(3, 6, 13, 0.55) 45%, rgba(3, 6, 13, 0.7) 100%),
-      rgba(3, 6, 13, 0.12);
+      linear-gradient(to bottom, #03060d 0%, rgba(3, 6, 13, 0) 4%, rgba(3, 6, 13, 0) 96%, #03060d 100%),
+      linear-gradient(to bottom, rgba(3, 6, 13, 0.15) 0%, rgba(3, 6, 13, 0.4) 45%, rgba(3, 6, 13, 0.45) 100%),
+      rgba(3, 6, 13, 0.1);
   }
 }
 
@@ -156,19 +161,6 @@
 }
 
 /* ---------- 两栏布局 ---------- */
-.drive-columns {
-  display: flex;
-  align-items: flex-start;
-  gap: 60px;
-}
-
-@media (max-width: 1023px) {
-  .drive-columns {
-    flex-direction: column;
-    gap: 24px;
-  }
-}
-
 /* ---------- 标题 ---------- */
 .drive-heading {
   flex: 1;
@@ -270,20 +262,6 @@
 }
 
 /* 次级 CTA：更透的描边款 */
-.drive-cta--ghost {
-  color: rgba(255, 255, 255, 0.78);
-  background: rgba(255, 255, 255, 0.03);
-  border-color: rgba(255, 255, 255, 0.18);
-  border-top-color: rgba(255, 255, 255, 0.3);
-  box-shadow: none;
-}
-
-.drive-cta--ghost:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.4);
-  box-shadow: 0 0 18px rgba(255, 255, 255, 0.08);
-}
-
 [data-glass-tier="solid"] .drive-cta {
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
@@ -291,50 +269,35 @@
 }
 
 /* ---------- 闭环示意卡片（右侧） ---------- */
-.drive-instrument {
-  /* 卡片宽度；默认标准值：min(680px, 48vw, 100%)。调大 → 示意图更大，但会挤压标题列。 */
-  width: min(680px, 48vw, 100%);
-  min-width: 0;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+/* ---------- 闭环示意画布：居中放大，叠在马赛克与文字之间 ---------- */
+.drive-stage {
+  position: absolute;
+  z-index: 2;
+  /* 画布尺寸与位置；默认标准值：宽 min(1400px, 96vw)，高 min(86vh, 860px)，水平居中、垂直略偏上（top 5%）。 */
+  left: 50%;
+  top: 5%;
+  width: min(1400px, 96vw);
+  height: min(86vh, 860px);
+  transform: translateX(-50%);
+  pointer-events: none;
+  /* 四周羽化：椭圆遮罩，中心全显、边缘透明。羽化起点；默认标准值：45%（越小 → 可见区越小、边缘越虚） */
+  --stage-fade-start: 45%;
+  mask-image: radial-gradient(ellipse 70% 68% at 50% 50%, #000 var(--stage-fade-start), transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 68% at 50% 50%, #000 var(--stage-fade-start), transparent 100%);
 }
 
-.drive-instrument__label {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgb(var(--hue-blue-bright) / 0.7);
+/* 画布后的暗化底：让浅色线条与浅色前景片段区分开。默认标准值：中心 rgba(3,6,13,0.62) → 边缘透明。调大 → 背后片段更暗。 */
+.drive-stage::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 60% at 50% 50%, rgba(3, 6, 13, 0.62) 0%, rgba(3, 6, 13, 0.4) 55%, rgba(3, 6, 13, 0) 100%);
 }
 
-.drive-instrument__stage {
-  position: relative;
-  /* 示意图比例；默认标准值：16 / 10 */
-  aspect-ratio: 16 / 10;
-  overflow: hidden;
-  border-radius: 16px;
-  /* 卡片底色，半透明让马赛克隐约透出；默认标准值：rgba(3,6,13,0.72) + blur(10px) */
-  background: rgba(3, 6, 13, 0.72);
-  backdrop-filter: blur(10px) saturate(1.1);
-  -webkit-backdrop-filter: blur(10px) saturate(1.1);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-top-color: rgba(255, 255, 255, 0.18);
-  box-shadow:
-    0 24px 60px rgba(0, 0, 0, 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-[data-glass-tier="solid"] .drive-instrument__stage {
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  background: rgba(3, 6, 13, 0.9);
-}
-
-@media (max-width: 1023px) {
-  .drive-instrument {
-    width: 100%;
+@media (max-width: 767px) {
+  .drive-stage {
+    top: 4%;
+    height: 56vh;
   }
 }
 

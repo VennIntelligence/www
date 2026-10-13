@@ -46,6 +46,7 @@ import {
   SPIKE_SIZE,
   SPIKE_BOUNDS,
   DEMO_VIDEO_PATH,
+  VIDEO_PREFETCH_TIMEOUT_MS,
   ABOUT_CUBE_SIZE_GLSL,
   LIQUID_BG_FLOW_SPEED,
   LIQUID_BG_VISCOSITY,
@@ -175,15 +176,28 @@ export default function UnifiedStage() {
       uniforms.uCameraAspect.value = aspect;
     }
 
-    // 页面一打开立刻开始后台下载（prefetch）——不 play()，只 load()
-    // 这样用户滑到 About 时视频已缓冲完毕，无需等待。
-    video.src = DEMO_VIDEO_PATH;
-    video.load();
+    // Prefetch the cube-face video without play(). Deferred off the critical path:
+    // starts on the first scroll or once the main thread is idle (whichever comes first),
+    // so first paint is not competing with a video download.
+    let videoRequested = false;
+    function prefetchDemoVideo() {
+      if (videoRequested) return;
+      videoRequested = true;
+      video.src = DEMO_VIDEO_PATH;
+      video.load();
+    }
+    const onFirstScroll = () => prefetchDemoVideo();
+    window.addEventListener('scroll', onFirstScroll, { once: true, passive: true });
+    const idleId = 'requestIdleCallback' in window
+      ? window.requestIdleCallback(prefetchDemoVideo, { timeout: VIDEO_PREFETCH_TIMEOUT_MS })
+      : window.setTimeout(prefetchDemoVideo, VIDEO_PREFETCH_TIMEOUT_MS);
+    const cancelIdle = () => ('cancelIdleCallback' in window ? window.cancelIdleCallback(idleId) : window.clearTimeout(idleId));
 
-    // 仅在用户滑到 About/Omega 阶段时调用，负责启动播放 + 上屏纹理
+    // Called once the stage leaves the hero phase: starts playback + binds the texture
     function playDemoVideo() {
       if (videoPlaying) return;
       videoPlaying = true;
+      prefetchDemoVideo();
       if (video.readyState >= 3 /* HAVE_FUTURE_DATA */) {
         // 已缓冲足够数据，直接播放
         video.play().then(applyVideoTexture).catch(() => {});
@@ -958,7 +972,9 @@ export default function UnifiedStage() {
       dragHandle.removeEventListener('lostpointercapture', onPointerUp);
       dragHandle.removeEventListener('touchstart', onTouchStart);
 
-      // 视频清理
+      // Video cleanup
+      window.removeEventListener('scroll', onFirstScroll);
+      cancelIdle();
       video.pause();
       video.removeAttribute('src');
       video.load();

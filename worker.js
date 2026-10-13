@@ -159,23 +159,32 @@ async function handleAppShell(request, env, url) {
   headers.set('Vary', 'Accept-Language');
 
   const prefersZh = detectChinesePreference(request);
+  const isHome = url.pathname === '/';
 
-  // 如果偏好中文，注入中文 meta 标签
-  if (prefersZh) {
-    let html = await assetResponse.text();
-    html = injectChineseMeta(html);
-    return new Response(html, {
+  if (!prefersZh && isHome) {
+    return new Response(assetResponse.body, {
       status: assetResponse.status,
       statusText: assetResponse.statusText,
       headers,
     });
   }
 
-  return new Response(assetResponse.body, {
+  let html = await assetResponse.text();
+  if (prefersZh) html = injectChineseMeta(html);
+  if (!isHome) html = stripHomePreloads(html);
+  return new Response(html, {
     status: assetResponse.status,
     statusText: assetResponse.statusText,
     headers,
   });
+}
+
+/**
+ * Remove the HomePage chunk preloads (tagged data-route="/" by vite-plugins/preloadHome.js)
+ * so /blog, /drive and 404s do not download three.js they never use.
+ */
+function stripHomePreloads(html) {
+  return html.replace(/<link [^>]*data-route="\/"[^>]*>\s*/g, '');
 }
 
 /**

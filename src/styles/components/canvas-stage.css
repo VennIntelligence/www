@@ -1,16 +1,16 @@
 /* ============================================================
-   ClosedLoopStage — 闭环驾驶示意画布容器
+   Canvas stage — 全幅 2D 画布容器（ClosedLoopStage / SceneReplayStage 共用）
    画布填满父容器；父容器负责定位（absolute 背景或固定比例卡片）
    ============================================================ */
 
-.closed-loop-stage {
+.canvas-stage {
   position: absolute;
   inset: 0;
   overflow: hidden;
   pointer-events: none;
 }
 
-.closed-loop-stage canvas {
+.canvas-stage canvas {
   display: block;
   width: 100%;
   height: 100%;

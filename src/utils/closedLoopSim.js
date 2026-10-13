@@ -4,6 +4,7 @@
  * 世界：一条由两个正弦曲率叠加、沿弧长 s 无限延伸的双车道公路。
  * 本车在车道坐标 (s, lat) 里运动，按 decisionDt 重规划一段 planHorizon 的计划并执行到下一个决策；
  * 前车速度周期性起伏并停车；计划的扫掠足迹若在时域内触到前车，记为"计划接触"并把执行计划刹到前车速度之下。
+ * 沿 s 每隔约 intersectionSpacing 米按确定性哈希放置一个垂直十字路口（crossingS），横向车流只做视觉、不与本车交互。
  *
  * 所有缓冲在 createSim() 里一次分配，stepSim() 内零对象分配。可调参数见 config/closedLoopLook.js。
  */
@@ -19,6 +20,22 @@ export function clamp(v, lo, hi) {
 export function hash01(k) {
   const x = Math.sin(k * 127.1 + 311.7) * 43758.5453;
   return x - Math.floor(x);
+}
+
+/* Arc length of the cross street in cell k, or -1 when the cell has none. Pure function of k. */
+export function crossingS(k) {
+  if (hash01(k * 11 + 7) >= L.intersectionProb) return -1;
+  return (k + 0.5 + (hash01(k * 17 + 9) - 0.5) * L.intersectionJitter) * L.intersectionSpacing;
+}
+
+/* True when s lies within `margin` metres of any cross street's junction box. */
+export function nearCrossing(s, margin) {
+  const k = Math.floor(s / L.intersectionSpacing);
+  for (let j = k - 1; j <= k + 1; j++) {
+    const c = crossingS(j);
+    if (c >= 0 && Math.abs(s - c) < L.laneWidth + margin) return true;
+  }
+  return false;
 }
 
 function curvature(s) {

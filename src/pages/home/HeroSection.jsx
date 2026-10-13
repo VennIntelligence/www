@@ -179,12 +179,9 @@ export default function HeroSection() {
               })}
             </h1>
 
-            {/* 赛事署名行：紧贴大标题下方，无框，衬线赛事名 + 金色年份，整行可点跳 /drive */}
+            {/* 赛事署名行：紧贴大标题下方，无框，呼吸的身份行 + 赛事名 + 金色年份，整行可点跳 /drive */}
             <Link to="/drive" className="hero__challenge">
-              <span className="hero__challenge-kicker">
-                <span className="hero__challenge-dot" aria-hidden="true" />
-                {copy.challenge.kicker}
-              </span>
+              <span className="hero__challenge-kicker">{copy.challenge.kicker}</span>
               <span className="hero__challenge-title">
                 {copy.challenge.title}
                 <em className="hero__challenge-year">{copy.challenge.year}</em>

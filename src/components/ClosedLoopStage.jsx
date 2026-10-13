@@ -2,16 +2,18 @@ import { useEffect, useRef } from 'react';
 import useSectionFreeze from '../hooks/useSectionFreeze';
 import { getCappedDPR } from '../utils/cappedDPR';
 import { createFrameThrottle } from '../utils/frameThrottle';
-import { createSim, stepSim, lanePos, hash01 } from '../utils/closedLoopSim';
+import { createSim, stepSim, lanePos, hash01, crossingS, nearCrossing } from '../utils/closedLoopSim';
 import { CLOSED_LOOP_LOOK as L } from '../config/closedLoopLook';
-import '../styles/components/closed-loop-stage.css';
+import { readHueTokens } from '../utils/hueTokens';
+import '../styles/components/canvas-stage.css';
 
 /**
  * ClosedLoopStage — 闭环驾驶示意画布（2D canvas）
  *
  * 俯视视角跟随本车：无限延伸的双车道公路、人类日志路径（虚线）、
  * 本车按 2 Hz 重规划输出的 4 s 计划（亮线 + 扫掠足迹）、实际驶过的路径（实线）、
- * 周期性停车的前车、路边停车与对向车流。计划的扫掠足迹碰到前车时，
+ * 周期性停车的前车、路边停车与对向车流，以及按确定性哈希周期出现的垂直十字路口
+ * （横街、停止线、0–2 辆纯视觉的横向车流；路口方块先擦除再铺路面，主路边线在路口处断开）。计划的扫掠足迹碰到前车时，
  * 第一个相交的计划位姿用金色框标出，本车随即刹车：这就是"碰撞已经写在计划里"。
  *
  * 性能约定：
@@ -30,17 +32,9 @@ const DASH_LOGGED = [1.2, 1.6];
 const DASH_DIVIDER = [2.5, 3.5];
 const DASH_NONE = [];
 
-/* Read the site hue tokens once so the canvas stays in sync with index.css. */
+/* Canvas palette derived from the site hue tokens, read once at setup. */
 function readColors(el) {
-  const cs = getComputedStyle(el);
-  const triplet = (name, fallback) => {
-    const parts = cs.getPropertyValue(name).trim().split(/\s+/).map(Number);
-    return parts.length === 3 && !parts.some(Number.isNaN) ? parts : fallback;
-  };
-  const blue = triplet('--hue-blue', [120, 180, 255]);
-  const bright = triplet('--hue-blue-bright', [200, 230, 255]);
-  const gold = triplet('--hue-gold', [255, 200, 80]);
-  const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+  const { blue, bright, gold, rgba, font } = readHueTokens(el);
   return {
     road: 'rgba(255,255,255,0.045)',
     edge: 'rgba(255,255,255,0.22)',
@@ -59,7 +53,7 @@ function readColors(el) {
     hud: rgba(bright, 0.88),
     hudDim: 'rgba(255,255,255,0.42)',
     hudHot: rgba(gold, 1),
-    font: cs.getPropertyValue('--font-mono').trim() || 'monospace',
+    font,
   };
 }
 
@@ -95,6 +89,63 @@ function drawCar(ctx, x, y, h, fill, stroke) {
   ctx.restore();
 }
 
+function strokeSeg(ctx, x0, y0, x1, y1) {
+  ctx.beginPath();
+  ctx.moveTo(x0, y0);
+  ctx.lineTo(x1, y1);
+  ctx.stroke();
+}
+
+/* One cross street centred on the main road at (cx, cy) with road heading h; k seeds its traffic. */
+function drawCrossing(ctx, cx, cy, h, k, t, colors) {
+  const lw = L.laneWidth;
+  const len = L.crossHalfLen;
+  const stop = lw + L.stopLineGap;
+  const sw = L.stopLineWidth;
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(h);
+
+  // Erase the main road's edges and divider inside the junction, then lay the whole cross street as one band.
+  ctx.globalCompositeOperation = 'destination-out';
+  ctx.fillStyle = '#000';
+  ctx.fillRect(-lw, -lw - 0.2, lw * 2, lw * 2 + 0.4);
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.fillStyle = colors.road;
+  ctx.fillRect(-lw, -len, lw * 2, len * 2);
+
+  ctx.lineWidth = 0.12;
+  ctx.strokeStyle = colors.edge;
+  strokeSeg(ctx, -lw, lw, -lw, len);
+  strokeSeg(ctx, lw, lw, lw, len);
+  strokeSeg(ctx, -lw, -lw, -lw, -len);
+  strokeSeg(ctx, lw, -lw, lw, -len);
+  ctx.setLineDash(DASH_DIVIDER);
+  ctx.strokeStyle = colors.divider;
+  strokeSeg(ctx, 0, lw, 0, len);
+  strokeSeg(ctx, 0, -lw, 0, -len);
+  ctx.setLineDash(DASH_NONE);
+
+  // Stop lines across each approach lane (right-hand traffic).
+  ctx.fillStyle = colors.edge;
+  ctx.fillRect(-stop - sw, -lw, sw, lw);
+  ctx.fillRect(stop, 0, sw, lw);
+  ctx.fillRect(0, -stop - sw, lw, sw);
+  ctx.fillRect(-lw, stop, lw, sw);
+
+  // 0-2 crossing cars looping over the street's length; +y traffic keeps to the +x lane.
+  const period = len * 2;
+  const cars = Math.floor(hash01(k * 19 + 2) * 3);
+  for (let j = 0; j < cars; j++) {
+    const seed = k * 23 + j * 7;
+    const dir = hash01(seed + 1) < 0.5 ? 1 : -1;
+    const v = L.crossSpeedMin + hash01(seed + 3) * (L.crossSpeedMax - L.crossSpeedMin);
+    const u = (((hash01(seed + 5) + j * 0.5) * period + v * t) % period) - len;
+    drawCar(ctx, dir * lw * 0.5, dir * u, dir * Math.PI * 0.5, colors.other, colors.otherStroke);
+  }
+  ctx.restore();
+}
+
 function render(ctx, sim, w, h, dpr, ppm, colors, hud) {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, w, h);
@@ -125,6 +176,18 @@ function render(ctx, sim, w, h, dpr, ppm, colors, hud) {
   ctx.setLineDash(DASH_DIVIDER);
   ctx.strokeStyle = colors.divider;
   strokeCenterPath(ctx, sim, i0, i1, 0, false);
+  ctx.setLineDash(DASH_NONE);
+
+  // Cross streets: drawn in the junction frame (x along the main road, y to its left).
+  const xk0 = Math.floor(s0 / L.intersectionSpacing);
+  const xk1 = Math.floor(s1 / L.intersectionSpacing);
+  for (let k = xk0; k <= xk1; k++) {
+    const s = crossingS(k);
+    if (s < s0 || s > s1) continue;
+    lanePos(sim, s, L.laneWidth * 0.5, p);
+    drawCrossing(ctx, p[0], p[1], p[2], k, sim.t, colors);
+  }
+
   ctx.setLineDash(DASH_LOGGED);
   ctx.lineWidth = 0.1;
   ctx.strokeStyle = colors.logged;
@@ -137,7 +200,7 @@ function render(ctx, sim, w, h, dpr, ppm, colors, hud) {
   for (let k = pk0; k <= pk1; k++) {
     if (hash01(k * 7 + 3) >= L.parkedProb) continue;
     const s = k * L.parkedSpacing + hash01(k * 13 + 5) * L.parkedSpacing * 0.5;
-    if (s < s0 || s > s1) continue;
+    if (s < s0 || s > s1 || nearCrossing(s, L.carLen)) continue;
     lanePos(sim, s, -L.laneWidth * 0.5 - 1.2, p);
     drawCar(ctx, p[0], p[1], p[2], colors.other, colors.otherStroke);
   }
@@ -318,7 +381,7 @@ export default function ClosedLoopStage({ hud = null, showHud = true, className 
   }, [shouldAnimate, hudCopy]);
 
   return (
-    <div ref={containerRef} className={`closed-loop-stage ${className}`.trim()} aria-hidden="true">
+    <div ref={containerRef} className={`canvas-stage ${className}`.trim()} aria-hidden="true">
       <canvas ref={canvasRef} />
     </div>
   );

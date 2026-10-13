@@ -169,7 +169,11 @@ export const CUBE_FADEOUT_START = 0.6;
 export const CUBE_FADEOUT_END = 0.95;
 
 // --- 视频纹理路径 ---
+// 立方体贴面视频（960×540、无音轨、约 0.7 MB）。
 export const DEMO_VIDEO_PATH = '/video/demo-fallback.mp4';
+// 预取兜底时间（ms）：页面打开后若用户一直不滚动，最迟多久开始下载贴面视频；默认标准值：2500。
+// 调小 → 更早占用带宽、首屏更慢；调大 → 快速下滑到 Σ 时视频可能还没缓冲好。
+export const VIDEO_PREFETCH_TIMEOUT_MS = 2500;
 
 // ╔══════════════════════════════════════════════════════════════╗
 // ║  液态背景色板 — Sigma 阶段背景配色入口                       ║
