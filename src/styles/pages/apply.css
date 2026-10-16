@@ -1,0 +1,523 @@
+/* ============================================================
+   Apply Page — /apply grant application form
+   Same visual language as the home Funding section: dark field, gold accents,
+   mono uppercase labels, serif display line, square corners everywhere.
+   ============================================================ */
+
+.apply-page {
+  /* Accent alpha for borders of focused / selected controls. Default: 0.55. Raise for a louder gold edge, lower for subtler. */
+  --apply-accent-alpha: 0.55;
+  /* Resting border color of inputs. Default: rgba(255,255,255,0.14). Raise alpha for more visible boxes. */
+  --apply-border: rgba(255, 255, 255, 0.14);
+  /* Error color (field errors, failed checks). Default: rgb(255 120 110). */
+  --apply-error: 255 120 110;
+  /* Success color (passed live checks). Default: rgb(140 220 160). */
+  --apply-ok: 140 220 160;
+
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  /* Page background. Default: #05080f with a gold glow at alpha 0.07 (same as .funding-section). Raise alpha → warmer top. */
+  background:
+    radial-gradient(ellipse 70% 50% at 15% 0%, rgb(var(--hue-gold) / 0.07) 0%, transparent 70%),
+    #05080f;
+  color: rgba(255, 255, 255, 0.9);
+  font-family: var(--font-sans);
+}
+
+.apply-page__inner {
+  flex: 1;
+  width: 100%;
+  /* Content column width. Default: 880px. Wider makes line lengths in the long answers harder to read. */
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 128px 40px 96px;
+}
+
+@media (max-width: 767px) {
+  .apply-page__inner {
+    padding: 100px 20px calc(64px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* ---------- Header ---------- */
+.apply-hero__eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgb(var(--hue-gold) / 0.85);
+  margin: 0 0 18px;
+}
+
+.apply-hero__title {
+  margin: 0;
+  /* Title size. Default: clamp(2rem, 5vw, 3.4rem). */
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  font-weight: 300;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+}
+
+.apply-hero__display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0;
+  color: rgb(var(--hue-gold-bright) / 0.96);
+}
+
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .apply-hero__display {
+    background: linear-gradient(135deg, rgb(var(--hue-gold-bright)), rgb(var(--hue-gold-deep) / 0.85));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+.apply-hero__lead {
+  margin: 20px 0 0;
+  max-width: 640px;
+  font-size: clamp(1rem, 1.5vw, 1.15rem);
+  line-height: 1.6;
+  color: rgba(255, 246, 230, 0.82);
+}
+
+.apply-policies {
+  margin: 28px 0 0;
+  padding: 16px 20px;
+  list-style: none;
+  border-left: 2px solid rgb(var(--hue-gold) / 0.6);
+  background: rgb(var(--hue-gold) / 0.05);
+  display: grid;
+  gap: 6px;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+/* ---------- Form groups ---------- */
+/* .apply-flow stacks the GitHub step and the form; .apply-form is the form's <fieldset>. */
+.apply-flow {
+  margin-top: 56px;
+}
+
+.apply-flow,
+.apply-form {
+  display: grid;
+  gap: 48px;
+}
+
+.apply-form {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  transition: opacity 0.35s ease;
+}
+
+.apply-form:disabled {
+  /* Dimming of the locked form until an eligible GitHub account is connected. Default: 0.4.
+     Raise to keep the locked fields more legible; lower to push them further back. */
+  opacity: 0.4;
+}
+
+.apply-group {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px 20px;
+}
+
+.apply-group__title {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 0 0 12px;
+  font-weight: 400;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.apply-group__title span {
+  margin-right: 12px;
+  color: rgb(var(--hue-gold) / 0.85);
+}
+
+.apply-group__note {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+@media (max-width: 640px) {
+  .apply-group {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---------- Fields ---------- */
+.apply-field {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.apply-field--wide {
+  grid-column: 1 / -1;
+}
+
+.apply-field__label {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.apply-field__optional {
+  margin-left: 10px;
+  color: rgba(255, 255, 255, 0.38);
+}
+
+.apply-input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 0;
+  border: 1px solid var(--apply-border);
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+  /* 16px minimum keeps iOS Safari from zooming on focus. */
+  font: inherit;
+  font-size: 16px;
+  line-height: 1.5;
+  transition: border-color 0.25s ease, background 0.25s ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.apply-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.apply-input:focus {
+  outline: none;
+  border-color: rgb(var(--hue-gold) / var(--apply-accent-alpha));
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.apply-input--area {
+  resize: vertical;
+  min-height: 132px;
+}
+
+/* Native select with a CSS caret (the field itself stays square like the inputs). */
+.apply-input--select {
+  padding-right: 40px;
+  cursor: pointer;
+  background-image:
+    linear-gradient(45deg, transparent 50%, rgb(var(--hue-gold) / 0.8) 50%),
+    linear-gradient(135deg, rgb(var(--hue-gold) / 0.8) 50%, transparent 50%);
+  background-position: calc(100% - 20px) 50%, calc(100% - 15px) 50%;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+}
+
+.apply-input--select option {
+  background: #0b1020;
+  color: #fff;
+}
+
+.apply-form:disabled .apply-input,
+.apply-form:disabled .apply-choice__option,
+.apply-form:disabled .apply-button {
+  cursor: not-allowed;
+}
+
+/* Hide number spinners: the amount is typed, not stepped. */
+.apply-input[type='number'] {
+  -moz-appearance: textfield;
+}
+.apply-input[type='number']::-webkit-inner-spin-button,
+.apply-input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.is-invalid .apply-input {
+  border-color: rgb(var(--apply-error) / 0.7);
+}
+
+.apply-field__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 1.2em;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.apply-field__error {
+  color: rgb(var(--apply-error));
+}
+
+.apply-field__counter {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Applicant type (square segmented choice) ---------- */
+.apply-choice {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border: 1px solid var(--apply-border);
+}
+
+.apply-choice__option {
+  position: relative;
+  padding: 13px 14px;
+  text-align: center;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+.apply-choice__option + .apply-choice__option {
+  border-left: 1px solid var(--apply-border);
+}
+
+.apply-choice__option input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.apply-choice__option.is-selected {
+  color: rgb(var(--hue-gold-bright));
+  background: rgb(var(--hue-gold) / 0.12);
+  box-shadow: inset 0 0 0 1px rgb(var(--hue-gold) / var(--apply-accent-alpha));
+}
+
+.apply-choice__option:has(input:focus-visible) {
+  outline: 1px solid rgb(var(--hue-gold) / var(--apply-accent-alpha));
+  outline-offset: -4px;
+}
+
+.is-invalid .apply-choice {
+  border-color: rgb(var(--apply-error) / 0.7);
+}
+
+@media (max-width: 420px) {
+  .apply-choice {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .apply-choice__option + .apply-choice__option {
+    border-left: 0;
+    border-top: 1px solid var(--apply-border);
+  }
+}
+
+/* ---------- Live check results ---------- */
+.apply-check {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  overflow-wrap: anywhere;
+}
+
+.apply-check--pending {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.apply-check--ok {
+  color: rgb(var(--apply-ok));
+}
+
+.apply-check--error {
+  color: rgb(var(--apply-error));
+}
+
+/* ---------- GitHub step ---------- */
+.apply-github__connect {
+  justify-self: start;
+}
+
+.apply-github {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 14px;
+  padding: 18px 20px;
+  border: 1px solid var(--apply-border);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.apply-github__who {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.apply-github__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 0;
+  border: 1px solid rgb(var(--hue-gold) / 0.35);
+}
+
+.apply-github__login {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  color: rgb(var(--hue-gold-bright) / 0.95);
+  text-decoration: none;
+}
+
+.apply-github__switch {
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.apply-github__switch:hover {
+  color: #fff;
+}
+
+.apply-github__stats {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border: 1px solid var(--apply-border);
+}
+
+.apply-github__stats > div {
+  padding: 10px 14px;
+}
+
+.apply-github__stats > div + div {
+  border-left: 1px solid var(--apply-border);
+}
+
+.apply-github__stats dt {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.apply-github__stats dd {
+  margin: 4px 0 0;
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  font-variant-numeric: tabular-nums;
+  color: rgb(var(--hue-gold-bright) / 0.95);
+}
+
+@media (max-width: 480px) {
+  .apply-github__stats {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .apply-github__stats > div + div {
+    border-left: 0;
+    border-top: 1px solid var(--apply-border);
+  }
+}
+
+/* ---------- Submit ---------- */
+.apply-submit {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 18px;
+  padding-top: 28px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.apply-turnstile:empty {
+  display: none;
+}
+
+.apply-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 36px;
+  border-radius: 0;
+  border: 1px solid rgb(var(--hue-gold) / 0.45);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: rgb(var(--hue-gold-bright) / 0.95);
+  /* Gold glass fill. Default: gold 0.16 → 0.05. Raise alpha → more solid button. */
+  background: linear-gradient(135deg, rgb(var(--hue-gold) / 0.16) 0%, rgb(var(--hue-gold) / 0.05) 100%);
+  cursor: pointer;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), background 0.45s ease, color 0.45s ease;
+}
+
+.apply-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  color: #fff;
+  background: linear-gradient(135deg, rgb(var(--hue-gold) / 0.26) 0%, rgb(var(--hue-gold) / 0.09) 100%);
+}
+
+.apply-button:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+
+@media (max-width: 640px) {
+  .apply-button {
+    width: 100%;
+  }
+}
+
+.apply-submit__error {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: rgb(var(--apply-error));
+}
+
+/* ---------- Confirmation ---------- */
+.apply-done {
+  margin-top: 56px;
+  padding: 32px;
+  border: 1px solid rgb(var(--hue-gold) / 0.35);
+  background: linear-gradient(160deg, rgb(var(--hue-gold) / 0.1) 0%, rgba(255, 255, 255, 0.02) 100%);
+}
+
+.apply-done__title {
+  margin: 0 0 12px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  color: rgb(var(--hue-gold-bright));
+}
+
+.apply-done__body {
+  margin: 0 0 28px;
+  max-width: 620px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.78);
+}

@@ -11,25 +11,20 @@ export default function Footer() {
   const { lang } = useLanguage();
   const copy = COPY.footer[lang];
   const isChinese = lang === 'zh';
-  const zhDescriptionLines = copy.description.split('，');
+  const sloganLines = COPY.hero[lang].subtitleLines;
 
   return (
     <footer className="footer">
       <div className="footer__inner">
         <div className="footer__left">
           <p className="footer__company">
-            VEEN INTELLIGENCE FOUNDATION LLC
-            <span className="footer__meta"> · EST. 2026 · Wyoming, USA</span>
+            {copy.company}
+            <span className="footer__meta">{copy.companyMeta}</span>
           </p>
           <p className="footer__desc">
-            {isChinese ? (
-              <>
-                <span className="footer__desc-line">{zhDescriptionLines[0]}，</span>
-                <span className="footer__desc-line">{zhDescriptionLines.slice(1).join('，')}</span>
-              </>
-            ) : (
-              copy.description
-            )}
+            {isChinese
+              ? sloganLines.map((line) => <span key={line} className="footer__desc-line">{line}</span>)
+              : sloganLines.join(' ')}
           </p>
         </div>
 

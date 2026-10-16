@@ -256,7 +256,10 @@
 
 .omega-heading__light + br + .omega-heading__light + br + .omega-heading__display,
 .omega-heading__display {
-  font-weight: 600;
+  /* 与 Sigma 一致：展示衬线（Gilda Display → 宋体回退），仅 400 字重，字距放宽到 0 */
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0;
   /* 兜底色 */
   color: rgba(255, 230, 160, 0.96);
 }

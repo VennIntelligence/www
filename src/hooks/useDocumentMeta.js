@@ -4,9 +4,9 @@ import { useLanguage } from '../context/useLanguage';
 import { BLOG_POSTS } from '../pages/blog/registry';
 
 /**
- * useDocumentMeta — 根据当前语言和路由动态更新 SEO meta 标签
+ * useDocumentMeta — update SEO meta tags for the current language and route
  *
- * 更新内容：
+ * Updates:
  *   - document.title
  *   - <meta name="description">
  *   - <meta property="og:title">
@@ -14,10 +14,10 @@ import { BLOG_POSTS } from '../pages/blog/registry';
  *   - <meta name="twitter:title">
  *   - <meta name="twitter:description">
  *
- * 在语言切换或路由变化时自动执行。
+ * Runs automatically on language or route change.
  */
 
-// ── 路由级 meta 配置 ──
+// ── Per-route meta ──
 const ROUTE_META = {
   '/': {
     en: {
@@ -39,6 +39,16 @@ const ROUTE_META = {
       description: '文氏智能基金会资助参赛团队出战 2026 年 NVIDIA AlpaSim 端到端闭环挑战赛：闭环仿真、碰撞取证、预登记实验与闭环回放片段。结果将于 NeurIPS 2026 公布。',
     },
   },
+  '/apply': {
+    en: {
+      title: 'Apply for a Grant — Venn Intelligence Foundation',
+      description: 'Apply for a $1,000–$10,000 grant from Venn Intelligence Foundation. For competitive independent researchers and early-stage startups building infrastructure or frontier intelligence. No application fees.',
+    },
+    zh: {
+      title: '申请资助 — 文氏智能基金会',
+      description: '申请文氏智能基金会 1,000 至 10,000 美元的资助，面向从事基础设施或前沿智能的独立研究者与早期初创公司。不收取任何申请费。',
+    },
+  },
   '/blog': {
     en: {
       title: 'Blog — Venn Intelligence Foundation',
@@ -52,7 +62,7 @@ const ROUTE_META = {
 };
 
 /**
- * 尝试匹配博客文章路由 /blog/:slug，返回文章特定的 meta。
+ * Match the blog article route /blog/:slug and return that post's meta.
  */
 function getBlogArticleMeta(pathname, lang) {
   const match = pathname.match(/^\/blog\/(.+)$/);
@@ -73,7 +83,7 @@ function getBlogArticleMeta(pathname, lang) {
 }
 
 /**
- * 设置或更新一个 <meta> 标签的 content 属性。
+ * Set the content attribute of an existing <meta> tag.
  */
 function setMetaContent(attr, key, content) {
   const selector = `meta[${attr}="${key}"]`;
@@ -88,7 +98,7 @@ export function useDocumentMeta() {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    // 优先级：博客文章 > 静态路由 > 不更新
+    // Priority: blog article > static route > leave unchanged
     const meta = getBlogArticleMeta(pathname, lang)
       || ROUTE_META[pathname]?.[lang];
 

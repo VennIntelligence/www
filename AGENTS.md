@@ -203,8 +203,10 @@ src/
 │   ├── BlogPage.jsx       # Blog listing page
 │   ├── BlogArticlePage.jsx # Blog article shell (renders a post from the registry)
 │   ├── DrivePage.jsx       # Autonomous driving project page (/drive, AlpaSim challenge 2026, kept after the event)
+│   ├── ApplyPage.jsx       # Grant application form (/apply); posts to /api/grants/apply
 │   ├── home/               # Landing page sections (HeroSection, SigmaSection, OmegaSection, DriveSection, ConsultantsSection)
 │   ├── drive/              # /drive-only components (DriveTimeline)
+│   ├── apply/              # /apply-only components and hooks (ApplicationForm, ApplyField, CheckStatus, GithubConnect, RepoPicker, useTurnstile, useGrantCheck, useGithubAccount)
 │   └── blog/
 │       ├── registry.js     # Maps post slugs → post modules
 │       ├── components/     # Blog-listing-specific components (CoverGrid, BlogCover, useCoverLoop)
@@ -228,6 +230,8 @@ Outside `src/`, two files run server-side on Cloudflare Workers rather than in t
 - `scripts/drive-clips.sh` — converts selected jev-drive rollout GIFs into `public/video/drive/<id>.{mp4,webp}` (ids must match `config/driveClips.js`).
 - `vite-plugins/preloadHome.js` — injects `<link rel="modulepreload" data-route="/">` for the lazy HomePage chunk (+ three.js chunk, CSS) into index.html; `worker.js` strips those tags on every path other than `/`.
 - `worker.js` — Worker entry point. Serves the built `dist/` as a SPA, handles the Stripe checkout session + webhook endpoints (`/api/checkout/formal-consulting`, `/api/stripe/webhook`), and injects language-specific `<meta>` tags (see `ZH_META`) based on `Accept-Language` for SEO/crawlers.
+- `worker/` — modules imported by `worker.js`: `http.js` (shared JSON / cookie / compare / hash helpers), `grants.js` (`/api/grants/{config,verify,apply,github/me}` + Basic-auth `/admin/grants`; validation shared with the client via `src/config/grantForm.js`), `githubSession.js` (Sign in with GitHub OAuth routes + HMAC-signed session cookie) and `github.js` (GitHub API, account gate, repo ownership check). Gate thresholds (`GRANT_MIN_*` vars) and applicant metrics are server-only — never put them in the client bundle or a public response.
+- `migrations/` — D1 schema for the `GRANTS_DB` binding (`npx wrangler d1 migrations apply vennai-grants --remote`).
 - `wrangler.toml` — Worker config (name, Stripe price/URL vars, `dist/` asset binding). Deploy with `npm run cf:deploy` (build + `wrangler deploy`); iterate locally with `npm run cf:dev`.
 
 ### 5.2 Placement Rules

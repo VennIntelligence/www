@@ -591,6 +591,14 @@
   }
 }
 
+/* 主办方行：小号等宽，只做事实陈述；默认标准值：字号 clamp(0.72rem, 0.9vw, 0.85rem)、颜色 0.58 透明度 */
+.hero__challenge-organizers {
+  font-family: var(--font-mono);
+  font-size: clamp(0.72rem, 0.9vw, 0.85rem);
+  letter-spacing: 0.08em;
+  color: rgba(220, 235, 255, 0.58);
+}
+
 /* CTA：无下划线，悬停提亮 */
 .hero__challenge-cta {
   display: inline-flex;
@@ -639,6 +647,10 @@
 
   .hero__challenge-cta {
     font-size: 0.82rem;
+  }
+
+  .hero__challenge-organizers {
+    font-size: 0.68rem;
   }
 }
 

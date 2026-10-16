@@ -186,6 +186,7 @@ export default function HeroSection() {
                 {copy.challenge.title}
                 <em className="hero__challenge-year">{copy.challenge.year}</em>
               </span>
+              <span className="hero__challenge-organizers">{copy.challenge.organizers}</span>
               <span className="hero__challenge-cta">
                 {copy.challenge.cta}
                 <IconArrowRight className="hero__challenge-arrow" />

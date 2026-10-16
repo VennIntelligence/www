@@ -14,6 +14,7 @@ import '../styles/components/navbar.css';
 // 带 children 的条目渲染成下拉分组：顶栏只占一格，之后新增项目往 children 里加即可，
 // 不必再重排顶栏。等项目数量超出下拉承载力，再把 children 迁到独立的 /projects 列表页。
 const NAV_LINKS = [
+  { id: 'funding' },
   { id: 'projects', children: [{ id: 'drive' }, { id: 'omega' }, { id: 'sigma' }] },
   { id: 'consultants' },
   { id: 'blog', route: '/blog' },
@@ -35,7 +36,7 @@ const NAVBAR_SECTION_OBSERVER = {
 // 用于从多个同时可见的区块中选出当前「主角」——取 DOM 顺序最靠后且交叉比 ≥ 20% 的区块。
 // 必须与 HomePage.jsx 里 section 的真实 DOM 顺序一致（导航菜单的排列顺序与此无关）。
 // hero 虽然不是菜单项，仍然参与可见性检测（滚到顶部时不应高亮任何菜单项）
-const SECTION_ORDER = ['hero', 'drive', 'sigma', 'omega', 'consultants'];
+const SECTION_ORDER = ['hero', 'funding', 'drive', 'sigma', 'omega', 'consultants'];
 
 // 导航栏液态毛玻璃组件的基础物理渲染常量
 const NAVBAR_GLASS_BASE = {

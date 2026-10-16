@@ -40,7 +40,7 @@
        显式中文回退 PingFang SC(macOS/iOS) → Microsoft YaHei(Windows) → Noto Sans SC(Android/Linux)，
        保证中英混排字重灰度跨平台一致。组件内禁止再写独立 font-family，统一改这里。 */
     --font-sans: 'Inter', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
-    /* 展示衬线栈：仅用于 Sigma/Omega 标题的渐变裁切末行，制造编辑感对比。
+    /* 展示衬线栈：仅用于 Sigma/Omega/Drive 标题的渐变裁切末行，制造编辑感对比。
        默认标准值：Gilda Display（index.html 已加载，仅 400 字重）→ 系统宋体回退。
        若停用 Gilda Display，需同步删除 index.html 中的加载。 */
     --font-display: 'Gilda Display', 'Songti SC', 'STSong', 'Noto Serif SC', 'SimSun', Georgia, serif;

@@ -7,8 +7,43 @@ STRIPE_FORMAL_CONSULTING_PRICE_ID = "price_1TNwNj3XjhTjA4m7a66dA3lT"
 SITE_URL = "https://vennai.org"
 STRIPE_SUCCESS_URL = "https://vennai.org/?checkout=success#consultants"
 STRIPE_CANCEL_URL = "https://vennai.org/?checkout=cancel#consultants"
+# Public Turnstile site key for the /apply form (served via GET /api/grants/config, so no rebuild on change).
+# Default: empty until the widget is created in the Cloudflare dashboard; the form shows a config error while empty.
+TURNSTILE_SITE_KEY = "0x4AAAAAAFYYd0mgg53M3ES0"
+# Client ID of the GitHub OAuth App behind "Sign in with GitHub" on /apply (public, not a secret; no scopes requested).
+# Registered callbacks: https://vennai.org/api/grants/github/callback and http://localhost:8787/api/grants/github/callback.
+# Sign-in shows "not configured" while this or the GITHUB_CLIENT_SECRET / GRANT_SESSION_SECRET secrets are missing.
+GITHUB_CLIENT_ID = "Ov23liwPe05fu14fk2Zg"
+# Account gate for grant applicants (worker/github.js). Server-side only: never sent to the browser.
+# Minimum public, non-fork repositories the applicant owns. Default: "10".
+# Raise to demand a longer public track record; lower to admit newer GitHub users.
+GRANT_MIN_REPOS = "10"
+# Minimum average stars across those owned repositories. Default: "10".
+# Raise to require consistently noticed work; lower to tolerate many small / experimental repos.
+GRANT_MIN_AVG_STARS = "10"
+# Minimum stars on the most-starred repository (an org-owned project repo the applicant contributes to
+# also counts for this one). Default (production): "100"; currently "10" for the TEST release, restore "100" at launch.
+# Raise to require a clear hit project; lower for earlier-stage teams.
+GRANT_MIN_MAX_STARS = "10"
+# TEST-ONLY: "1" lets signed-in applicants see their own GitHub stats (owned repos / avg stars / top repo stars)
+# on /apply; thresholds and pass/fail per criterion are never shown. Default for launch: "0" (hide all metrics).
+GRANT_SHOW_METRICS = "1"
+
+# Grant applications (see worker/grants.js and migrations/).
+[[d1_databases]]
+binding = "GRANTS_DB"
+database_name = "vennai-grants"
+database_id = "aefe9d1b-be90-44fe-a001-c63f523fb6aa"
+migrations_dir = "migrations"
 
 [assets]
 directory = "./dist"
 binding = "ASSETS"
 not_found_handling = "single-page-application"
+
+# Per-IP throttle for GET /api/grants/verify and /api/grants/github/me (each call hits GitHub / oEmbed).
+# Default: 20 requests per 60 s. Raise if legit users hit 429 while typing; lower to protect the GitHub quota.
+[[ratelimits]]
+name = "GRANTS_VERIFY_LIMITER"
+namespace_id = "1001"
+simple = { limit = 20, period = 60 }

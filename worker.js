@@ -1,12 +1,15 @@
+import { json, readJson, secureCompare } from './worker/http.js';
+import { handleGrantsAdmin, handleGrantsApi } from './worker/grants.js';
+
 const CHECKOUT_PATH = '/api/checkout/formal-consulting';
 const WEBHOOK_PATH = '/api/stripe/webhook';
 const STRIPE_API_BASE = 'https://api.stripe.com/v1';
 const SIGNATURE_TOLERANCE_SECONDS = 300;
 const APP_SHELL_VERSION = '2026-04-19-checkout';
 
-// ── 中文 SEO：meta 标签注入 ──
-// Worker 层根据 Accept-Language 头注入中文 meta，
-// 让 Google 中文爬虫和中文用户首屏都能看到中文 title/description。
+// ── Chinese SEO: meta tag injection ──
+// The Worker injects Chinese meta based on Accept-Language so Chinese crawlers
+// and Chinese-speaking users see a Chinese title/description on first paint.
 const ZH_META = {
   title: '文氏智能基金会 — AI 研究：自动驾驶、集体智能、智能交易',
   description: '文氏智能基金会资助并亲自开展前沿 AI 研究：闭环自动驾驶（资助参赛团队出战 2026 年 NVIDIA AlpaSim 端到端闭环挑战赛）、集体智能协议、AI 原生交易系统。',
@@ -26,6 +29,15 @@ export default {
 
     if (url.pathname === WEBHOOK_PATH) {
       return handleStripeWebhook(request, env);
+    }
+
+    if (url.pathname.startsWith('/api/grants/')) {
+      return handleGrantsApi(request, env, url);
+    }
+
+    // Must run before the SPA shell, which would otherwise answer /admin/* with index.html.
+    if (url.pathname === '/admin/grants') {
+      return handleGrantsAdmin(request, env, url);
     }
 
     if (isAppShellRequest(request, url)) {
@@ -123,28 +135,10 @@ async function handleStripeWebhook(request, env) {
   return json({ received: true });
 }
 
-async function readJson(request) {
-  try {
-    return await request.json();
-  } catch {
-    return {};
-  }
-}
-
 function resolveReturnUrl(origin, configuredUrl, fallbackPath) {
   return configuredUrl
     ? new URL(configuredUrl, origin).toString()
     : new URL(fallbackPath, origin).toString();
-}
-
-function json(data, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: {
-      'Content-Type': 'application/json; charset=utf-8',
-      'Cache-Control': 'no-store',
-    },
-  });
 }
 
 async function handleAppShell(request, env, url) {
@@ -188,15 +182,15 @@ function stripHomePreloads(html) {
 }
 
 /**
- * 检测请求是否偏好中文。
- * 解析 Accept-Language 头，如果 zh 系列语言的权重高于 en 则返回 true。
+ * Detect whether the request prefers Chinese.
+ * Parses Accept-Language and returns true when the zh weight is at least the en weight.
  */
 function detectChinesePreference(request) {
   const acceptLang = request.headers.get('Accept-Language') || '';
-  // 快速检测：包含 zh 且不是纯 en 偏好
+  // Fast path: no zh at all means no Chinese preference
   if (!acceptLang.includes('zh')) return false;
 
-  // 解析语言权重
+  // Parse language weights
   const langs = acceptLang.split(',').map(part => {
     const [lang, qPart] = part.trim().split(';');
     const q = qPart ? parseFloat(qPart.replace('q=', '')) : 1.0;
@@ -210,8 +204,8 @@ function detectChinesePreference(request) {
 }
 
 /**
- * 将 index.html 中的英文 meta 标签替换为中文版本。
- * 仅替换 SEO 关键标签，保留其余内容不变。
+ * Replace the English meta tags in index.html with Chinese versions.
+ * Only SEO-relevant tags are touched; everything else is left as is.
  */
 function injectChineseMeta(html) {
   return html
@@ -234,7 +228,7 @@ function injectChineseMeta(html) {
       /<meta property="og:description" content="[^"]*" \/>/,
       `<meta property="og:description" content="${ZH_META.ogDescription}" />`
     )
-    // og:locale — 切换主语言
+    // og:locale — switch primary locale
     .replace(
       /<meta property="og:locale" content="en_US" \/>/,
       '<meta property="og:locale" content="zh_CN" />'
@@ -322,16 +316,3 @@ async function hmacSha256Hex(secret, payload) {
     .join('');
 }
 
-function secureCompare(left, right) {
-  if (left.length !== right.length) {
-    return false;
-  }
-
-  let mismatch = 0;
-
-  for (let index = 0; index < left.length; index += 1) {
-    mismatch |= left.charCodeAt(index) ^ right.charCodeAt(index);
-  }
-
-  return mismatch === 0;
-}

@@ -28,6 +28,38 @@
   opacity: 0;
 }
 
+/* ── 首屏 CTA 态：变成可点击按钮（重置 button 默认样式） ── */
+.scroll-arrow--cta {
+  pointer-events: auto;
+  cursor: pointer;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+}
+
+/* CTA 文字："Apply for funding / 申请资助"：纯文字，无外框无底色 */
+.scroll-arrow__label {
+  margin-bottom: 4px;
+  font-family: var(--font-mono);
+  /* 字号；默认标准值：0.82rem。调大更醒目，调小更含蓄。 */
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  /* 文字颜色：与 Hero 赛事行同款象牙白；默认标准值：rgb(255 240 205 / 0.92) */
+  color: rgb(255 240 205 / 0.92);
+  /* 金色柔光，保证在液滴背景上可读；默认标准值：18px / 0.35。调大更亮更醒目。 */
+  text-shadow: 0 0 18px rgb(var(--hue-gold) / 0.35);
+  transition: color 0.35s ease, text-shadow 0.35s ease;
+}
+
+.scroll-arrow--cta:hover .scroll-arrow__label,
+.scroll-arrow--cta:focus-visible .scroll-arrow__label {
+  color: #fff;
+  text-shadow: 0 0 22px rgb(var(--hue-gold) / 0.6);
+}
+
 /* ── 箭头 SVG 图标 ── */
 .scroll-arrow__chevron {
   /* 箭头尺寸，默认标准值 28px。调大后箭头更醒目，调小后更含蓄。 */
@@ -121,6 +153,11 @@
   .scroll-arrow {
     /* 移动端底部间距，默认标准值 18px */
     padding-bottom: 18px;
+  }
+
+  .scroll-arrow__label {
+    /* 移动端 CTA 字号；默认标准值：0.72rem */
+    font-size: 0.72rem;
   }
 
   .scroll-arrow__chevron {

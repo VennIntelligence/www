@@ -8,23 +8,24 @@ import { syncGlassCompatibility } from './utils/glassCompatibility';
 import { useDocumentMeta } from './hooks/useDocumentMeta';
 import './index.css';
 
-// ── Code-split 重型页面 ──
-// HomePage 依赖 Three.js + framer-motion（~650KB parsed），
-// 通过 lazy() 确保 /blog 等路由零加载这些库，节省 ~150-200MB 内存。
+// ── Code-split heavy pages ──
+// HomePage depends on Three.js + framer-motion (~650KB parsed);
+// lazy() keeps /blog and other routes from loading them at all, saving ~150-200MB of memory.
 const HomePage = lazy(() => import('./pages/HomePage'));
 const BlogPage = lazy(() => import('./pages/BlogPage'));
 const BlogArticlePage = lazy(() => import('./pages/BlogArticlePage'));
 const DrivePage = lazy(() => import('./pages/DrivePage'));
+const ApplyPage = lazy(() => import('./pages/ApplyPage'));
 
-// GPU 调参面板：仅在 dev:gpu 模式下加载（生产构建完全排除）
+// GPU tuning panel: loaded only in dev:gpu mode (fully excluded from production builds)
 const GPUDebugPanel = import.meta.env.VITE_GPU_DEBUG === 'true'
   ? lazy(() => import('./components/GPUDebugPanel'))
   : null;
 
 /**
- * DocumentMetaUpdater — 动态 SEO meta 标签同步
- * 必须在 BrowserRouter + LanguageProvider 内部渲染，
- * 因为依赖 useLocation 和 useLanguage。
+ * DocumentMetaUpdater — keeps SEO meta tags in sync with route and language.
+ * Must render inside BrowserRouter + LanguageProvider because it uses
+ * useLocation and useLanguage.
  */
 function DocumentMetaUpdater() {
   useDocumentMeta();
@@ -32,8 +33,8 @@ function DocumentMetaUpdater() {
 }
 
 /**
- * App — 纯路由根组件
- * Navbar 在路由外层，所有页面共享
+ * App — pure routing root.
+ * Navbar sits outside the routes and is shared by every page.
  */
 function App() {
   useEffect(() => {
@@ -58,42 +59,49 @@ function App() {
         <ScrollToTop />
         <Navbar />
         <Routes>
-          {/* Landing Page — lazy loaded，Three.js + framer-motion 仅此路由加载 */}
+          {/* Landing page — lazy loaded; Three.js + framer-motion load only on this route */}
           <Route path="/" element={
             <Suspense fallback={null}>
               <HomePage />
             </Suspense>
           } />
 
-          {/* 博客列表页 — 轻量页面，独立 chunk */}
+          {/* Blog listing — lightweight page, own chunk */}
           <Route path="/blog" element={
             <Suspense fallback={null}>
               <BlogPage />
             </Suspense>
           } />
 
-          {/* 博客文章详情页 — 每篇文章独立 URL */}
+          {/* Blog article — one URL per post */}
           <Route path="/blog/:slug" element={
             <Suspense fallback={null}>
               <BlogArticlePage />
             </Suspense>
           } />
 
-          {/* 自动驾驶项目页 — AlpaSim 闭环挑战赛 2026，赛后长期保留 */}
+          {/* Autonomous driving project page — AlpaSim closed-loop challenge 2026, kept after the event */}
           <Route path="/drive" element={
             <Suspense fallback={null}>
               <DrivePage />
             </Suspense>
           } />
 
-          {/* Product 子路由 — 后续添加 */}
+          {/* Grant application form (Turnstile script loads only on this route) */}
+          <Route path="/apply" element={
+            <Suspense fallback={null}>
+              <ApplyPage />
+            </Suspense>
+          } />
+
+          {/* Product sub-routes — to be added */}
           {/* <Route path="/product/venn-trigger-trade" element={<ProductPage />} /> */}
           {/* <Route path="/product/venn-trigger-trade/dashboard" element={<TriggerDashboard />} /> */}
 
           {/* 404 */}
           <Route path="*" element={<NotFound />} />
         </Routes>
-        {/* GPU 调参面板 — dev:gpu 模式专用 */}
+        {/* GPU tuning panel — dev:gpu mode only */}
         {GPUDebugPanel && (
           <Suspense fallback={null}>
             <GPUDebugPanel />

@@ -1,0 +1,298 @@
+/* ============================================================
+   Funding Section — 资助申请屏（Hero 与 Drive 之间）
+   排版节奏同 Σ / Ω / Drive；色相走金色系（index.css 的 --hue-gold*）
+   ============================================================ */
+
+/* ---------- Container ---------- */
+.funding-section {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* Section background. Default: gold radial glow (alpha 0.07) over #05080f. Opaque, so it covers UnifiedStage's droplet → cube transition. Raise the alpha for a warmer field. */
+  background:
+    radial-gradient(ellipse 70% 60% at 20% 30%, rgb(var(--hue-gold) / 0.07) 0%, transparent 70%),
+    #05080f;
+  color: #fff;
+  font-family: var(--font-sans);
+  isolation: isolate;
+}
+
+.funding-content {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  /* Padding. Default: 112px top (clears the navbar), 40px sides, 72px bottom. */
+  padding: 112px 40px 72px;
+}
+
+@media (max-width: 767px) {
+  .funding-content {
+    padding: 96px 24px calc(56px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* ---------- Label row ---------- */
+.funding-subheading {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  /* Font size. Default: clamp(1.6rem, 4vw, 3.2rem), matching Σ / Ω / Drive. */
+  font-size: clamp(1.6rem, 4vw, 3.2rem);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+/* Glowing breathing bar — gold hue */
+.funding-subheading__line {
+  width: 5px;
+  height: 1.1em;
+  border-radius: 4px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, rgb(var(--hue-gold-bright)) 0%, rgb(var(--hue-gold) / 0.9) 100%);
+  box-shadow:
+    0 0 12px rgb(var(--hue-gold) / 0.7),
+    0 0 24px rgb(var(--hue-gold) / 0.4),
+    inset 0 0 4px rgba(255, 255, 255, 0.8);
+  animation: funding-line-breathe 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes funding-line-breathe {
+  0% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+/* ---------- Heading: light sans + serif last line (same as Σ / Ω / Drive) ---------- */
+.funding-heading {
+  font-size: clamp(1.8rem, 4.5vw, 3.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+.funding-heading__light {
+  font-weight: 300;
+}
+
+.funding-heading__display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0;
+  /* Fallback color */
+  color: rgb(var(--hue-gold-bright) / 0.96);
+}
+
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .funding-heading__display {
+    background: linear-gradient(135deg, rgb(var(--hue-gold-bright)), rgb(var(--hue-gold-deep) / 0.85));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+/* ---------- Subtitle ---------- */
+.funding-subline {
+  margin-top: 18px;
+  /* Font size. Default: clamp(1.0rem, 1.7vw, 1.4rem). */
+  font-size: clamp(1.0rem, 1.7vw, 1.4rem);
+  font-weight: 400;
+  line-height: 1.5;
+  /* Warm white. Default: rgba(255,246,230,0.86); raise alpha for brighter text. */
+  color: rgba(255, 246, 230, 0.86);
+  max-width: 640px;
+}
+
+/* ---------- CTA ---------- */
+.funding-cta-row {
+  margin-top: 28px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.funding-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 32px;
+  /* Square corners, more restrained than a pill. Default: 0. */
+  border-radius: 0;
+  font-size: clamp(0.8rem, 1vw, 0.95rem);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: rgb(var(--hue-gold-bright) / 0.95);
+  /* Gold glass fill. Default: rgb(gold / 0.14) → rgb(gold / 0.04). Raise alpha → more solid. */
+  background: linear-gradient(135deg, rgb(var(--hue-gold) / 0.14) 0%, rgb(var(--hue-gold) / 0.04) 100%);
+  border: 1px solid rgb(var(--hue-gold) / 0.4);
+  box-shadow: 0 0 14px rgb(var(--hue-gold) / 0.12);
+  transition:
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.45s ease,
+    background 0.45s ease,
+    color 0.45s ease;
+}
+
+.funding-cta:hover {
+  transform: translateY(-2px);
+  color: #fff;
+  background: linear-gradient(135deg, rgb(var(--hue-gold) / 0.24) 0%, rgb(var(--hue-gold) / 0.08) 100%);
+  box-shadow: 0 0 24px rgb(var(--hue-gold) / 0.25);
+}
+
+.funding-cta__icon {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+/* ---------- Process cards + showcase card ---------- */
+.funding-pillars {
+  margin-top: 48px;
+}
+
+.funding-pillars__label {
+  display: block;
+  font-size: clamp(0.8rem, 1vw, 0.9rem);
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 16px;
+}
+
+.funding-pillars__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 1023px) {
+  .funding-pillars__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .funding-pillars__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Card plate: the section background is opaque, so no backdrop-filter. Default: rgba(255,255,255,0.05); raise for brighter, more solid cards. */
+.funding-pillar,
+.funding-showcase {
+  min-width: 0;
+  padding: 20px;
+  /* Square cards. Default: 0. Raising it brings back the rounded-card look. */
+  border-radius: 0;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-top-color: rgba(255, 255, 255, 0.18);
+}
+
+.funding-pillar__header {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.funding-pillar__icon {
+  font-size: clamp(0.85rem, 1.1vw, 1rem);
+  font-weight: 600;
+  color: rgb(var(--hue-gold) / 0.75);
+  flex-shrink: 0;
+}
+
+.funding-pillar__title {
+  font-size: clamp(0.9rem, 1.2vw, 1.05rem);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.92);
+  margin: 0;
+}
+
+.funding-pillar__desc,
+.funding-showcase__desc {
+  font-size: clamp(0.82rem, 1.1vw, 0.95rem);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.68);
+  margin: 0;
+}
+
+/* Showcase card: gold outline, whole card links to /drive */
+.funding-showcase {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-decoration: none;
+  border-color: rgb(var(--hue-gold) / 0.3);
+  background: linear-gradient(160deg, rgb(var(--hue-gold) / 0.1) 0%, rgba(255, 255, 255, 0.03) 100%);
+  transition: border-color 0.35s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.funding-showcase:hover {
+  transform: translateY(-2px);
+  border-color: rgb(var(--hue-gold-bright) / 0.55);
+}
+
+.funding-showcase__kicker {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgb(var(--hue-gold) / 0.85);
+}
+
+.funding-showcase__title {
+  font-size: clamp(0.95rem, 1.25vw, 1.1rem);
+  font-weight: 600;
+  color: #fff;
+}
+
+.funding-showcase__cta {
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(220, 235, 255, 0.78);
+}
+
+.funding-showcase__arrow {
+  width: 13px;
+  height: 13px;
+  color: rgb(var(--hue-gold));
+  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.funding-showcase:hover .funding-showcase__arrow {
+  transform: translateX(4px);
+}
+
+/* ---------- Reveal animation (opacity + transform only) ---------- */
+.funding-reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.funding-reveal.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}

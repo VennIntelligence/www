@@ -1,6 +1,7 @@
 export const COPY = {
   nav: {
     en: {
+      funding: 'Grants',
       projects: 'Projects',
       // 项目名对外一律用可读名称，Σ / Ω 只保留在项目页与文章内部作为品牌代号
       omega: 'Trigger Trade',
@@ -10,6 +11,7 @@ export const COPY = {
       blog: 'Blog',
     },
     zh: {
+      funding: '资助',
       projects: '项目',
       // Trigger Trade 是产品名，中文版同样不翻译
       omega: 'Trigger Trade',
@@ -22,10 +24,11 @@ export const COPY = {
   hero: {
     en: {
       titleLines: ['Venn', 'Intelligence', 'Foundation'],
+      // 首屏 slogan；页脚描述复用同一组文案（Footer.jsx）
       subtitleLines: [
-        'The AI age arrived faster than',
-        'anything built to hold it.',
-        'We fund what comes next.',
+        'We fund the infrastructure and frontier intelligence',
+        'the next century will be built on,',
+        'at the earliest stage.',
       ],
       socialTwitter: '@venn_foundation',
       socialEmail: 'contact@vennai.org',
@@ -34,14 +37,16 @@ export const COPY = {
         kicker: 'We fund the team competing in',
         title: 'NVIDIA AlpaSim E2E Closed-Loop Autonomous Driving Challenge',
         year: '2026',
+        // 仅表述为赛事主办方，不暗示合作或背书
+        organizers: 'Organized by NVIDIA · OpenDriveLab (HKU) · KE:SAI',
         cta: 'See the project',
       },
     },
     zh: {
       titleLines: ['文氏智能基金会'],
       subtitleLines: [
-        'AI 时代来得比能承接它的东西更快，',
-        '我们资助接下来的那一批。',
+        '我们在最早期资助',
+        '下一个世纪赖以建立的基础设施与前沿智能',
       ],
       socialTwitter: '@venn_foundation',
       socialEmail: 'contact@vennai.org',
@@ -49,7 +54,248 @@ export const COPY = {
         kicker: '我们资助的团队出战',
         title: 'NVIDIA AlpaSim 端到端闭环自动驾驶挑战赛',
         year: '2026',
+        organizers: '主办方：NVIDIA · OpenDriveLab（香港大学）· KE:SAI',
         cta: '查看项目',
+      },
+    },
+  },
+  // 资助屏（Hero 与 Drive 之间）；首屏底部下滑按钮跳到这里
+  funding: {
+    en: {
+      scrollCta: 'Apply for funding',
+      subheading: 'Grants',
+      headingLines: ['Grants from $1,000 to $10,000', 'for infrastructure and frontier intelligence'],
+      subtitle: 'For competitive independent researchers and early-stage startups. Every applicant is reviewed and interviewed before a decision.',
+      cta: 'Apply online',
+      pillarTitle: 'How it works',
+      pillars: [
+        {
+          icon: 'Ⅰ',
+          title: 'Who can apply',
+          desc: 'Independent researchers and early-stage startups building infrastructure or frontier intelligence.',
+        },
+        {
+          icon: 'Ⅱ',
+          title: 'Review and interview',
+          desc: 'Send a short description of the work and what the grant unlocks. Shortlisted applicants are interviewed before any decision.',
+        },
+        {
+          icon: 'Ⅲ',
+          title: 'Funding',
+          desc: 'Each grant is between $1,000 and $10,000, paid in US dollars.',
+        },
+      ],
+      showcase: {
+        kicker: 'Currently funded',
+        title: 'AlpaSim E2E Closed-Loop Challenge team',
+        desc: 'We fund the team competing in the NVIDIA AlpaSim End-to-End Closed-Loop Challenge 2026.',
+        cta: 'See the project',
+      },
+    },
+    zh: {
+      scrollCta: '申请资助',
+      subheading: '资助',
+      headingLines: ['单笔 1,000 至 10,000 美元', '资助基础设施与前沿智能'],
+      subtitle: '面向有竞争力的独立研究者与初创公司。每位申请者都经过审核与面试，再做决定。',
+      cta: '在线申请',
+      pillarTitle: '申请流程',
+      pillars: [
+        {
+          icon: 'Ⅰ',
+          title: '谁可以申请',
+          desc: '从事基础设施或前沿智能工作的独立研究者与初创公司。',
+        },
+        {
+          icon: 'Ⅱ',
+          title: '审核与面试',
+          desc: '发来一段简短的工作介绍，以及这笔资助能推动什么。进入候选的申请者会先面试，再做决定。',
+        },
+        {
+          icon: 'Ⅲ',
+          title: '资助发放',
+          desc: '单笔 1,000 至 10,000 美元，直接以美元支付。',
+        },
+      ],
+      showcase: {
+        kicker: '正在资助',
+        title: 'AlpaSim 端到端闭环挑战赛参赛团队',
+        desc: '我们资助参赛团队出战 2026 年 NVIDIA AlpaSim 端到端闭环挑战赛。',
+        cta: '查看项目',
+      },
+    },
+  },
+  // Grant application form (/apply); `{n}`-style placeholders are filled by formatCopy()
+  apply: {
+    en: {
+      eyebrow: 'Grant application',
+      titleLines: ['Apply for a grant', '$1,000 to $10,000'],
+      lead: 'For competitive independent researchers and early-stage startups. Every applicant is reviewed, and shortlisted applicants are interviewed before any decision.',
+      policies: [
+        'We never charge application fees.',
+        'If you have not heard back within 4 weeks, the application was not selected.',
+      ],
+      sections: { github: 'GitHub', you: 'About you', work: 'Your work', ask: 'The ask' },
+      github: {
+        note: 'Sign in with GitHub so we know the account is yours. We review your public GitHub work as part of eligibility. No permissions are requested; we only see your public profile.',
+        connect: 'Connect GitHub',
+        checking: 'Checking your GitHub account…',
+        switch: 'Switch account',
+        eligible: 'Connected. Continue with the form below.',
+        ineligible: 'Your GitHub account does not meet our current requirements for this grant.',
+        stats: { repoCount: 'Owned public repos', avgStars: 'Average stars', maxStars: 'Top repo stars' },
+      },
+      githubErrors: {
+        not_configured: 'GitHub sign-in is temporarily unavailable. Please email contact@vennai.org.',
+        denied: 'GitHub sign-in was cancelled.',
+        state_mismatch: 'The GitHub sign-in expired or was interrupted. Please connect again.',
+        exchange_failed: 'GitHub sign-in failed. Please connect again.',
+        github_unavailable: 'GitHub could not be reached. Please try again in a few minutes.',
+        rate_limited: 'Too many requests from this network. Please wait a minute and reload.',
+        network: 'Could not reach the server. Check your connection and reload.',
+      },
+      fields: {
+        name: { label: 'Full name', placeholder: 'Ada Lovelace' },
+        email: { label: 'Email', placeholder: 'you@example.com' },
+        applicantType: { label: 'Applying as', options: { researcher: 'Independent researcher', startup: 'Early-stage startup' } },
+        repoChoice: { label: 'Project repository', placeholder: 'Choose a repository', other: 'Other repository URL…', help: 'Your main project.' },
+        repoUrl: { label: 'Repository URL', placeholder: 'https://github.com/owner/repo', help: 'A repository you own or contribute to, e.g. under your organization.' },
+        result: { label: 'One result you already have', placeholder: 'A benchmark, a shipped feature, a paper, users — something concrete and checkable.' },
+        grantUse: { label: 'What exactly will the grant buy', placeholder: 'Compute hours, hardware, a month of full-time work — be specific.' },
+        amount: { label: 'Requested amount (USD)', placeholder: '5000', help: 'Whole dollars, $1,000 to $10,000.' },
+        videoUrl: { label: 'Video pitch', placeholder: 'https://www.loom.com/share/...', help: 'At most 2 minutes. YouTube, Loom or Vimeo link.' },
+        referrer: { label: 'Referred by', placeholder: 'Name and contact', help: 'Who pointed you to us, if anyone.' },
+      },
+      optional: 'Optional',
+      counter: '{count} / {max}',
+      fieldErrors: {
+        required: 'Required.',
+        too_long: 'Too long.',
+        invalid: {
+          email: 'Enter a valid email address.',
+          repoUrl: 'Use a link like https://github.com/owner/repo.',
+          amount: 'Enter a whole number from 1000 to 10000.',
+          videoUrl: 'Use a YouTube, Loom or Vimeo link.',
+        },
+      },
+      verify: {
+        checking: 'Checking…',
+        repoOk: '✓ {name}',
+        relation: { owner: 'verified owner', contributor: 'verified contributor' },
+        videoOk: '▶ {title}',
+        videoOkUntitled: '▶ Video found',
+      },
+      errors: {
+        invalid_repo_url: 'That is not a GitHub repository link.',
+        repo_not_found: 'Repository not found, or it is private.',
+        repo_fork: 'This repository is a fork. Link the original project.',
+        repo_not_contributor: 'Your GitHub account is neither the owner nor a contributor of this repository.',
+        not_signed_in: 'Your GitHub session has expired. Connect GitHub again above.',
+        not_eligible: 'Your GitHub account does not meet our current requirements for this grant.',
+        duplicate_github: 'An application from this GitHub account was received in the last 30 days.',
+        github_unavailable: 'GitHub could not be reached. Please try again in a few minutes.',
+        video_invalid_url: 'Use a YouTube, Loom or Vimeo link.',
+        video_not_found: 'We could not open this video. Check that it is public.',
+        turnstile_failed: 'The security check failed. Please complete it again.',
+        rate_limited: 'Too many attempts from this network. Please try again tomorrow.',
+        duplicate_email: 'An application from this email was received in the last 30 days.',
+        invalid_fields: 'Please fix the highlighted fields.',
+        not_configured: 'Applications are temporarily unavailable. Please email contact@vennai.org.',
+        network: 'Could not reach the server. Check your connection and try again.',
+        turnstile_pending: 'Complete the security check above.',
+      },
+      loadError: 'The application form could not be loaded. Please email contact@vennai.org.',
+      submit: 'Submit application',
+      submitting: 'Submitting…',
+      done: {
+        title: 'Application received',
+        body: 'Thank you. We review every application. Shortlisted applicants are contacted for an interview; if you have not heard back within 4 weeks, the application was not selected.',
+        back: 'Back to home',
+      },
+    },
+    zh: {
+      eyebrow: '资助申请',
+      titleLines: ['申请资助', '1,000 至 10,000 美元'],
+      lead: '面向有竞争力的独立研究者与初创公司。每份申请都会被审阅，进入候选的申请者会先面试，再做决定。',
+      policies: [
+        '我们从不收取任何申请费。',
+        '如果 4 周内没有收到回复，说明本次申请未被选中。',
+      ],
+      sections: { github: 'GitHub', you: '关于你', work: '你的工作', ask: '申请内容' },
+      github: {
+        note: '请用 GitHub 登录，以确认账号属于你本人。资格审核会参考你在 GitHub 上公开的工作。我们不申请任何权限，只能看到你的公开资料。',
+        connect: '连接 GitHub',
+        checking: '正在检查你的 GitHub 账号…',
+        switch: '切换账号',
+        eligible: '已连接，请继续填写下方表单。',
+        ineligible: '你的 GitHub 账号暂不符合本次资助的要求。',
+        stats: { repoCount: '名下公开仓库', avgStars: '平均星数', maxStars: '最高仓库星数' },
+      },
+      githubErrors: {
+        not_configured: 'GitHub 登录暂不可用，请发送邮件至 contact@vennai.org。',
+        denied: '你取消了 GitHub 登录。',
+        state_mismatch: 'GitHub 登录已过期或被中断，请重新连接。',
+        exchange_failed: 'GitHub 登录失败，请重新连接。',
+        github_unavailable: '暂时无法连接 GitHub，请几分钟后再试。',
+        rate_limited: '该网络的请求过于频繁，请稍等一分钟后刷新。',
+        network: '无法连接服务器，请检查网络后刷新。',
+      },
+      fields: {
+        name: { label: '姓名', placeholder: '张三' },
+        email: { label: '邮箱', placeholder: 'you@example.com' },
+        applicantType: { label: '申请身份', options: { researcher: '独立研究者', startup: '早期初创公司' } },
+        repoChoice: { label: '项目仓库', placeholder: '选择一个仓库', other: '其他仓库链接…', help: '你的主要项目。' },
+        repoUrl: { label: '仓库链接', placeholder: 'https://github.com/owner/repo', help: '你拥有或参与贡献的仓库，例如组织名下的仓库。' },
+        result: { label: '一个你已经拿到的成果', placeholder: '一个基准成绩、一个已上线的功能、一篇论文、真实用户——具体且可核实。' },
+        grantUse: { label: '这笔资助具体买什么', placeholder: '算力时长、硬件、一个月全职投入——越具体越好。' },
+        amount: { label: '申请金额（美元）', placeholder: '5000', help: '整数美元，1,000 至 10,000。' },
+        videoUrl: { label: '视频介绍', placeholder: 'https://www.loom.com/share/...', help: '不超过 2 分钟。YouTube、Loom 或 Vimeo 链接。' },
+        referrer: { label: '推荐人', placeholder: '姓名与联系方式', help: '如有人推荐你来申请，请注明。' },
+      },
+      optional: '选填',
+      counter: '{count} / {max}',
+      fieldErrors: {
+        required: '必填。',
+        too_long: '内容过长。',
+        invalid: {
+          email: '请输入有效的邮箱地址。',
+          repoUrl: '请使用 https://github.com/owner/repo 形式的链接。',
+          amount: '请输入 1000 至 10000 之间的整数。',
+          videoUrl: '请使用 YouTube、Loom 或 Vimeo 链接。',
+        },
+      },
+      verify: {
+        checking: '正在核验…',
+        repoOk: '✓ {name}',
+        relation: { owner: '已核验：所有者', contributor: '已核验：贡献者' },
+        videoOk: '▶ {title}',
+        videoOkUntitled: '▶ 已找到视频',
+      },
+      errors: {
+        invalid_repo_url: '这不是一个 GitHub 仓库链接。',
+        repo_not_found: '仓库不存在，或者是私有仓库。',
+        repo_fork: '该仓库是 fork，请填写原始项目。',
+        repo_not_contributor: '你的 GitHub 账号既不是该仓库的所有者，也不是贡献者。',
+        not_signed_in: 'GitHub 登录已过期，请在上方重新连接 GitHub。',
+        not_eligible: '你的 GitHub 账号暂不符合本次资助的要求。',
+        duplicate_github: '该 GitHub 账号在最近 30 天内已提交过申请。',
+        github_unavailable: '暂时无法连接 GitHub，请几分钟后再试。',
+        video_invalid_url: '请使用 YouTube、Loom 或 Vimeo 链接。',
+        video_not_found: '无法打开该视频，请确认视频是公开的。',
+        turnstile_failed: '安全验证未通过，请重新完成验证。',
+        rate_limited: '该网络的提交次数过多，请明天再试。',
+        duplicate_email: '该邮箱在最近 30 天内已提交过申请。',
+        invalid_fields: '请修正标出的字段。',
+        not_configured: '申请暂时无法提交，请发送邮件至 contact@vennai.org。',
+        network: '无法连接服务器，请检查网络后重试。',
+        turnstile_pending: '请先完成上方的安全验证。',
+      },
+      loadError: '申请表加载失败，请发送邮件至 contact@vennai.org。',
+      submit: '提交申请',
+      submitting: '正在提交…',
+      done: {
+        title: '申请已收到',
+        body: '感谢申请。每份申请我们都会审阅，进入候选的申请者会收到面试邀请；如果 4 周内没有收到回复，说明本次申请未被选中。',
+        back: '返回首页',
       },
     },
   },
@@ -139,16 +385,16 @@ export const COPY = {
       headingLines: {
         /* 桌面端（≥768px）：3 行，保留戏剧节奏 */
         lg: [
-          'Winning curves are everywhere.',
+          'Winning curves are everywhere',
           'The failed experiments',
-          'never are.',
+          'never are',
         ],
         /* 手机端（<768px）：4 行，每行更短避免溢出 */
         sm: [
           'Winning curves',
-          'are everywhere.',
+          'are everywhere',
           'The failed experiments',
-          'never are.',
+          'never are',
         ],
       },
       subtitle: 'Every strategy on sale shows you one thing: the final curve going up. What actually decides whether a system survives is everything that never gets shown — the half-finished intermediate findings, the hypotheses that got falsified, the sessions that closed at a loss. That is exactly what we sell: the complete archive of intermediate and negative results.',
@@ -182,9 +428,9 @@ export const COPY = {
     zh: {
       subheading: 'Project',
       headingLines: [
-        '漂亮的曲线很多。',
-        '中间结果和负结果，',
-        '从来不卖。',
+        '漂亮的曲线很多',
+        '中间结果和负结果',
+        '从来不卖',
       ],
       subtitle: '所有在售的策略，只给你看最后那条向上的曲线。真正决定一个系统能不能活下来的，是那些从不展示的东西：半成品的中间结论、被证伪的假设、亏掉的那几场复盘。我们卖的正是这些——完整的中间结果与负结果档案。',
       manifesto: '每个认真的团队都把真正的系统锁起来。流出来的——教程、预制策略、精心打磨的 Dashboard——只给结论，不给证据：模型到底校准到什么程度、哪条 alpha 在样本外崩掉、哪个方向被数据否掉、亏损那几场究竟错在哪里，从来不写给你看。',
@@ -221,16 +467,16 @@ export const COPY = {
       headingLines: {
         /* 桌面端（≥768px）：3 行 */
         lg: [
-          'World models teach it to see.',
+          'World models teach it to see',
           'Only the road',
-          'teaches it to drive.',
+          'teaches it to drive',
         ],
         /* 手机端（<768px）：4 行，每行更短避免单词截断 */
         sm: [
           'World models',
-          'teach it to see.',
+          'teach it to see',
           'Only the road',
-          'teaches it to drive.',
+          'teaches it to drive',
         ],
       },
       subtitle: 'Predicting how the world moves teaches a driving model to see, not to act. Venn Intelligence Foundation funds the team competing in the NVIDIA AlpaSim End-to-End Closed-Loop Challenge 2026. Results are announced at NeurIPS 2026.',
@@ -342,9 +588,9 @@ export const COPY = {
     zh: {
       subheading: 'Project',
       headingLines: [
-        '世界模型教它看，',
+        '世界模型教它看',
         '只有真实的路',
-        '才教它开。',
+        '才教它开',
       ],
       subtitle: '预测世界如何运动，只能教会驾驶模型看，教不会它行动。文氏智能基金会资助参赛团队出战 2026 年 NVIDIA AlpaSim 端到端闭环挑战赛，结果将于 NeurIPS 2026 公布。',
       manifesto: '世界模型学的是预测车周围场景的未来，这是一种看的能力，它从来不用为车自己的动作负责。闭环仿真里，每个决策都会改写下一个场景：刹晚一点，车距就短一截；弯转懒一点，前面就是另一条路。错误会累积，不会被平均掉。',
@@ -390,7 +636,7 @@ export const COPY = {
       page: {
         eyebrow: '文氏智能基金会 · 自动驾驶',
         title: 'NVIDIA AlpaSim 端到端闭环挑战赛 2026',
-        lead: '基金会资助并组建参赛团队，参加 AlpaSim 端到端闭环挑战赛。赛事由 NVIDIA 自动驾驶研究组联合 KE:SAI 与 OpenDriveLab（港大）主办，所有策略在闭环仿真中比较：每一个决策都会塑造策略接下来必须应对的场景。结果将于 NeurIPS 2026 公布。',
+        lead: '基金会资助并组建参赛团队，参加 AlpaSim 端到端闭环挑战赛。赛事由 NVIDIA 自动驾驶研究组联合 KE:SAI 与 OpenDriveLab（香港大学）主办，所有策略在闭环仿真中比较：每一个决策都会塑造策略接下来必须应对的场景。结果将于 NeurIPS 2026 公布。',
         facts: [
           { label: '身份', value: '参赛团队的资助方' },
           { label: '主办', value: 'NVIDIA AV Research · KE:SAI · OpenDriveLab' },
@@ -536,20 +782,27 @@ export const COPY = {
   },
   footer: {
     en: {
-      description: 'The AI age arrived faster than anything built to hold it. We fund what comes next.',
       email: 'contact@vennai.org',
       omega: 'Omega',
       blog: 'Blog',
       twitter: '@venn_foundation',
+      company: 'Venn Intelligence Foundation LLC',
+      companyMeta: ' · EST. 2026 · Wyoming, USA',
       copyright: '© 2026 Venn Intelligence Foundation LLC',
     },
     zh: {
-      description: 'AI 时代来得比能承接它的东西更快，我们资助接下来的那一批。',
       email: 'contact@vennai.org',
       omega: '产品',
       blog: '博客',
       twitter: '@venn_foundation',
+      company: 'Venn Intelligence Foundation LLC',
+      companyMeta: ' · 成立于 2026 · 美国怀俄明州',
       copyright: '© 2026 Venn Intelligence Foundation LLC',
     },
   },
 };
+
+/** Fill `{key}` placeholders in a copy string, e.g. formatCopy('★ {stars}', { stars: 12 }). */
+export function formatCopy(template, vars) {
+  return template.replace(/\{(\w+)\}/g, (match, key) => (key in vars ? String(vars[key]) : match));
+}
