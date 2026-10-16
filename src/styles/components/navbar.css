@@ -50,11 +50,6 @@
 
 /* ---- CSS 玻璃降级（移动端 + 不支持 Liquid 的环境）---- */
 
-/*
- * Navbar 的 frost/solid 两档均在此定义，token 变量覆盖 glass-fallback.css 中的全局默认值。
- * --gf-frost-blur: navbar frost 磨砂半径（默认 14px；调大更朦胧，调小更锐利）
- * --gf-solid-bg:   安卓 navbar 背景（默认 rgba(6,10,18,0.88)；调高更实，调低在安卓上可能透明）
- */
 .navbar__glass-fallback {
   position: relative;
   width: 100%;
@@ -77,36 +72,31 @@
 }
 
 /*
- * solid tier（安卓 fallback）—— 不依赖 backdrop-filter
- * 安卓上 backdrop-filter 渲染极不可靠（实测往往完全透明）。
- * 纯白半透明，不加任何彩色；inset 描边 + box-shadow 模拟磨砂质感。
- * 默认标准值：rgba(255,255,255,0.18)；调大更实，调小在安卓上会透明。
+ * solid tier（安卓）：深色烟熏底 + 真实 backdrop-filter 磨砂。
+ * 底色本身足够浓，blur 在个别机型上失效时退化成"深色半透明"而不是"透明塑料"。
+ * --navbar-solid-tint:     磨砂底色（默认 rgba(10,14,22,0.62)；第四项调大更实更暗，调小更通透但 blur 失效时更透）
+ * --navbar-solid-blur:     磨砂半径（默认 18px；调大更朦胧、GPU 开销略增，调小背景轮廓更清晰）
+ * --navbar-solid-saturate: 背景饱和度增益（默认 1.3；调大透出的颜色更艳，1 为不增益）
+ * --navbar-solid-edge:     顶部 1px 内高光（默认 rgba(255,255,255,0.08)；调大玻璃边缘更亮，调小更哑光）
  */
 .navbar__glass-fallback--solid {
-  background:
-    linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.24) 0%,
-      rgba(255, 255, 255, 0.12) 100%
-    );
+  --navbar-solid-tint: rgba(10, 14, 22, 0.62);
+  --navbar-solid-blur: 18px;
+  --navbar-solid-saturate: 1.3;
+  --navbar-solid-edge: rgba(255, 255, 255, 0.08);
+
+  background: var(--navbar-solid-tint);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.40),
-    0 2px 24px rgba(0, 0, 0, 0.18);
-  /* 不使用 backdrop-filter —— 安卓上渲染不可靠 */
+    inset 0 1px 0 var(--navbar-solid-edge),
+    0 2px 20px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(var(--navbar-solid-blur)) saturate(var(--navbar-solid-saturate));
+  -webkit-backdrop-filter: blur(var(--navbar-solid-blur)) saturate(var(--navbar-solid-saturate));
 }
 
-/* solid 滚动后进一步加深：不透明度从 0.12≈0.24 升至 0.18≈0.30 */
-/* 默认标准值：rgba(255,255,255,0.18≈0.30)；调大第四项让滚动后更实 */
+/* solid 滚动后加深：底色 0.62 → 0.74（默认标准值），磨砂 18px → 24px；调大第四项滚动后更实 */
 .navbar__glass-fallback--solid.navbar__glass-fallback--scrolled {
-  background:
-    linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.30) 0%,
-      rgba(255, 255, 255, 0.18) 100%
-    );
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.50),
-    0 4px 32px rgba(0, 0, 0, 0.24);
+  --navbar-solid-tint: rgba(8, 11, 18, 0.74);
+  --navbar-solid-blur: 24px;
 }
 
 .navbar__inner {
@@ -286,14 +276,12 @@
   transform: translateY(0);
 }
 
-/* Android / 低能力设备实底降级，与移动面板保持同一套 tier 逻辑 */
+/* 安卓：底色加浓（默认标准值 rgba(8,12,20,0.86)），保留磨砂；blur 失效时仍可读 */
 [data-glass-tier="solid"] .navbar__dropdown {
-  background: rgba(4, 8, 18, 0.96);
+  background: rgba(8, 12, 20, 0.86);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    0 18px 46px rgba(0, 0, 0, 0.52);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
+    0 18px 46px rgba(0, 0, 0, 0.48);
 }
 
 /* 下拉子项：左对齐整行，不参与顶栏「有激活项就压暗其余项」的联动 */
@@ -581,15 +569,12 @@
     transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  /* Android solid tier override — strong opaque background, no backdrop-filter */
-  /* --navbar-mobile-panel-solid: default rgba(4,8,18,0.95); increase opacity value for more solid look */
+  /* 安卓：底色加浓（默认标准值 rgba(8,12,20,0.84)），保留磨砂；blur 失效时仍可读 */
   [data-glass-tier="solid"] .navbar__mobile-panel {
-    background: rgba(4, 8, 18, 0.95);
+    background: rgba(8, 12, 20, 0.84);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.06),
-      0 18px 40px rgba(0, 0, 0, 0.52);
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
+      0 18px 40px rgba(0, 0, 0, 0.48);
   }
 
   .navbar__mobile-menu--open .navbar__mobile-panel {
