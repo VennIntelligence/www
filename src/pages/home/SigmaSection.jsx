@@ -9,6 +9,7 @@ import useCharMagnet from '../../hooks/useCharMagnet';
 import { COPY } from '../../config/i18n';
 import { useLanguage } from '../../context/useLanguage';
 import useBreakpoint, { resolveHeadingLines } from '../../hooks/useBreakpoint';
+import '../../styles/components/glass-button.css';
 import '../../styles/sections/sigma.css';
 
 /**
@@ -118,9 +119,9 @@ export default function SigmaSection() {
 
               {/* CTA 按钮紧跟标题下方 */}
               <div className="sigma-cta-inline">
-                <Link to="/blog/project-sigma-manifesto" className="sigma-cta-inline__btn">
+                <Link to="/blog/project-sigma-manifesto" className="glass-btn glass-btn--blue">
                   {copy.ctaReadMore}
-                  <IconArrowRight className="sigma-cta-inline__arrow" />
+                  <IconArrowRight className="glass-btn__arrow" />
                 </Link>
               </div>
             </Motion.div>

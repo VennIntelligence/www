@@ -1,0 +1,220 @@
+/* ============================================================
+   Glass button — shared translucent CTA (Funding / Sigma / Omega)
+   Base: layout, type, hover lift, arrow. Variants: light / gold / blue.
+   Android [data-glass-tier="solid"] drops backdrop-filter (it renders
+   transparent there) and uses a denser translucent fill instead.
+   ============================================================ */
+
+.glass-btn {
+  /* 圆角半径。默认标准值：10px（克制的小圆角玻璃按钮）。
+   * 调大 → 越来越圆，100px 即胶囊形（Σ / Ω 区块用这个值保持原样）；调小 → 越方，0 为直角。 */
+  --glass-btn-radius: 10px;
+  /* 箭头与光晕的色相（RGB 三元组）。默认标准值：255 200 80（金色）。
+   * 换成其他 RGB 即可改变箭头发光颜色；蓝色变体用 100 180 255。 */
+  --glass-btn-glow: 255 200 80;
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 32px;
+  border-radius: var(--glass-btn-radius);
+  overflow: hidden;
+  font-family: var(--font-sans);
+  font-size: clamp(0.8rem, 1vw, 0.95rem);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.45s ease,
+    background 0.45s ease,
+    border-color 0.45s ease,
+    color 0.45s ease;
+}
+
+.glass-btn:hover {
+  transform: translateY(-2px);
+}
+
+.glass-btn__arrow {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), filter 0.4s ease;
+  filter: drop-shadow(0 0 4px rgb(var(--glass-btn-glow) / 0.5));
+}
+
+.glass-btn:hover .glass-btn__arrow {
+  transform: translateX(4px);
+  filter: drop-shadow(0 0 8px rgb(var(--glass-btn-glow) / 0.8));
+}
+
+/* Hover sheen (light + gold variants): a soft white spot centred in the button. */
+.glass-btn--light::before,
+.glass-btn--gold::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.08) 40%, transparent 70%);
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  pointer-events: none;
+  filter: blur(8px);
+  transition: opacity 0.35s ease;
+}
+
+.glass-btn--light:hover::before,
+.glass-btn--gold:hover::before {
+  opacity: 1;
+}
+
+/* ---------- Light — white translucent glass, gold on hover ---------- */
+.glass-btn--light {
+  /* 白色玻璃底；默认标准值：rgba(255,255,255,0.08) → rgba(255,255,255,0.02)。调大 alpha → 更白更实；调小 → 更透明。 */
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-top-color: rgba(255, 255, 255, 0.35);
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.glass-btn--light:hover {
+  background: linear-gradient(135deg, rgba(255, 220, 100, 0.12), rgba(210, 150, 40, 0.06));
+  border-color: rgba(255, 220, 100, 0.3);
+  border-top-color: rgba(255, 220, 100, 0.5);
+  color: #fff;
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.3),
+    0 0 24px rgba(255, 200, 80, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  text-shadow: 0 0 12px rgba(255, 220, 100, 0.4);
+}
+
+/* 安卓 solid 回退：纯白半透明底。默认标准值：rgba(255,255,255,0.22) → 0.10；调大更实，调小按钮会变透明。 */
+[data-glass-tier="solid"] .glass-btn--light {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.10) 100%);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-color: rgba(255, 255, 255, 0.28);
+  border-top-color: rgba(255, 255, 255, 0.45);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 4px 20px rgba(0, 0, 0, 0.18);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+[data-glass-tier="solid"] .glass-btn--light:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.14) 100%);
+}
+
+/* ---------- Gold — bright gold glass ---------- */
+.glass-btn--gold {
+  /* 亮金色底；默认标准值：rgba(255,200,80,0.10) → rgba(210,150,40,0.03)。调大 alpha → 更金更实；调小 → 更透明。 */
+  background: linear-gradient(135deg, rgba(255, 200, 80, 0.10) 0%, rgba(210, 150, 40, 0.03) 50%, rgba(255, 220, 100, 0.06) 100%);
+  /* 亮金色文字；默认标准值：rgba(255,225,150,0.92) */
+  color: rgba(255, 225, 150, 0.92);
+  /* 金色边框；默认标准值：rgba(255,200,80,0.30)。调大 → 边框更亮 */
+  border: 1px solid rgba(255, 200, 80, 0.30);
+  border-top-color: rgba(255, 220, 120, 0.45);
+  backdrop-filter: blur(6px) saturate(1.1);
+  -webkit-backdrop-filter: blur(6px) saturate(1.1);
+  /* 金色外发光；默认标准值：rgba(255,200,80,0.10) */
+  box-shadow:
+    0 0 14px rgba(255, 200, 80, 0.10),
+    0 1px 0 rgba(255, 220, 100, 0.12) inset,
+    0 -1px 0 rgba(255, 200, 80, 0.04) inset;
+  text-shadow: 0 0 8px rgba(255, 200, 80, 0.25);
+}
+
+.glass-btn--gold:hover {
+  background: linear-gradient(135deg, rgba(255, 200, 80, 0.16) 0%, rgba(210, 150, 40, 0.06) 50%, rgba(255, 220, 100, 0.10) 100%);
+  color: rgba(255, 240, 190, 1);
+  border-color: rgba(255, 220, 100, 0.50);
+  border-top-color: rgba(255, 235, 150, 0.65);
+  box-shadow:
+    0 0 24px rgba(255, 200, 80, 0.22),
+    0 0 48px rgba(210, 150, 40, 0.10),
+    0 1px 0 rgba(255, 220, 100, 0.20) inset,
+    0 -1px 0 rgba(255, 200, 80, 0.08) inset;
+  text-shadow: 0 0 14px rgba(255, 200, 80, 0.45);
+}
+
+/* 安卓 solid 回退：金色半透明底。默认标准值：rgba(255,200,80,0.16) → 0.08；调大更实，调小按钮会变透明。 */
+[data-glass-tier="solid"] .glass-btn--gold {
+  background: linear-gradient(135deg, rgba(255, 200, 80, 0.16) 0%, rgba(210, 150, 40, 0.08) 100%);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-color: rgba(255, 200, 80, 0.30);
+  border-top-color: rgba(255, 220, 120, 0.42);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 220, 100, 0.22),
+    inset 0 -1px 0 rgba(255, 200, 80, 0.06);
+  color: rgba(255, 225, 150, 0.92);
+}
+
+[data-glass-tier="solid"] .glass-btn--gold:hover {
+  background: linear-gradient(135deg, rgba(255, 200, 80, 0.24) 0%, rgba(210, 150, 40, 0.12) 100%);
+}
+
+/* ---------- Blue — bright blue glass ---------- */
+.glass-btn--blue {
+  --glass-btn-glow: 100 180 255;
+  /* 亮蓝色底；默认标准值：rgba(80,160,255,0.12) → rgba(60,140,240,0.04)。调大 alpha → 更蓝更实；调小 → 更透明。 */
+  background: linear-gradient(135deg, rgba(80, 160, 255, 0.12), rgba(60, 140, 240, 0.04));
+  /* 蓝色边框；默认标准值：rgba(100,180,255,0.35)。调大 → 边框更亮；调小 → 更隐。 */
+  border: 1px solid rgba(100, 180, 255, 0.35);
+  border-top-color: rgba(140, 210, 255, 0.55);
+  border-bottom-color: rgba(60, 130, 220, 0.15);
+  /* 亮蓝白文字；默认标准值：rgba(180,225,255,0.95) */
+  color: rgba(180, 225, 255, 0.95);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  /* 蓝色外发光 + 内高光；默认标准值：外层 rgba(80,160,255,0.15)，内高光 rgba(140,210,255,0.20)。 */
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.2),
+    0 0 16px rgba(80, 160, 255, 0.15),
+    inset 0 1px 0 rgba(140, 210, 255, 0.20);
+  text-shadow: 0 0 8px rgba(100, 180, 255, 0.3);
+}
+
+.glass-btn--blue:hover {
+  background: linear-gradient(135deg, rgba(80, 160, 255, 0.20), rgba(60, 140, 240, 0.10));
+  border-color: rgba(120, 200, 255, 0.50);
+  border-top-color: rgba(160, 220, 255, 0.70);
+  color: #fff;
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.3),
+    0 0 28px rgba(80, 160, 255, 0.30),
+    0 0 56px rgba(60, 140, 240, 0.12),
+    inset 0 1px 0 rgba(160, 220, 255, 0.35);
+  text-shadow: 0 0 14px rgba(100, 180, 255, 0.5);
+}
+
+/* 安卓 solid 回退：蓝色半透明底。默认标准值：rgba(80,160,255,0.22) → 0.10；调大更实，调小按钮会变透明。 */
+[data-glass-tier="solid"] .glass-btn--blue {
+  background: linear-gradient(135deg, rgba(80, 160, 255, 0.22) 0%, rgba(60, 140, 240, 0.10) 100%);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-color: rgba(100, 180, 255, 0.35);
+  border-top-color: rgba(140, 210, 255, 0.50);
+  box-shadow:
+    inset 0 1px 0 rgba(140, 210, 255, 0.30),
+    0 4px 20px rgba(0, 0, 0, 0.18);
+  color: rgba(180, 225, 255, 0.95);
+}
+
+[data-glass-tier="solid"] .glass-btn--blue:hover {
+  background: linear-gradient(135deg, rgba(80, 160, 255, 0.30) 0%, rgba(60, 140, 240, 0.16) 100%);
+}

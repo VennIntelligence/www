@@ -1,10 +1,24 @@
 /* ============================================================
-   Funding Section — 资助申请屏（Hero 与 Drive 之间）
-   排版节奏同 Σ / Ω / Drive；色相走金色系（index.css 的 --hue-gold*）
+   Funding Section — grants screen between Hero and Drive
+   Transparent: the UnifiedStage droplets float behind it; a soft dark
+   vignette keeps the text legible. Editorial layout, no card boxes.
    ============================================================ */
 
 /* ---------- Container ---------- */
 .funding-section {
+  /* 四周暗角浓度（0–1）。默认标准值：0.82。调大 → 边缘更黑、液滴只在中间露出；调小 → 液滴背景更亮更满。 */
+  --funding-vignette-alpha: 0.82;
+  /* 文字一侧（桌面端左侧）的压暗浓度（0–1）。默认标准值：0.6。调大 → 文字更易读但左侧液滴更暗；调小 → 背景更通透。 */
+  --funding-scrim-alpha: 0.6;
+  /* 分隔细线颜色。默认标准值：rgba(255,255,255,0.14)。调大 alpha → 线更明显；调小 → 更隐。 */
+  --funding-hairline: rgba(255, 255, 255, 0.14);
+  /* 背景液滴的模糊半径。默认标准值：22px。调大 → 背景更糊、和文字完全不冲突；调小 → 液滴轮廓更清楚。 */
+  --funding-bg-blur: 22px;
+  /* 背景液滴的亮度系数（1 = 不变暗）。默认标准值：0.62。调小 → 背景更暗、文字更突出；调大 → 背景更亮。 */
+  --funding-bg-dim: 0.62;
+  /* 模糊从区块顶部渐入的距离。默认标准值：22vh。调大 → 进入资助屏时模糊过渡更缓；调小 → 交界更硬。 */
+  --funding-blur-ramp: 22vh;
+
   position: relative;
   z-index: 1;
   min-height: 100vh;
@@ -12,16 +26,56 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  /* Section background. Default: gold radial glow (alpha 0.07) over #05080f. Opaque, so it covers UnifiedStage's droplet → cube transition. Raise the alpha for a warmer field. */
-  background:
-    radial-gradient(ellipse 70% 60% at 20% 30%, rgb(var(--hue-gold) / 0.07) 0%, transparent 70%),
-    #05080f;
+  background: transparent;
   color: #fff;
   font-family: var(--font-sans);
-  isolation: isolate;
+}
+
+/* Backdrop: blurs and dims the droplet stage behind this screen (ramping in from the top edge so the
+   hero → funding seam is soft), plus a dark vignette, a scrim behind the text column, and a fade into
+   the opaque Drive section (#05080f) at the bottom. No `isolation` on the section: it would cut the
+   backdrop off from the fixed WebGL canvas. */
+.funding-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  backdrop-filter: blur(var(--funding-bg-blur)) brightness(var(--funding-bg-dim));
+  -webkit-backdrop-filter: blur(var(--funding-bg-blur)) brightness(var(--funding-bg-dim));
+  mask-image: linear-gradient(180deg, transparent 0, #000 var(--funding-blur-ramp));
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 var(--funding-blur-ramp));
+  background:
+    linear-gradient(180deg, transparent 72%, rgb(5 8 15 / 0.92) 100%),
+    radial-gradient(ellipse 115% 90% at 62% 50%, transparent 30%, rgb(3 5 12 / var(--funding-vignette-alpha)) 100%),
+    linear-gradient(90deg, rgb(3 5 12 / var(--funding-scrim-alpha)) 0%, rgb(3 5 12 / calc(var(--funding-scrim-alpha) * 0.45)) 42%, transparent 72%);
+}
+
+/* Android: backdrop-filter is unreliable, so dim with a flat translucent layer instead of blur. */
+[data-glass-tier="solid"] .funding-section::before {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background-color: rgb(3 5 12 / 0.5);
+}
+
+/* Buttons here read larger than the shared glass-btn default. Default: clamp(0.95rem, 1.15vw, 1.05rem). */
+.funding-cta-row .glass-btn {
+  font-size: clamp(0.95rem, 1.15vw, 1.05rem);
+}
+
+@media (max-width: 767px) {
+  /* Mobile: text spans the full width, so the scrim covers everything evenly. */
+  .funding-section::before {
+    background:
+      linear-gradient(180deg, transparent 75%, rgb(5 8 15 / 0.92) 100%),
+      radial-gradient(ellipse 140% 80% at 50% 45%, transparent 25%, rgb(3 5 12 / var(--funding-vignette-alpha)) 100%),
+      rgb(3 5 12 / calc(var(--funding-scrim-alpha) * 0.6));
+  }
 }
 
 .funding-content {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 1280px;
   margin: 0 auto;
@@ -31,46 +85,35 @@
 
 @media (max-width: 767px) {
   .funding-content {
-    padding: 96px 24px calc(56px + env(safe-area-inset-bottom, 0px));
+    padding: 96px 24px calc(64px + env(safe-area-inset-bottom, 0px));
   }
 }
 
-/* ---------- Label row ---------- */
-.funding-subheading {
+/* ---------- Kicker: mono label + hairline ---------- */
+.funding-kicker {
   display: flex;
   align-items: center;
-  gap: 16px;
-  /* Font size. Default: clamp(1.6rem, 4vw, 3.2rem), matching Σ / Ω / Drive. */
-  font-size: clamp(1.6rem, 4vw, 3.2rem);
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  gap: 14px;
+  margin-bottom: 22px;
+  font-family: var(--font-mono);
+  /* 标签"资助"字号。默认标准值：clamp(0.92rem, 1.1vw, 1.05rem)。 */
+  font-size: clamp(0.92rem, 1.1vw, 1.05rem);
+  letter-spacing: 0.24em;
   text-transform: uppercase;
-  margin-bottom: 16px;
+  color: rgb(var(--hue-gold) / 0.85);
 }
 
-/* Glowing breathing bar — gold hue */
-.funding-subheading__line {
-  width: 5px;
-  height: 1.1em;
-  border-radius: 4px;
-  flex-shrink: 0;
-  background: linear-gradient(180deg, rgb(var(--hue-gold-bright)) 0%, rgb(var(--hue-gold) / 0.9) 100%);
-  box-shadow:
-    0 0 12px rgb(var(--hue-gold) / 0.7),
-    0 0 24px rgb(var(--hue-gold) / 0.4),
-    inset 0 0 4px rgba(255, 255, 255, 0.8);
-  animation: funding-line-breathe 2.5s ease-in-out infinite alternate;
-}
-
-@keyframes funding-line-breathe {
-  0% { opacity: 0.6; }
-  100% { opacity: 1; }
+.funding-kicker__rule {
+  /* 标签后细线长度。默认标准值：56px。调大 → 线更长更显眼；调小 → 更含蓄。 */
+  width: 56px;
+  height: 1px;
+  background: linear-gradient(90deg, rgb(var(--hue-gold) / 0.6), transparent);
 }
 
 /* ---------- Heading: light sans + serif last line (same as Σ / Ω / Drive) ---------- */
 .funding-heading {
   font-size: clamp(1.8rem, 4.5vw, 3.5rem);
-  line-height: 1.05;
+  line-height: 1.08;
   letter-spacing: -0.02em;
   word-break: keep-all;
   overflow-wrap: break-word;
@@ -100,176 +143,156 @@
 
 /* ---------- Subtitle ---------- */
 .funding-subline {
-  margin-top: 18px;
-  /* Font size. Default: clamp(1.0rem, 1.7vw, 1.4rem). */
-  font-size: clamp(1.0rem, 1.7vw, 1.4rem);
+  margin-top: 20px;
+  /* Font size. Default: clamp(1rem, 1.5vw, 1.25rem). */
+  font-size: clamp(1rem, 1.5vw, 1.25rem);
   font-weight: 400;
-  line-height: 1.5;
-  /* Warm white. Default: rgba(255,246,230,0.86); raise alpha for brighter text. */
-  color: rgba(255, 246, 230, 0.86);
-  max-width: 640px;
+  line-height: 1.6;
+  /* 暖白正文色。默认标准值：rgba(255,246,230,0.8)。调大 alpha → 更亮；调小 → 更低调。 */
+  color: rgba(255, 246, 230, 0.8);
+  max-width: 620px;
 }
 
-/* ---------- CTA ---------- */
+/* ---------- Key facts: typographic columns split by hairlines ---------- */
+.funding-facts {
+  margin: 44px 0 0;
+  max-width: 980px;
+  display: grid;
+  grid-template-columns: auto 1fr 1fr;
+  border-top: 1px solid var(--funding-hairline);
+  border-bottom: 1px solid var(--funding-hairline);
+}
+
+.funding-fact {
+  min-width: 0;
+  display: flex;
+  flex-direction: column-reverse; /* value above its label; dt stays first in the DOM */
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 22px 32px;
+  border-left: 1px solid var(--funding-hairline);
+}
+
+.funding-fact:first-child {
+  padding-left: 0;
+  border-left: none;
+}
+
+.funding-fact__label {
+  font-family: var(--font-mono);
+  /* 要点小标题字号。默认标准值：clamp(0.82rem, 0.95vw, 0.92rem)。 */
+  font-size: clamp(0.82rem, 0.95vw, 0.92rem);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.funding-fact__value {
+  margin: 0;
+  font-size: clamp(1rem, 1.35vw, 1.15rem);
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+/* The amount reads as the headline figure: serif, larger, gold. */
+.funding-fact:first-child .funding-fact__value {
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 2.2vw, 1.8rem);
+  line-height: 1.15;
+  white-space: nowrap;
+  color: rgb(var(--hue-gold-bright) / 0.95);
+}
+
+@media (max-width: 767px) {
+  .funding-facts {
+    margin-top: 32px;
+    grid-template-columns: 1fr;
+  }
+
+  .funding-fact {
+    padding: 16px 0;
+    border-left: none;
+    border-top: 1px solid var(--funding-hairline);
+  }
+
+  .funding-fact:first-child {
+    border-top: none;
+  }
+}
+
+/* ---------- CTAs ---------- */
 .funding-cta-row {
-  margin-top: 28px;
+  margin-top: 36px;
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 14px;
   flex-wrap: wrap;
 }
 
-.funding-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 14px 32px;
-  /* Square corners, more restrained than a pill. Default: 0. */
-  border-radius: 0;
-  font-size: clamp(0.8rem, 1vw, 0.95rem);
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  text-decoration: none;
-  color: rgb(var(--hue-gold-bright) / 0.95);
-  /* Gold glass fill. Default: rgb(gold / 0.14) → rgb(gold / 0.04). Raise alpha → more solid. */
-  background: linear-gradient(135deg, rgb(var(--hue-gold) / 0.14) 0%, rgb(var(--hue-gold) / 0.04) 100%);
-  border: 1px solid rgb(var(--hue-gold) / 0.4);
-  box-shadow: 0 0 14px rgb(var(--hue-gold) / 0.12);
-  transition:
-    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 0.45s ease,
-    background 0.45s ease,
-    color 0.45s ease;
+/* Secondary: hairline outline only, quieter than the glass primary. */
+.funding-cta--ghost {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.78);
 }
 
-.funding-cta:hover {
-  transform: translateY(-2px);
-  color: #fff;
-  background: linear-gradient(135deg, rgb(var(--hue-gold) / 0.24) 0%, rgb(var(--hue-gold) / 0.08) 100%);
-  box-shadow: 0 0 24px rgb(var(--hue-gold) / 0.25);
+.funding-cta--ghost:hover {
+  border-color: rgb(var(--hue-gold) / 0.45);
+  color: rgb(var(--hue-gold-bright));
 }
 
-.funding-cta__icon {
-  width: 15px;
-  height: 15px;
-  flex-shrink: 0;
-}
-
-/* ---------- Process cards + showcase card ---------- */
-.funding-pillars {
-  margin-top: 48px;
-}
-
-.funding-pillars__label {
-  display: block;
-  font-size: clamp(0.8rem, 1vw, 0.9rem);
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.5);
-  margin-bottom: 16px;
-}
-
-.funding-pillars__grid {
+/* ---------- Currently funded: full-width editorial strip ---------- */
+.funding-showcase {
+  /* 与上方按钮的间距。默认标准值：clamp(48px, 8vh, 88px)。调大 → 底部条更独立；调小 → 更紧凑。 */
+  margin-top: clamp(48px, 8vh, 88px);
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-}
-
-@media (max-width: 1023px) {
-  .funding-pillars__grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 560px) {
-  .funding-pillars__grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Card plate: the section background is opaque, so no backdrop-filter. Default: rgba(255,255,255,0.05); raise for brighter, more solid cards. */
-.funding-pillar,
-.funding-showcase {
-  min-width: 0;
-  padding: 20px;
-  /* Square cards. Default: 0. Raising it brings back the rounded-card look. */
-  border-radius: 0;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-top-color: rgba(255, 255, 255, 0.18);
-}
-
-.funding-pillar__header {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.funding-pillar__icon {
-  font-size: clamp(0.85rem, 1.1vw, 1rem);
-  font-weight: 600;
-  color: rgb(var(--hue-gold) / 0.75);
-  flex-shrink: 0;
-}
-
-.funding-pillar__title {
-  font-size: clamp(0.9rem, 1.2vw, 1.05rem);
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.92);
-  margin: 0;
-}
-
-.funding-pillar__desc,
-.funding-showcase__desc {
-  font-size: clamp(0.82rem, 1.1vw, 0.95rem);
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.68);
-  margin: 0;
-}
-
-/* Showcase card: gold outline, whole card links to /drive */
-.funding-showcase {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  grid-template-columns: minmax(140px, 200px) 1fr auto;
+  align-items: center;
+  gap: 32px;
+  padding: 24px 0;
+  border-top: 1px solid var(--funding-hairline);
+  border-bottom: 1px solid var(--funding-hairline);
   text-decoration: none;
-  border-color: rgb(var(--hue-gold) / 0.3);
-  background: linear-gradient(160deg, rgb(var(--hue-gold) / 0.1) 0%, rgba(255, 255, 255, 0.03) 100%);
-  transition: border-color 0.35s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.funding-showcase:hover {
-  transform: translateY(-2px);
-  border-color: rgb(var(--hue-gold-bright) / 0.55);
 }
 
 .funding-showcase__kicker {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: clamp(0.82rem, 0.95vw, 0.92rem);
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: rgb(var(--hue-gold) / 0.85);
 }
 
+.funding-showcase__body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 .funding-showcase__title {
-  font-size: clamp(0.95rem, 1.25vw, 1.1rem);
-  font-weight: 600;
+  font-size: clamp(1rem, 1.3vw, 1.15rem);
+  font-weight: 500;
   color: #fff;
 }
 
+.funding-showcase__desc {
+  font-size: clamp(0.85rem, 1.05vw, 0.95rem);
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.62);
+}
+
 .funding-showcase__cta {
-  margin-top: auto;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.8rem;
+  gap: 10px;
+  font-size: clamp(0.88rem, 1vw, 0.98rem);
   font-weight: 500;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(220, 235, 255, 0.78);
+  white-space: nowrap;
+  color: rgba(255, 255, 255, 0.72);
+  transition: color 0.35s ease;
 }
 
 .funding-showcase__arrow {
@@ -279,11 +302,27 @@
   transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
+.funding-showcase:hover .funding-showcase__cta {
+  color: rgb(var(--hue-gold-bright));
+}
+
 .funding-showcase:hover .funding-showcase__arrow {
   transform: translateX(4px);
 }
 
-/* ---------- Reveal animation (opacity + transform only) ---------- */
+@media (max-width: 767px) {
+  .funding-showcase {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 20px 0;
+  }
+
+  .funding-showcase__cta {
+    margin-top: 4px;
+  }
+}
+
+/* ---------- Reveal animation (opacity + transform only), staggered top to bottom ---------- */
 .funding-reveal {
   opacity: 0;
   transform: translateY(18px);
@@ -296,3 +335,10 @@
   opacity: 1;
   transform: translateY(0);
 }
+
+/* 入场错峰间隔。默认标准值：每个元素 0.08s。调大 → 逐行出现更慢更有层次；调小 → 几乎同时出现。 */
+.funding-content > .funding-reveal:nth-child(2) { transition-delay: 0.08s; }
+.funding-content > .funding-reveal:nth-child(3) { transition-delay: 0.16s; }
+.funding-content > .funding-reveal:nth-child(4) { transition-delay: 0.24s; }
+.funding-content > .funding-reveal:nth-child(5) { transition-delay: 0.32s; }
+.funding-content > .funding-reveal:nth-child(6) { transition-delay: 0.4s; }

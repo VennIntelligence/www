@@ -59,32 +59,20 @@ export const COPY = {
       },
     },
   },
-  // 资助屏（Hero 与 Drive 之间）；首屏底部下滑按钮跳到这里
+  // Grants section (between Hero and Drive); the hero's bottom scroll button jumps here
   funding: {
     en: {
       scrollCta: 'Apply for funding',
-      subheading: 'Grants',
-      headingLines: ['Grants from $1,000 to $10,000', 'for infrastructure and frontier intelligence'],
-      subtitle: 'For competitive independent researchers and early-stage startups. Every applicant is reviewed and interviewed before a decision.',
-      cta: 'Apply online',
-      pillarTitle: 'How it works',
-      pillars: [
-        {
-          icon: 'Ⅰ',
-          title: 'Who can apply',
-          desc: 'Independent researchers and early-stage startups building infrastructure or frontier intelligence.',
-        },
-        {
-          icon: 'Ⅱ',
-          title: 'Review and interview',
-          desc: 'Send a short description of the work and what the grant unlocks. Shortlisted applicants are interviewed before any decision.',
-        },
-        {
-          icon: 'Ⅲ',
-          title: 'Funding',
-          desc: 'Each grant is between $1,000 and $10,000, paid in US dollars.',
-        },
+      kicker: 'Grants',
+      headingLines: ['Grants for the people building', 'infrastructure and frontier intelligence'],
+      subtitle: 'Direct support for competitive independent researchers and early-stage startups. Every application is read by a person, and shortlisted applicants are interviewed before any decision.',
+      facts: [
+        { label: 'Per grant', value: '$1,000 – $10,000' },
+        { label: 'Who it’s for', value: 'Independent researchers · Early-stage startups' },
+        { label: 'How we decide', value: 'Reviewed, then interviewed' },
       ],
+      cta: 'Apply online',
+      ctaSecondary: 'See what we fund',
       showcase: {
         kicker: 'Currently funded',
         title: 'AlpaSim E2E Closed-Loop Challenge team',
@@ -94,28 +82,16 @@ export const COPY = {
     },
     zh: {
       scrollCta: '申请资助',
-      subheading: '资助',
-      headingLines: ['单笔 1,000 至 10,000 美元', '资助基础设施与前沿智能'],
-      subtitle: '面向有竞争力的独立研究者与初创公司。每位申请者都经过审核与面试，再做决定。',
-      cta: '在线申请',
-      pillarTitle: '申请流程',
-      pillars: [
-        {
-          icon: 'Ⅰ',
-          title: '谁可以申请',
-          desc: '从事基础设施或前沿智能工作的独立研究者与初创公司。',
-        },
-        {
-          icon: 'Ⅱ',
-          title: '审核与面试',
-          desc: '发来一段简短的工作介绍，以及这笔资助能推动什么。进入候选的申请者会先面试，再做决定。',
-        },
-        {
-          icon: 'Ⅲ',
-          title: '资助发放',
-          desc: '单笔 1,000 至 10,000 美元，直接以美元支付。',
-        },
+      kicker: '资助',
+      headingLines: ['资助正在构建', '基础设施与前沿智能的人'],
+      subtitle: '直接支持有竞争力的独立研究者与早期初创公司。每份申请都由人认真阅读，进入候选的申请者会先面试，再做决定。',
+      facts: [
+        { label: '单笔资助', value: '1,000 – 10,000 美元' },
+        { label: '资助对象', value: '独立研究者 · 早期初创公司' },
+        { label: '评审方式', value: '先审核，再面试' },
       ],
+      cta: '在线申请',
+      ctaSecondary: '查看资助项目',
       showcase: {
         kicker: '正在资助',
         title: 'AlpaSim 端到端闭环挑战赛参赛团队',

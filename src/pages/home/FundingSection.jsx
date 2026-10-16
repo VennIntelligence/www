@@ -1,18 +1,18 @@
 import { Fragment, useRef } from 'react';
 import { useInView } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import PillarCard from '../../components/common/PillarCard';
 import { IconArrowRight } from '../../components/common/SocialIcons';
 import { COPY } from '../../config/i18n';
 import { useLanguage } from '../../context/useLanguage';
+import '../../styles/components/glass-button.css';
 import '../../styles/sections/funding.css';
 
 /**
- * FundingSection — grant application screen (between Hero and Drive).
+ * FundingSection — grants screen between Hero and Drive.
  *
- * The hero's "Apply for funding" button scrolls here. Heading uses the same type system as
- * Σ / Ω / Drive (light sans + serif last line); below are the process cards and a funded showcase.
- * The CTA opens the online application form at /apply.
+ * Transparent: UnifiedStage keeps the hero's droplets floating behind it (see updateScrollProgress),
+ * with a soft dark vignette for legibility. Editorial layout: kicker, heading, a hairline-divided
+ * key-facts row, CTAs, and a full-width "currently funded" strip. The detailed process lives on /apply.
  */
 export default function FundingSection() {
   const { lang } = useLanguage();
@@ -24,9 +24,9 @@ export default function FundingSection() {
   return (
     <section id="funding" className="funding-section">
       <div className="funding-content" ref={revealRef}>
-        <div className={`funding-subheading ${reveal}`}>
-          <div className="funding-subheading__line" />
-          <span>{copy.subheading}</span>
+        <div className={`funding-kicker ${reveal}`}>
+          <span>{copy.kicker}</span>
+          <span className="funding-kicker__rule" />
         </div>
 
         <h2 className={`funding-heading ${reveal}`}>
@@ -42,30 +42,36 @@ export default function FundingSection() {
 
         <p className={`funding-subline ${reveal}`}>{copy.subtitle}</p>
 
+        <dl className={`funding-facts ${reveal}`}>
+          {copy.facts.map((fact) => (
+            <div key={fact.label} className="funding-fact">
+              <dt className="funding-fact__label">{fact.label}</dt>
+              <dd className="funding-fact__value">{fact.value}</dd>
+            </div>
+          ))}
+        </dl>
+
         <div className={`funding-cta-row ${reveal}`}>
-          <Link to="/apply" className="funding-cta">
+          <Link to="/apply" className="glass-btn glass-btn--light">
             {copy.cta}
-            <IconArrowRight className="funding-cta__icon" />
+            <IconArrowRight className="glass-btn__arrow" />
+          </Link>
+          <Link to="/drive" className="glass-btn funding-cta--ghost">
+            {copy.ctaSecondary}
           </Link>
         </div>
 
-        <div className="funding-pillars">
-          <span className="funding-pillars__label">{copy.pillarTitle}</span>
-          <div className="funding-pillars__grid">
-            {copy.pillars.map((pillar, i) => (
-              <PillarCard key={pillar.icon} pillar={pillar} index={i} prefix="funding" />
-            ))}
-            <Link to="/drive" className="funding-showcase">
-              <span className="funding-showcase__kicker">{copy.showcase.kicker}</span>
-              <span className="funding-showcase__title">{copy.showcase.title}</span>
-              <span className="funding-showcase__desc">{copy.showcase.desc}</span>
-              <span className="funding-showcase__cta">
-                {copy.showcase.cta}
-                <IconArrowRight className="funding-showcase__arrow" />
-              </span>
-            </Link>
-          </div>
-        </div>
+        <Link to="/drive" className={`funding-showcase ${reveal}`}>
+          <span className="funding-showcase__kicker">{copy.showcase.kicker}</span>
+          <span className="funding-showcase__body">
+            <span className="funding-showcase__title">{copy.showcase.title}</span>
+            <span className="funding-showcase__desc">{copy.showcase.desc}</span>
+          </span>
+          <span className="funding-showcase__cta">
+            {copy.showcase.cta}
+            <IconArrowRight className="funding-showcase__arrow" />
+          </span>
+        </Link>
       </div>
     </section>
   );

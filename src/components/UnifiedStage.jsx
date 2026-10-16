@@ -223,11 +223,13 @@ export default function UnifiedStage() {
       draggedDropIndex: -1,
       dragPointerId: null,
       dropDragTarget: new THREE.Vector3(),
-      // 当前滚动过渡进度
+      // Scroll transition progress of the droplet stage (#hero + #funding)
       scrollProgress: 0,
+      // Exit progress of #hero alone (gates hero-only interactions)
+      heroExitProgress: 0,
       // About section 底部离开视口的进度（用于立方体淡出）
       aboutExitProgress: 0,
-      // Hero section 底部 Y 位置（用于液滴边界推挤）
+      // Viewport Y of the droplet stage's bottom edge (droplet boundary push)
       heroBottomY: Infinity,
       // Ω section 底部离开视口的进度（用于四面体淡出）
       productExitProgress: 0,
@@ -293,7 +295,7 @@ export default function UnifiedStage() {
       dragHandle.style.cursor = spike.phase === 'hero' ? 'grab' : '';
     }
 
-    // ── 计算滚动过渡进度 ──
+    // ── Scroll transition progress ──
     function updateScrollProgress() {
       const heroSection = document.getElementById('hero');
       const sigmaSection = document.getElementById('sigma');
@@ -303,19 +305,21 @@ export default function UnifiedStage() {
       const sigmaRect = sigmaSection.getBoundingClientRect();
       const viewH = window.innerHeight;
 
-      // scrollProgress: 0 = Hero 完全在视口中, 1 = Hero 完全离开。
-      // 液滴 → 立方体的过渡紧跟 Hero 退场；Drive 区块背景不透明，立方体在其下方成形，Sigma 进入时已就位。
-      const heroBottom = heroRect.bottom;
-      const progress = 1 - clamp(heroBottom / viewH, 0, 1);
-      interaction.scrollProgress = progress;
+      // The droplet "hero stage" spans #hero plus the transparent #funding section after it, so the
+      // droplets keep floating behind Funding. scrollProgress (0 = stage fills the viewport, 1 = stage
+      // gone) and heroBottomY (droplet boundary push) are measured from the end of that stage: the
+      // droplet → cube transition only starts as Funding leaves, and the opaque Drive section hides the
+      // cube forming, so it is already in place when Sigma arrives. Falls back to #hero alone.
+      const stageBottom = (document.getElementById('funding') ?? heroSection).getBoundingClientRect().bottom;
+      interaction.scrollProgress = 1 - clamp(stageBottom / viewH, 0, 1);
+      interaction.heroBottomY = stageBottom;
 
-      // aboutExitProgress: Sigma 底部离开视口的进度
-      // 0 = Sigma 底部还在视口内（或更低）, 1 = Sigma 底部完全离开视口顶部
-      const sigmaBottom = sigmaRect.bottom;
-      interaction.aboutExitProgress = 1 - clamp(sigmaBottom / viewH, 0, 1);
+      // heroExitProgress: #hero alone (0 = fully in view, 1 = gone). Gates hero-only interactions
+      // (cube drag handle, scroll-gravity reset at the top) so they don't leak over Funding's content.
+      interaction.heroExitProgress = 1 - clamp(heroRect.bottom / viewH, 0, 1);
 
-      // 记录 Hero section 底部在视口中的 Y 位置（用于液滴边界推挤）
-      interaction.heroBottomY = heroRect.bottom;
+      // aboutExitProgress: 0 = Sigma bottom still in (or below) the viewport, 1 = Sigma fully above it
+      interaction.aboutExitProgress = 1 - clamp(sigmaRect.bottom / viewH, 0, 1);
 
       // productExitProgress: 0=omega底部在视口内, 1=omega底部完全离开视口顶部（驱动四面体淡出）
       const omegaSection = document.getElementById('omega');
@@ -746,8 +750,8 @@ export default function UnifiedStage() {
         interaction.pointerEnergy *= pointerDecay;
       }
       interaction.scrollEnergy *= scrollDecay;
-      // 回到 Hero 顶部时加速衰减 scrollGravity，避免残余引力引发弹簧共振
-      if (interaction.scrollProgress < 0.05) {
+      // Decay scrollGravity faster back at the hero top so leftover pull doesn't make the springs resonate
+      if (interaction.heroExitProgress < 0.05) {
         interaction.scrollGravity *= Math.exp(-dt * 12.0);
       } else {
         interaction.scrollGravity *= scrollDecay;
@@ -792,13 +796,12 @@ export default function UnifiedStage() {
         container.style.visibility = 'visible';
       }
 
-      // ── 液滴物理（仅 Hero 阶段） ──
-      // 液滴始终只在 Hero section 内可见。当页面向下滚动时，
-      // 液滴被 Hero section 的底部边界线向上推挤（而不是缩小或消失）。
+      // ── Droplet physics (hero stage only) ──
+      // Droplets stay inside the hero stage (#hero + #funding). As the page scrolls down they are
+      // pushed up by the stage's bottom edge instead of shrinking or vanishing.
       if (spike.phase === 'hero' || spike.phase === 'transition') {
-        // 计算 Hero 底部对应的世界坐标 Y 值（用于推挤液滴）
+        // Stage bottom: screen Y → world Y (used to push the droplets)
         const heroBottomY = interaction.heroBottomY;
-        // 将 Hero 底部屏幕 Y → 世界 Y
         const minDim = Math.min(cachedRect.width, cachedRect.height);
         const worldHeroBottomY = (cachedRect.height * 0.5 - heroBottomY) / minDim;
         // 给液滴一个安全边距（液滴半径 + 额外余量），确保液滴不会穿过边界
@@ -847,7 +850,7 @@ export default function UnifiedStage() {
             }
           }
 
-          // ── 软缓冲区：液滴不能低于 Hero section 底部 ──
+          // ── Soft cushion: droplets may not sink below the hero stage's bottom edge ──
           // 用渐进式减速区替代硬弹跳，避免乒乓球式的连续弹跳
           const dropBottomBound = worldHeroBottomY + drop.radius + boundaryPushMargin;
           const cushionTop = dropBottomBound + DROP_BOUNDARY_CUSHION;
@@ -893,8 +896,10 @@ export default function UnifiedStage() {
       uniforms.uSpikePos.value.copy(spike.position);
       updateDropUniforms();
 
-      // 更新拖拽手柄位置
-      if (spike.phase === 'hero' || spike.phase === 'about' || spike.phase === 'omega') {
+      // Update the drag handle. In the hero phase it only follows the cube while #hero still covers
+      // the screen centre; once Funding is on top, the handle (z-index 50) would block its links.
+      if ((spike.phase === 'hero' && interaction.heroExitProgress < 0.5)
+          || spike.phase === 'about' || spike.phase === 'omega') {
         worldToLocalScreen(spike.position, cachedRect, handleScreen);
         const handleSize = getSpikeHandleSize(cachedRect, spike.position.z);
         dragHandle.style.left = `${handleScreen.x}px`;
@@ -904,7 +909,7 @@ export default function UnifiedStage() {
         dragHandle.style.cursor = spike.dragging || spike.arcballDragging ? 'grabbing' : 'grab';
         dragHandle.style.pointerEvents = 'auto';
       } else {
-        // 过渡/隐藏阶段隐藏手柄
+        // Hide the handle during transition / hidden phases (and over Funding)
         dragHandle.style.width = '0px';
         dragHandle.style.height = '0px';
         dragHandle.style.pointerEvents = 'none';

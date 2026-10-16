@@ -42,8 +42,8 @@
 .scroll-arrow__label {
   margin-bottom: 4px;
   font-family: var(--font-mono);
-  /* 字号；默认标准值：0.82rem。调大更醒目，调小更含蓄。 */
-  font-size: 0.82rem;
+  /* 字号；默认标准值：0.95rem。调大更醒目，调小更含蓄。 */
+  font-size: 0.95rem;
   font-weight: 500;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -156,8 +156,8 @@
   }
 
   .scroll-arrow__label {
-    /* 移动端 CTA 字号；默认标准值：0.72rem */
-    font-size: 0.72rem;
+    /* 移动端 CTA 字号；默认标准值：0.84rem */
+    font-size: 0.84rem;
   }
 
   .scroll-arrow__chevron {

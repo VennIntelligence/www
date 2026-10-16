@@ -311,10 +311,7 @@
   word-break: normal;
 }
 
-/* ---------- CTA 按钮区 ---------- */
-/*
- * 复用 About 按钮风格，左对齐，水平排列
- */
+/* ---------- CTA row (button styles: styles/components/glass-button.css) ---------- */
 .omega-cta-inline {
   margin-top: 32px;
   display: flex;
@@ -322,181 +319,9 @@
   flex-wrap: wrap;
 }
 
-/* ---- Base ---- */
-.omega-cta {
-  --glass-cursor-x: 50%;
-  --glass-cursor-y: 50%;
-
-  position: relative;
-  display: inline-block;
-  padding: 14px 32px;
-  font-family: var(--font-sans);
-  font-size: clamp(0.8rem, 1vw, 0.95rem);
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  border-radius: 100px;
-  cursor: pointer;
-  border: none;
-  overflow: hidden;
-  transition:
-    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 0.45s ease,
-    background 0.45s ease,
-    border-color 0.45s ease;
-}
-
-/* 鼠标跟随光斑 */
-.omega-cta::before {
-  content: '';
-  position: absolute;
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.08) 40%, transparent 70%);
-  top: var(--glass-cursor-y);
-  left: var(--glass-cursor-x);
-  transform: translate(-50%, -50%) scaleY(-1);
-  opacity: 0;
-  pointer-events: none;
-  filter: blur(8px);
-  transition: opacity 0.35s ease;
-}
-
-.omega-cta:hover::before { opacity: 1; }
-
-.omega-cta:hover {
-  transform: translateY(-2px);
-}
-
-/* ---- Primary — 金色玻璃 ---- */
-.omega-cta--primary {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-top-color: rgba(255, 255, 255, 0.35);
-  border-bottom-color: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(16px) saturate(1.2);
-  -webkit-backdrop-filter: blur(16px) saturate(1.2);
-  box-shadow:
-    0 12px 32px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
-}
-
-.omega-cta--primary:hover {
-  background: linear-gradient(135deg, rgba(255, 220, 100, 0.12), rgba(210, 150, 40, 0.06));
-  border-color: rgba(255, 220, 100, 0.3);
-  border-top-color: rgba(255, 220, 100, 0.5);
-  color: #fff;
-  box-shadow:
-    0 16px 40px rgba(0, 0, 0, 0.3),
-    0 0 24px rgba(255, 200, 80, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  text-shadow: 0 0 12px rgba(255, 220, 100, 0.4);
-}
-
-/* ---- Ghost — 亮金色玻璃 ---- */
-.omega-cta--ghost {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  /* 亮金色主题底；默认标准值：rgba(255,200,80,0.10) → rgba(210,150,40,0.03)。
-   * 调大 alpha → 底色更金更实；调小 → 更透明。 */
-  background: linear-gradient(135deg, rgba(255, 200, 80, 0.10) 0%, rgba(210, 150, 40, 0.03) 50%, rgba(255, 220, 100, 0.06) 100%);
-  /* 亮金色文字；默认标准值：rgba(255,225,150,0.92) */
-  color: rgba(255, 225, 150, 0.92);
-  /* 金色边框；默认标准值：rgba(255,200,80,0.30)。调大 → 边框更亮 */
-  border: 1px solid rgba(255, 200, 80, 0.30);
-  border-top-color: rgba(255, 220, 120, 0.45);
-  backdrop-filter: blur(6px) saturate(1.1);
-  -webkit-backdrop-filter: blur(6px) saturate(1.1);
-  /* 金色外发光；默认标准值：rgba(255,200,80,0.10) */
-  box-shadow:
-    0 0 14px rgba(255, 200, 80, 0.10),
-    0 1px 0 rgba(255, 220, 100, 0.12) inset,
-    0 -1px 0 rgba(255, 200, 80, 0.04) inset;
-  text-decoration: none;
-  text-shadow: 0 0 8px rgba(255, 200, 80, 0.25);
-}
-
-.omega-cta--ghost:hover {
-  /* hover 金色调深；默认标准值：rgba(255,200,80,0.16) → rgba(210,150,40,0.06)。 */
-  background: linear-gradient(135deg, rgba(255,200,80,0.16) 0%, rgba(210,150,40,0.06) 50%, rgba(255,220,100,0.10) 100%);
-  color: rgba(255, 240, 190, 1);
-  border-color: rgba(255, 220, 100, 0.50);
-  border-top-color: rgba(255, 235, 150, 0.65);
-  box-shadow:
-    0 0 24px rgba(255, 200, 80, 0.22),
-    0 0 48px rgba(210, 150, 40, 0.10),
-    0 1px 0 rgba(255, 220, 100, 0.20) inset,
-    0 -1px 0 rgba(255, 200, 80, 0.08) inset;
-  text-shadow: 0 0 14px rgba(255, 200, 80, 0.45);
-}
-
-/*
- * 安卓 solid tier fallback — 两个 CTA 按钮
- * 安卓上 backdrop-filter 渲染透明，按钮消失。改用纯白半透明底 + inset 描边模拟磨砂质感。
- * 不加任何彩色，纯白半透明；blur程度比 navbar 低。
- * 默认标准值：rgba(255,255,255,0.16)；调大更实，调小按钮会变透明。
- */
-[data-glass-tier="solid"] .omega-cta--primary {
-  background:
-    linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.22) 0%,
-      rgba(255, 255, 255, 0.10) 100%
-    );
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  border-color: rgba(255, 255, 255, 0.28);
-  border-top-color: rgba(255, 255, 255, 0.45);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.35),
-    0 4px 20px rgba(0, 0, 0, 0.18);
-  color: rgba(255, 255, 255, 0.95);
-}
-
-[data-glass-tier="solid"] .omega-cta--primary:hover {
-  background:
-    linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.28) 0%,
-      rgba(255, 255, 255, 0.14) 100%
-    );
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-
-/*
- * ghost 按钮 solid fallback：金色主题。
- * 默认标准值：rgba(255,200,80,0.13)。调大更实，调小按钮会变透明。
- */
-[data-glass-tier="solid"] .omega-cta--ghost {
-  background:
-    linear-gradient(
-      135deg,
-      rgba(255, 200, 80, 0.16) 0%,
-      rgba(210, 150, 40, 0.08) 100%
-    );
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  border-color: rgba(255, 200, 80, 0.30);
-  border-top-color: rgba(255, 220, 120, 0.42);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 220, 100, 0.22),
-    inset 0 -1px 0 rgba(255, 200, 80, 0.06);
-  color: rgba(255, 225, 150, 0.92);
-}
-
-[data-glass-tier="solid"] .omega-cta--ghost:hover {
-  background:
-    linear-gradient(
-      135deg,
-      rgba(255, 200, 80, 0.24) 0%,
-      rgba(210, 150, 40, 0.12) 100%
-    );
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
+/* Ω keeps its pill-shaped CTA. Default: 100px. */
+.omega-cta-inline .glass-btn {
+  --glass-btn-radius: 100px;
 }
 
 /*
@@ -553,21 +378,6 @@
       transparent 100%
     ),
     rgba(20, 24, 32, 0.82);
-}
-
-/* ---- Arrow icon inside ghost CTA ---- */
-.omega-cta__arrow {
-  width: 14px;
-  height: 14px;
-  flex-shrink: 0;
-  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-  /* 金色箭头发光；默认标准值：rgba(255,200,80,0.5) */
-  filter: drop-shadow(0 0 4px rgba(255, 200, 80, 0.5));
-}
-
-.omega-cta--ghost:hover .omega-cta__arrow {
-  transform: translateX(4px);
-  filter: drop-shadow(0 0 8px rgba(255, 200, 80, 0.8));
 }
 
 /* ---------- 宣言摘要（磨砂玻璃底板） ---------- */

@@ -8,6 +8,7 @@ import useCharMagnet from '../../hooks/useCharMagnet';
 import { COPY } from '../../config/i18n';
 import { useLanguage } from '../../context/useLanguage';
 import useBreakpoint, { resolveHeadingLines } from '../../hooks/useBreakpoint';
+import '../../styles/components/glass-button.css';
 import '../../styles/sections/omega.css';
 
 /**
@@ -117,9 +118,9 @@ export default function OmegaSection() {
 
               {/* 单 CTA 按钮 */}
               <div className="omega-cta-inline">
-                <Link to="/blog/five-backtest-traps" className="omega-cta omega-cta--ghost">
+                <Link to="/blog/five-backtest-traps" className="glass-btn glass-btn--gold">
                   {copy.cta}
-                  <IconArrowRight className="omega-cta__arrow" />
+                  <IconArrowRight className="glass-btn__arrow" />
                 </Link>
               </div>
             </Motion.div>
