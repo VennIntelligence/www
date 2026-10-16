@@ -15,19 +15,21 @@ TURNSTILE_SITE_KEY = "0x4AAAAAAFYYd0mgg53M3ES0"
 # Sign-in shows "not configured" while this or the GITHUB_CLIENT_SECRET / GRANT_SESSION_SECRET secrets are missing.
 GITHUB_CLIENT_ID = "Ov23liwPe05fu14fk2Zg"
 # Account gate for grant applicants (worker/github.js). Server-side only: never sent to the browser.
-# Minimum public, non-fork repositories the applicant owns. Default: "10".
+# Minimum public, non-fork repositories the applicant owns (inclusive). Default: "11" (i.e. more than 10).
 # Raise to demand a longer public track record; lower to admit newer GitHub users.
-GRANT_MIN_REPOS = "10"
-# Minimum average stars across those owned repositories. Default: "0" (criterion effectively off).
-# Raise to require consistently noticed work; keep low to tolerate many small / experimental repos.
-GRANT_MIN_AVG_STARS = "0"
-# Minimum stars on the most-starred repository (an org-owned project repo the applicant contributes to
-# also counts for this one). Default (production): "100"; currently "10" for the TEST release, restore "100" at launch.
+GRANT_MIN_REPOS = "11"
+# Minimum average stars across those owned repositories (inclusive). Default: "15".
+# Raise to require consistently noticed work; lower to tolerate many small / experimental repos.
+GRANT_MIN_AVG_STARS = "15"
+# Minimum stars on the applicant's own most-starred repository (inclusive). Default: "101" (i.e. more than 100).
 # Raise to require a clear hit project; lower for earlier-stage teams.
-GRANT_MIN_MAX_STARS = "10"
+GRANT_MIN_MAX_STARS = "101"
 # TEST-ONLY: "1" lets signed-in applicants see their own GitHub stats (owned repos / avg stars / top repo stars)
 # on /apply; thresholds and pass/fail per criterion are never shown. Default for launch: "0" (hide all metrics).
-GRANT_SHOW_METRICS = "1"
+GRANT_SHOW_METRICS = "0"
+# Inbox that gets an email for every accepted application (must also be the send_email binding's
+# destination below and a verified Email Routing address). Empty = no notifications.
+GRANT_NOTIFY_TO = "gaochengzhi1999@gmail.com"
 
 # Grant applications (see worker/grants.js and migrations/).
 [[d1_databases]]
@@ -50,3 +52,9 @@ run_worker_first = ["/api/*", "/admin/*"]
 name = "GRANTS_VERIFY_LIMITER"
 namespace_id = "1001"
 simple = { limit = 20, period = 60 }
+
+# Email Routing outbound binding for new-application notifications (worker/notify.js).
+# Can only deliver to verified destination addresses; keep in sync with GRANT_NOTIFY_TO.
+[[send_email]]
+name = "GRANT_NOTIFY"
+destination_address = "gaochengzhi1999@gmail.com"

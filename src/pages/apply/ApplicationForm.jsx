@@ -4,6 +4,7 @@ import CheckStatus from './CheckStatus';
 import RepoPicker from './RepoPicker';
 import { useGrantCheck } from './useGrantCheck';
 import { useTurnstile } from './useTurnstile';
+import { GITHUB_LOGIN_PATH } from './useGithubAccount';
 import {
   AMOUNT_MAX_USD, AMOUNT_MIN_USD, APPLICANT_TYPES, LONG_TEXT_MAX, SHORT_TEXT_MAX,
   parseVideoUrl, validateApplication,
@@ -125,78 +126,91 @@ export default function ApplicationForm({ copy, lang, siteKey, account, onDone }
   );
 
   const errorMessage = formError && (copy.errors[formError] || copy.errors.network);
+  // Why the form is still locked: not signed in yet, still checking, or signed in but not eligible.
+  const signedIn = account?.status === 'ready';
+  const lockText = signedIn ? copy.github.ineligible : account?.status === 'loading' ? copy.github.checking : copy.github.unlock;
 
   return (
-    <form ref={formRef} onSubmit={onSubmit} noValidate>
-      <fieldset className="apply-form" disabled={!unlocked}>
-        <section className="apply-group">
-          <h2 className="apply-group__title"><span>02</span>{copy.sections.you}</h2>
-          <ApplyField name="name" copy={copy} error={fieldErrors.name}>
-            {input('name', { autoComplete: 'name', maxLength: SHORT_TEXT_MAX })}
-          </ApplyField>
-          <ApplyField name="email" copy={copy} error={fieldErrors.email}>
-            {input('email', { type: 'email', autoComplete: 'email', inputMode: 'email' })}
-          </ApplyField>
-          <div className={`apply-field apply-field--wide${fieldErrors.applicantType ? ' is-invalid' : ''}`} role="radiogroup" aria-labelledby="applicantType-label">
-            <span id="applicantType-label" className="apply-field__label">{copy.fields.applicantType.label}</span>
-            <div className="apply-choice">
-              {APPLICANT_TYPES.map((type) => (
-                <label key={type} className={`apply-choice__option${values.applicantType === type ? ' is-selected' : ''}`}>
-                  <input type="radio" name="applicantType" value={type} checked={values.applicantType === type} onChange={onChange} />
-                  {copy.fields.applicantType.options[type]}
-                </label>
-              ))}
-            </div>
-            {fieldErrors.applicantType && (
-              <div className="apply-field__meta">
-                <span className="apply-field__error">{copy.fieldErrors[fieldErrors.applicantType]}</span>
-              </div>
-            )}
-          </div>
-        </section>
-
-        <section className="apply-group">
-          <h2 className="apply-group__title"><span>03</span>{copy.sections.work}</h2>
-          <RepoPicker
-            copy={copy}
-            repos={unlocked ? account.repos : NO_REPOS}
-            value={values.repoUrl}
-            error={fieldErrors.repoUrl}
-            onChange={onChange}
-            onBlur={onBlur}
-          />
-          {textarea('result')}
-        </section>
-
-        <section className="apply-group">
-          <h2 className="apply-group__title"><span>04</span>{copy.sections.ask}</h2>
-          {textarea('grantUse')}
-          <ApplyField name="amount" copy={copy} error={fieldErrors.amount}>
-            {input('amount', { type: 'number', inputMode: 'numeric', min: AMOUNT_MIN_USD, max: AMOUNT_MAX_USD, step: 1 })}
-          </ApplyField>
-          <ApplyField
-            name="videoUrl"
-            copy={copy}
-            error={fieldErrors.videoUrl}
-            optional
-            status={videoCheck.status !== 'idle' && <CheckStatus state={videoCheck} copy={copy} />}
-          >
-            {input('videoUrl', { type: 'url', inputMode: 'url', autoCapitalize: 'none', spellCheck: false })}
-          </ApplyField>
-          <ApplyField name="referrer" copy={copy} error={fieldErrors.referrer} optional wide>
-            {input('referrer', { maxLength: SHORT_TEXT_MAX })}
-          </ApplyField>
-        </section>
-
-        <div className="apply-submit">
-          <div ref={turnstileRef} className="apply-turnstile" />
-          {turnstile.failed && <p className="apply-submit__error">{copy.loadError}</p>}
-          <button type="submit" className="apply-button" disabled={submitting}>
-            {submitting ? copy.submitting : copy.submit}
-          </button>
-          {errorMessage && <p className="apply-submit__error" role="alert">{errorMessage}</p>}
+    <div className="apply-lock">
+      {!unlocked && (
+        <div className="apply-lock__overlay" role="status">
+          <p className="apply-lock__text">{lockText}</p>
+          {!signedIn && account?.status !== 'loading' && (
+            <a className="apply-button" href={GITHUB_LOGIN_PATH}>{copy.github.connect}</a>
+          )}
         </div>
-      </fieldset>
-    </form>
+      )}
+      <form ref={formRef} onSubmit={onSubmit} noValidate aria-hidden={!unlocked}>
+        <fieldset className="apply-form" disabled={!unlocked}>
+          <section className="apply-group">
+            <h2 className="apply-group__title"><span>02</span>{copy.sections.you}</h2>
+            <ApplyField name="name" copy={copy} error={fieldErrors.name}>
+              {input('name', { autoComplete: 'name', maxLength: SHORT_TEXT_MAX })}
+            </ApplyField>
+            <ApplyField name="email" copy={copy} error={fieldErrors.email}>
+              {input('email', { type: 'email', autoComplete: 'email', inputMode: 'email' })}
+            </ApplyField>
+            <div className={`apply-field apply-field--wide${fieldErrors.applicantType ? ' is-invalid' : ''}`} role="radiogroup" aria-labelledby="applicantType-label">
+              <span id="applicantType-label" className="apply-field__label">{copy.fields.applicantType.label}</span>
+              <div className="apply-choice">
+                {APPLICANT_TYPES.map((type) => (
+                  <label key={type} className={`apply-choice__option${values.applicantType === type ? ' is-selected' : ''}`}>
+                    <input type="radio" name="applicantType" value={type} checked={values.applicantType === type} onChange={onChange} />
+                    {copy.fields.applicantType.options[type]}
+                  </label>
+                ))}
+              </div>
+              {fieldErrors.applicantType && (
+                <div className="apply-field__meta">
+                  <span className="apply-field__error">{copy.fieldErrors[fieldErrors.applicantType]}</span>
+                </div>
+              )}
+            </div>
+          </section>
+
+          <section className="apply-group">
+            <h2 className="apply-group__title"><span>03</span>{copy.sections.work}</h2>
+            <RepoPicker
+              copy={copy}
+              repos={unlocked ? account.repos : NO_REPOS}
+              value={values.repoUrl}
+              error={fieldErrors.repoUrl}
+              onChange={onChange}
+              onBlur={onBlur}
+            />
+            {textarea('result')}
+          </section>
+
+          <section className="apply-group">
+            <h2 className="apply-group__title"><span>04</span>{copy.sections.ask}</h2>
+            {textarea('grantUse')}
+            <ApplyField name="amount" copy={copy} error={fieldErrors.amount}>
+              {input('amount', { type: 'number', inputMode: 'numeric', min: AMOUNT_MIN_USD, max: AMOUNT_MAX_USD, step: 1 })}
+            </ApplyField>
+            <ApplyField
+              name="videoUrl"
+              copy={copy}
+              error={fieldErrors.videoUrl}
+              optional
+              status={videoCheck.status !== 'idle' && <CheckStatus state={videoCheck} copy={copy} />}
+            >
+              {input('videoUrl', { type: 'url', inputMode: 'url', autoCapitalize: 'none', spellCheck: false })}
+            </ApplyField>
+            <ApplyField name="referrer" copy={copy} error={fieldErrors.referrer} optional wide>
+              {input('referrer', { maxLength: SHORT_TEXT_MAX })}
+            </ApplyField>
+          </section>
+
+          <div className="apply-submit">
+            <div ref={turnstileRef} className="apply-turnstile" />
+            {turnstile.failed && <p className="apply-submit__error">{copy.loadError}</p>}
+            <button type="submit" className="apply-button" disabled={submitting}>
+              {submitting ? copy.submitting : copy.submit}
+            </button>
+            {errorMessage && <p className="apply-submit__error" role="alert">{errorMessage}</p>}
+          </div>
+        </fieldset>
+      </form>
+    </div>
   );
 }

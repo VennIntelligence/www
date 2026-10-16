@@ -16,6 +16,7 @@ import { validateApplication, parseRepoUrl, parseVideoUrl } from '../src/config/
 import { PICKER_REPOS, checkRepo, evaluateGate, gateThresholds, ownedRepos } from './github.js';
 import { githubAuthConfigured, handleGithubCallback, handleGithubLogin, handleGithubLogout, readSession } from './githubSession.js';
 import { json, readJson, secureCompare, sha256Hex } from './http.js';
+import { notifyNewApplication } from './notify.js';
 
 const TURNSTILE_VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 const OEMBED_ENDPOINTS = {
@@ -37,7 +38,7 @@ const IP_HASH_PREFIX = 'vennai-grants:';
 // The single error code for any gate failure; deliberately says nothing about which criterion failed.
 const NOT_ELIGIBLE = 'not_eligible';
 
-export async function handleGrantsApi(request, env, url) {
+export async function handleGrantsApi(request, env, url, ctx) {
   const route = `${request.method} ${url.pathname.slice('/api/grants/'.length)}`;
   switch (route) {
     case 'GET config':
@@ -53,7 +54,7 @@ export async function handleGrantsApi(request, env, url) {
     case 'GET verify':
       return handleVerify(request, env, url);
     case 'POST apply':
-      return handleApply(request, env);
+      return handleApply(request, env, url, ctx);
     default:
       return json({ error: 'not_found' }, 404);
   }
@@ -77,15 +78,13 @@ async function handleMe(request, env) {
 
   const repos = await ownedRepos(env, session.login);
   if (!repos) return json({ error: 'github_unavailable' }, 502);
-  const { passes, stats } = evaluateGate(repos, gateThresholds(env));
+  const { eligible, stats } = evaluateGate(repos, gateThresholds(env));
   return json({
     login: session.login,
     avatar: session.avatar,
     // Test-release switch: the applicant's own numbers, never thresholds or per-criterion results.
     ...(env.GRANT_SHOW_METRICS === '1' && { stats }),
-    // The max-stars criterion can still be met at submit time by an org-owned project repo the applicant
-    // contributes to (see evaluateGate), so it cannot lock the form here; /apply enforces the full gate.
-    eligible: passes.repos && passes.avg,
+    eligible,
     // Ordered by stars server-side; the counts themselves stay private.
     repos: repos.slice(0, PICKER_REPOS).map(({ fullName, url }) => ({ fullName, url })),
   });
@@ -119,7 +118,7 @@ async function handleVerify(request, env, url) {
 
 // ── Submission ────────────────────────────────────────────────
 
-async function handleApply(request, env) {
+async function handleApply(request, env, url, ctx) {
   if (!env.GRANTS_DB || !env.TURNSTILE_SECRET_KEY || !env.GRANT_SESSION_SECRET) {
     return json({ error: 'not_configured' }, 503);
   }
@@ -159,8 +158,7 @@ async function handleApply(request, env) {
   if (!repos) return json({ error: 'github_unavailable' }, 502);
   if (!repoCheck.ok) return json({ error: repoCheck.error }, 422);
 
-  const liftsMax = repoCheck.orgOwned && repoCheck.relation === 'contributor';
-  const gate = evaluateGate(repos, gateThresholds(env), liftsMax ? repoCheck.stars : 0);
+  const gate = evaluateGate(repos, gateThresholds(env));
   if (!gate.eligible) return json({ error: NOT_ELIGIBLE }, 403);
 
   let videoTitle = null;
@@ -184,6 +182,10 @@ async function handleApply(request, env) {
     gate.stats.repoCount, gate.stats.avgStars, gate.stats.maxStars,
   ).run();
 
+  ctx.waitUntil(notifyNewApplication(env, url.origin, {
+    ...value, githubLogin: session.login, repoUrl: `https://github.com/${repoCheck.fullName}`,
+    repoStars: repoCheck.stars, relation: repoCheck.relation, stats: gate.stats,
+  }));
   return json({ ok: true });
 }
 

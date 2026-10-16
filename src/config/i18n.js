@@ -141,7 +141,9 @@ export const COPY = {
         checking: 'Checking your GitHub account…',
         switch: 'Switch account',
         eligible: 'Connected. Continue with the form below.',
-        ineligible: 'Your GitHub account does not meet our current requirements for this grant.',
+        ineligible: 'Signed in, but your GitHub account does not meet our current requirements for this grant, so the form stays locked.',
+        // Overlay on the blurred form until GitHub is connected
+        unlock: 'Connect your GitHub account to unlock the application form.',
         stats: { repoCount: 'Owned public repos', avgStars: 'Average stars', maxStars: 'Top repo stars' },
       },
       githubErrors: {
@@ -227,7 +229,8 @@ export const COPY = {
         checking: '正在检查你的 GitHub 账号…',
         switch: '切换账号',
         eligible: '已连接，请继续填写下方表单。',
-        ineligible: '你的 GitHub 账号暂不符合本次资助的要求。',
+        ineligible: '登录成功，但你的 GitHub 账号暂不符合本次资助的要求，暂时无法填写申请表。',
+        unlock: '连接 GitHub 账号后即可解锁申请表。',
         stats: { repoCount: '名下公开仓库', avgStars: '平均星数', maxStars: '最高仓库星数' },
       },
       githubErrors: {

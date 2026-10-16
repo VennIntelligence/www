@@ -206,7 +206,7 @@ src/
 │   ├── ApplyPage.jsx       # Grant application form (/apply); posts to /api/grants/apply
 │   ├── home/               # Landing page sections (HeroSection, SigmaSection, OmegaSection, DriveSection, ConsultantsSection)
 │   ├── drive/              # /drive-only components (DriveTimeline)
-│   ├── apply/              # /apply-only components and hooks (ApplicationForm, ApplyField, CheckStatus, GithubConnect, RepoPicker, useTurnstile, useGrantCheck, useGithubAccount)
+│   ├── apply/              # /apply-only components and hooks (ApplicationForm, ApplyField, CheckStatus, GithubConnect, RepoPicker, SelectMenu, useTurnstile, useGrantCheck, useGithubAccount)
 │   └── blog/
 │       ├── registry.js     # Maps post slugs → post modules
 │       ├── components/     # Blog-listing-specific components (CoverGrid, BlogCover, useCoverLoop)

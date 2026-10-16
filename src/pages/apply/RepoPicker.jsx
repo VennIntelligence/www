@@ -1,13 +1,14 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import ApplyField from './ApplyField';
 import CheckStatus from './CheckStatus';
+import SelectMenu from './SelectMenu';
 import { useGrantCheck } from './useGrantCheck';
 import { parseRepoUrl } from '../../config/grantForm';
 
 const OTHER = 'other';
 
 /**
- * RepoPicker — project repo field: a select of the signed-in user's own repos plus "Other repository URL",
+ * RepoPicker — project repo field: a custom select (SelectMenu) of the signed-in user's own repos plus "Other repository URL",
  * which reveals a URL input verified on blur (owner / contributor check against the session account).
  * Reports changes through the form's `onChange` / `onBlur` handlers as the `repoUrl` field.
  */
@@ -16,9 +17,12 @@ export default function RepoPicker({ copy, repos, value, error, onChange, onBlur
   const [check, runCheck] = useGrantCheck('repo');
   const isOther = choice === OTHER;
   const field = copy.fields.repoChoice;
+  const options = useMemo(
+    () => [...repos.map((repo) => ({ value: repo.url, label: repo.fullName })), { value: OTHER, label: field.other }],
+    [repos, field.other],
+  );
 
-  const onSelect = (event) => {
-    const next = event.target.value;
+  const onSelect = (next) => {
     setChoice(next);
     runCheck(null);
     onChange({ target: { name: 'repoUrl', value: next === OTHER ? '' : next } });
@@ -37,18 +41,14 @@ export default function RepoPicker({ copy, repos, value, error, onChange, onBlur
   return (
     <>
       <ApplyField name="repoChoice" copy={copy} error={isOther ? undefined : error} wide={!isOther}>
-        <select
+        <SelectMenu
           id="repoChoice"
-          name="repoChoice"
-          className="apply-input apply-input--select"
+          options={options}
           value={choice}
-          aria-invalid={Boolean(error) && !isOther}
-          onChange={onSelect}
-        >
-          <option value="" disabled>{field.placeholder}</option>
-          {repos.map((repo) => <option key={repo.url} value={repo.url}>{repo.fullName}</option>)}
-          <option value={OTHER}>{field.other}</option>
-        </select>
+          placeholder={field.placeholder}
+          invalid={Boolean(error) && !isOther}
+          onSelect={onSelect}
+        />
       </ApplyField>
       {isOther && (
         <ApplyField

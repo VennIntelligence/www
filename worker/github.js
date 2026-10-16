@@ -61,15 +61,13 @@ export async function ownedRepos(env, login) {
  * Account gate over `repos` (from ownedRepos). All three must hold:
  *   repos — at least `thresholds.repos` public, non-fork repos owned by the applicant;
  *   avg   — average stars across those repos ≥ `thresholds.avg`;
- *   max   — the most-starred repo ≥ `thresholds.max`.
- * Startups often keep their flagship repo under an organization, so for the `max` metric only, the
- * selected project repo also counts when it is org-owned and the applicant is a verified contributor
- * (`projectStars`; pass 0 otherwise). It never enters the `repos` / `avg` metrics.
+ *   max   — the applicant's own most-starred repo ≥ `thresholds.max`.
+ * Only repos the applicant owns count, so the result is final at sign-in and can lock the form there.
  */
-export function evaluateGate(repos, thresholds, projectStars = 0) {
+export function evaluateGate(repos, thresholds) {
   const repoCount = repos.length;
   const avgStars = repoCount ? repos.reduce((sum, repo) => sum + repo.stars, 0) / repoCount : 0;
-  const maxStars = Math.max(repos[0]?.stars ?? 0, projectStars);
+  const maxStars = repos[0]?.stars ?? 0;
   const passes = { repos: repoCount >= thresholds.repos, avg: avgStars >= thresholds.avg, max: maxStars >= thresholds.max };
   return {
     stats: { repoCount, avgStars: Math.round(avgStars * 10) / 10, maxStars },
@@ -80,7 +78,7 @@ export function evaluateGate(repos, thresholds, projectStars = 0) {
 
 /**
  * Check that `{ owner, repo }` is public, not a fork, and that `login` owns it or appears among its
- * contributors. Returns `{ ok, error? , fullName, stars, forks, description, pushedAt, relation, orgOwned }`.
+ * contributors. Returns `{ ok, error? , fullName, stars, forks, description, pushedAt, relation }`.
  */
 export async function checkRepo(env, { owner, repo }, login) {
   const response = await githubFetch(env, `/repos/${owner}/${repo}`);
@@ -102,7 +100,6 @@ export async function checkRepo(env, { owner, repo }, login) {
     forks: data.forks_count,
     description: data.description ? String(data.description).slice(0, 500) : null,
     pushedAt: data.pushed_at || null,
-    orgOwned: data.owner?.type === 'Organization',
   };
 }
 

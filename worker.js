@@ -20,7 +20,7 @@ const ZH_META = {
 };
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
     if (url.pathname === CHECKOUT_PATH) {
@@ -32,7 +32,7 @@ export default {
     }
 
     if (url.pathname.startsWith('/api/grants/')) {
-      return handleGrantsApi(request, env, url);
+      return handleGrantsApi(request, env, url, ctx);
     }
 
     // Must run before the SPA shell, which would otherwise answer /admin/* with index.html.
