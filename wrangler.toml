@@ -18,9 +18,9 @@ GITHUB_CLIENT_ID = "Ov23liwPe05fu14fk2Zg"
 # Minimum public, non-fork repositories the applicant owns. Default: "10".
 # Raise to demand a longer public track record; lower to admit newer GitHub users.
 GRANT_MIN_REPOS = "10"
-# Minimum average stars across those owned repositories. Default: "10".
-# Raise to require consistently noticed work; lower to tolerate many small / experimental repos.
-GRANT_MIN_AVG_STARS = "10"
+# Minimum average stars across those owned repositories. Default: "0" (criterion effectively off).
+# Raise to require consistently noticed work; keep low to tolerate many small / experimental repos.
+GRANT_MIN_AVG_STARS = "0"
 # Minimum stars on the most-starred repository (an org-owned project repo the applicant contributes to
 # also counts for this one). Default (production): "100"; currently "10" for the TEST release, restore "100" at launch.
 # Raise to require a clear hit project; lower for earlier-stage teams.
